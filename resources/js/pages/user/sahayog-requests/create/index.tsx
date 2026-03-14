@@ -3,6 +3,20 @@ import AppLayout from '@/layouts/app-layout';
 import { ArrowLeft, ArrowRight, CheckCircle, Sparkles, FileText, Save, Send } from 'lucide-react';
 import { useState } from 'react';
 
+import { dashboard } from '@/routes';
+import type { BreadcrumbItem } from '@/types';
+
+const breadcrumbs: BreadcrumbItem[] = [
+    {
+        title: 'Dashboard',
+        href: dashboard(),
+    },
+    {
+        title: 'Sahayog Requests',
+        href: dashboard(),
+    }
+];
+
 export default function SahayogRequestCreatePage({ title, steps }: { title: string; steps: string[] }) {
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -19,7 +33,7 @@ export default function SahayogRequestCreatePage({ title, steps }: { title: stri
     };
 
     return (
-        <AppLayout>
+        <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={title} />
             
             {/* Background decorative elements - Light theme with ONGC colors */}

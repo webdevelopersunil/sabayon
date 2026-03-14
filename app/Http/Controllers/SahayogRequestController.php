@@ -19,4 +19,9 @@ class SahayogRequestController extends Controller
             ],
         ]);
     }
+
+    public function history(Request $request)
+    {
+        return Inertia::render('user/sahayog-requests/list/index');
+    }
 }
