@@ -172,11 +172,11 @@ export default function Dashboard() {
                 </div>
 
                 {/* Footer Section with ONGC colors - Light theme */}
-                <footer className="mt-auto rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+                {/* <footer className="mt-auto rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
                     <div className="p-8">
-                        {/* Other Links and Sitemap Row */}
+                        
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                            {/* Other Links */}
+                            
                             <div>
                                 <h3 className="font-semibold text-lg mb-4 text-gray-800">Other Links</h3>
                                 <ul className="space-y-2">
@@ -203,11 +203,11 @@ export default function Dashboard() {
                                 </ul>
                             </div>
 
-                            {/* Reach Us - Takes 2 columns on medium screens */}
+                            
                             <div className="md:col-span-2">
                                 <h3 className="font-semibold text-lg mb-4 text-gray-800">Reach Us</h3>
                                 <div className="space-y-4">
-                                    {/* Registered Office */}
+                                    
                                     <div className="flex gap-3">
                                         <div className="shrink-0 mt-0.5">
                                             <div className="p-1.5 rounded-lg bg-[#E65F2B]/10">
@@ -223,7 +223,7 @@ export default function Dashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Contact Numbers */}
+                                    
                                     <div className="flex gap-3">
                                         <div className="shrink-0 mt-0.5">
                                             <div className="p-1.5 rounded-lg bg-[#E65F2B]/10">
@@ -237,7 +237,7 @@ export default function Dashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Fax */}
+                                    
                                     <div className="flex gap-3">
                                         <div className="shrink-0 mt-0.5">
                                             <div className="p-1.5 rounded-lg bg-[#E65F2B]/10">
@@ -251,7 +251,7 @@ export default function Dashboard() {
                                         </div>
                                     </div>
 
-                                    {/* Grievance Portal */}
+                                    
                                     <div className="flex gap-3">
                                         <div className="shrink-0 mt-0.5">
                                             <div className="p-1.5 rounded-lg bg-[#E65F2B]/10">
@@ -276,7 +276,7 @@ export default function Dashboard() {
                                 </div>
                             </div>
 
-                            {/* ONGC Logo/Brand Box */}
+                            
                             <div className="hidden md:block">
                                 <div className="bg-[#E65F2B]/5 rounded-lg p-4 text-center border border-[#E65F2B]/10">
                                     <p className="text-xs text-gray-500">ONGC Welfare Trust</p>
@@ -285,7 +285,7 @@ export default function Dashboard() {
                             </div>
                         </div>
 
-                        {/* Copyright and Bottom Bar */}
+                        
                         <div className="pt-6 border-t border-gray-100">
                             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                                 <p className="text-xs text-gray-400">
@@ -305,7 +305,7 @@ export default function Dashboard() {
                             </div>
                         </div>
                     </div>
-                </footer>
+                </footer> */}
             </div>
 
             <style>{`
