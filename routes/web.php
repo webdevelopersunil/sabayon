@@ -2,13 +2,30 @@
 
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
+use Illuminate\Http\Request;
 
 Route::inertia('/', 'welcome', [
     'canRegister' => Features::enabled(Features::registration()),
 ])->name('home');
 
+
+
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', function (Request $request) {
+        $user = $request->user();
+
+        if ($user && method_exists($user, 'hasRole')) {
+            if ($user->hasRole('super-admin')) {
+                return redirect('/s-admin/dashboard');
+            }
+
+            if ($user->hasRole('admin')) {
+                return redirect('/admin/dashboard');
+            }
+        }
+
+        return redirect('/user/dashboard');
+    })->name('dashboard');
 });
 
 require __DIR__.'/user.php';

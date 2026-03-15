@@ -9,9 +9,9 @@ use App\Http\Controllers\user\DashboardController;
 Route::middleware(['auth', 'verified', EnsureHasRole::class.':user'])->group(function () {
 
 
-    // Route::get('dashboard', [DashboardController::class, 'index'])
-    //     ->name('user.dashboard')
-    //     ->middleware(EnsureHasPermission::class.':user.sahayog_requests.create');
+    Route::get('user/dashboard', [DashboardController::class, 'index'])
+        ->name('user.dashboard')
+        ->middleware(EnsureHasPermission::class.':user.sahayog_requests.create');
 
 
     Route::get('sahayog-request/create', [SahayogRequestController::class, 'create'])
