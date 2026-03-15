@@ -23,6 +23,27 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+
+        'aadhar_no',
+        'employee_type',
+        'date_of_joining_ongc',
+        'aadhar_pic',
+        'designation',
+        'epf_no',
+        'cpf_no',
+        'principle_emp_undertaking',
+        'familydata',
+        'location',
+        'mobileno',
+        'email_mobile_verified_at',
+        'admin_verified',
+        'rejected_at',
+        'adminrejected_remarks',
+        'previous_taken_amount',
+        'category',
+        'profile_updated_last',
+        
+        'email_verified_at',
         'password',
     ];
 
