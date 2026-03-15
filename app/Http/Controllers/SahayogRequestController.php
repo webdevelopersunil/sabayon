@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Step1Data;
+use App\Models\Step2Data;
+use App\Models\Step3Data;
+use App\Models\Step4Data;
+use App\Models\WizardData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Str;
 
 class SahayogRequestController extends Controller
 {
@@ -75,6 +81,99 @@ class SahayogRequestController extends Controller
             'applicationDetails' => $applicationDetails,
             'financialDetails' => $financialDetails,
             'attachments' => $attachments,
+        ]);
+    }
+
+    public function saveStep(Request $request)
+    {
+        $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
+
+        $payload = $request->validate([
+            'step' => 'required|integer|min:1|max:4',
+            'wizard_data_id' => 'nullable|integer|exists:wizard_data,id',
+            'step1' => 'nullable|array',
+            'step2' => 'nullable|array',
+            'step3' => 'nullable|array',
+            'step4' => 'nullable|array',
+        ]);
+
+        $wizard = WizardData::updateOrCreate(
+            ['id' => $payload['wizard_data_id'] ?? null],
+            [
+                'request_no' => $request->input('request_no', Str::uuid()),
+                'user_id' => $request->user()->id,
+                'step' => $payload['step'],
+                'status' => 'draft',
+                'data' => $request->input('data', []),
+            ]
+        );
+
+        if ($payload['step'] === 1 && isset($payload['step1'])) {
+            $step1 = $payload['step1'];
+            $wizard->step1Data()->updateOrCreate(
+                ['wizard_data_id' => $wizard->id],
+                [
+                    'name' => $step1['name'] ?? '',
+                    'type' => $step1['type'] ?? '',
+                    'cpfno' => $step1['cpfno'] ?? '',
+                    'doj_ongc' => $step1['doj_ongc'] ?? null,
+                    'ifsc_code' => $step1['ifsc_code'] ?? '',
+                    'designation' => $step1['designation'] ?? '',
+                    'work_center' => $step1['work_center'] ?? '',
+                    'dependants_no' => $step1['dependants_no'] ?? 0,
+                    'bank_and_branch' => $step1['bank_and_branch'] ?? '',
+                    'place_of_posting' => $step1['place_of_posting'] ?? '',
+                    'savingaccount_No' => $step1['savingaccount_No'] ?? '',
+                    'seperation_reason' => $step1['seperation_reason'] ?? '',
+                    'date_of_seperation' => $step1['date_of_seperation'] ?? null,
+                    'gross_annual_income' => $step1['gross_annual_income'] ?? 0,
+                    'seperation_benefits' => $step1['seperation_benefits'] ?? null,
+                ]
+            );
+        }
+
+        if ($payload['step'] === 2 && isset($payload['step2'])) {
+            $step2 = $payload['step2'];
+            $wizard->step2Data()->updateOrCreate(
+                ['wizard_data_id' => $wizard->id],
+                [
+                    'name' => $step2['name'] ?? '',
+                    'relationship' => $step2['relationship'] ?? 'Spouse',
+                    'is_editable' => $step2['is_editable'] ?? true,
+                ]
+            );
+        }
+
+        if ($payload['step'] === 3 && isset($payload['step3'])) {
+            $step3 = $payload['step3'];
+            $wizard->step3Data()->updateOrCreate(
+                ['wizard_data_id' => $wizard->id],
+                [
+                    'requested_amount' => $step3['requested_amount'] ?? 0,
+                    'other_details' => $step3['other_details'] ?? null,
+                    'eligible_amount' => $step3['eligible_amount'] ?? 0,
+                    'financialoptions' => $step3['financialoptions'] ?? '',
+                ]
+            );
+        }
+
+        if ($payload['step'] === 4 && isset($payload['step4'])) {
+            $step4 = $payload['step4'];
+            $wizard->step4Data()->updateOrCreate(
+                ['wizard_data_id' => $wizard->id],
+                [
+                    'attachment' => $step4['attachment'] ?? '',
+                ]
+            );
+        }
+
+        $wizard->step = max($wizard->step, $payload['step']);
+        $wizard->save();
+
+        return response()->json([
+            'wizard_data_id' => $wizard->id,
+            'step' => $wizard->step,
+            'message' => 'Step saved successfully.',
         ]);
     }
 }

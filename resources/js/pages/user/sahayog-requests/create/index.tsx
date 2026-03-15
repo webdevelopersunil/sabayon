@@ -52,7 +52,7 @@ export default function SahayogRequestCreatePage({ title, steps }: { title: stri
             <Head title={title} />
 
             <div className="relative p-6 space-y-6 max-w-5xl mx-auto">
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm w-[1000px]">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div className="flex items-center gap-3">
                             <div className="rounded-lg bg-[#E65F2B] p-2">
@@ -86,7 +86,7 @@ export default function SahayogRequestCreatePage({ title, steps }: { title: stri
                     </div>
                 </div>
 
-                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm w-[1000px]">
                     <div className="mb-3 flex items-center justify-between">
                         <div className="inline-flex items-center gap-2 text-lg font-semibold text-gray-800">
                             <Sparkles className="h-4 w-4 text-[#E65F2B]" /> {steps[currentStep - 1]}
