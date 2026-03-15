@@ -33,7 +33,10 @@ export default function SahayogRequestCreatePage({ title, steps }: { title: stri
         amount: '',
         purpose: '',
         comments: '',
+        beneficiaries: JSON.stringify([{ name: '', relationship: '' }]),
     });
+
+    const [beneficiaries, setBeneficiaries] = useState([{ name: '', relationship: '' }]);
 
     const currentStepComponent = useMemo(() => {
         const props = {
@@ -42,7 +45,17 @@ export default function SahayogRequestCreatePage({ title, steps }: { title: stri
         };
 
         if (currentStep === 1) return <Step1 {...props} />;
-        if (currentStep === 2) return <Step2 {...props} />;
+        if (currentStep === 2)
+            return (
+                <Step2
+                    {...props}
+                    beneficiaries={beneficiaries}
+                    onBeneficiariesChange={(next) => {
+                        setBeneficiaries(next);
+                        setFormData((prev) => ({ ...prev, beneficiaries: JSON.stringify(next) }));
+                    }}
+                />
+            );
         if (currentStep === 3) return <Step3 {...props} />;
         return <Step4 />;
     }, [currentStep, formData]);
