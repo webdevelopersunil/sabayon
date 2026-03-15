@@ -57,7 +57,7 @@ export default function SahayogRequestCreatePage({ title, steps }: { title: stri
                 />
             );
         if (currentStep === 3) return <Step3 {...props} />;
-        return <Step4 />;
+        return <Step4 {...props} />;
     }, [currentStep, formData]);
 
     return (
