@@ -18,9 +18,17 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function SahayogRequestCreatePage({ title, steps }: { title: string; steps: string[] }) {
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState<Record<string, string>>({
-        dateOfSeparation: '',
-        employeeId: '',
-        department: '',
+        doj_ongc: '',
+        date_of_seperation: '',
+        place_of_posting: '',
+        bank_and_branch: '',
+        savingaccount_No: '',
+        ifsc_code: '',
+        work_center: '',
+        seperation_reason: '',
+        seperation_benefits: '',
+        dependants_no: '',
+        gross_annual_income: '',
         requestType: '',
         amount: '',
         purpose: '',
