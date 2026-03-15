@@ -21,11 +21,15 @@ class DatabaseSeeder extends Seeder
         ];
 
         $permissions = [
-            ['name' => 'create-self-request', 'description' => 'Create own request'],
-            ['name' => 'view-self-request', 'description' => 'View own request'],
-            ['name' => 'update-self-request', 'description' => 'Update own request'],
-            ['name' => 'update-request-status', 'description' => 'Update status of requests'],
-            ['name' => 'view-any-requests', 'description' => 'View all requests'],
+            ['name' => 'user.dashboard', 'description' => 'User Dashboard'],
+            ['name' => 'user.sahayog_requests.create', 'description' => 'Create sahayog request'],
+            ['name' => 'user.sahayog_requests.history', 'description' => 'View him/her request history'],
+            ['name' => 'user.sahayog_requests.view', 'description' => 'View own request details'],
+
+            ['name' => 'admin.dashboard.view', 'description' => 'View admin dashboard'],
+            ['name' => 'admin.users.view', 'description' => 'View user verification page'],
+            ['name' => 'admin.sahayog_requests.view', 'description' => 'View admin sahayog request list'],
+
             ['name' => 'create-role', 'description' => 'Create new roles'],
             ['name' => 'assign-permissions', 'description' => 'Assign permissions to roles'],
             ['name' => 'assign-role', 'description' => 'Assign roles to users'],
@@ -38,8 +42,8 @@ class DatabaseSeeder extends Seeder
         $permMap = collect(DB::table('permissions')->get())->keyBy('name');
 
         $rolePermissions = [
-            ['role' => 'user', 'permissions' => ['create-self-request', 'view-self-request', 'update-self-request']],
-            ['role' => 'admin', 'permissions' => ['update-request-status', 'view-any-requests']],
+            ['role' => 'user', 'permissions' => ['user.sahayog_requests.create', 'user.sahayog_requests.history', 'user.sahayog_requests.view']],
+            ['role' => 'admin', 'permissions' => ['admin.dashboard.view', 'admin.users.view', 'admin.sahayog_requests.view']],
             ['role' => 'super-admin', 'permissions' => ['create-role', 'assign-permissions', 'assign-role']],
         ];
 

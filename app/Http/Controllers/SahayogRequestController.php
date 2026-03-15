@@ -7,8 +7,16 @@ use Inertia\Inertia;
 
 class SahayogRequestController extends Controller
 {
+    private function ensureUserPermissions(Request $request, string $permission)
+    {
+        abort_unless($request->user()?->hasRole('user'), 403, 'User role required.');
+        abort_unless($request->user()?->hasPermission($permission), 403, 'Permission required: '.$permission);
+    }
+
     public function create(Request $request)
     {
+        $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
+
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
             'steps' => [
@@ -22,11 +30,13 @@ class SahayogRequestController extends Controller
 
     public function history(Request $request)
     {
+        $this->ensureUserPermissions($request, 'user.sahayog_requests.history');
         return Inertia::render('user/sahayog-requests/list/index');
     }
 
     public function show(Request $request, $id)
     {
+        $this->ensureUserPermissions($request, 'user.sahayog_requests.view');
         $applicationDetails = [
             ['label' => 'Request ID', 'value' => $id],
             ['label' => 'Applicant Name', 'value' => 'Rajesh Kumar'],
