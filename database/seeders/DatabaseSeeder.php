@@ -35,8 +35,19 @@ class DatabaseSeeder extends Seeder
             ['name' => 'assign-role', 'description' => 'Assign roles to users'],
         ];
 
-        DB::table('roles')->insert($roles);
-        DB::table('permissions')->insert($permissions);
+        foreach ($roles as $role) {
+            DB::table('roles')->updateOrInsert(
+                ['name' => $role['name']],
+                $role
+            );
+        }
+
+        foreach ($permissions as $permission) {
+            DB::table('permissions')->updateOrInsert(
+                ['name' => $permission['name']],
+                $permission
+            );
+        }
 
         $roleMap = collect(DB::table('roles')->get())->keyBy('name');
         $permMap = collect(DB::table('permissions')->get())->keyBy('name');
@@ -50,39 +61,55 @@ class DatabaseSeeder extends Seeder
         foreach ($rolePermissions as $entry) {
             $roleId = $roleMap[$entry['role']]->id;
             foreach ($entry['permissions'] as $permissionName) {
-                DB::table('permission_role')->insert([
-                    'role_id' => $roleId,
-                    'permission_id' => $permMap[$permissionName]->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                DB::table('permission_role')->updateOrInsert(
+                    ['role_id' => $roleId, 'permission_id' => $permMap[$permissionName]->id],
+                    ['created_at' => now(), 'updated_at' => now()]
+                );
             }
         }
 
         $password = bcrypt('welcome@123');
 
-        $user = User::factory()->create([
-            'name' => 'User One',
-            'email' => 'user@example.com',
-            'password' => $password,
-        ]);
+        $user = User::updateOrCreate(
+            ['email' => 'user@example.com'],
+            [
+                'name' => 'User One',
+                'cpf_no' => '111111',
+                'password' => $password,
+            ]
+        );
 
-        $admin = User::factory()->create([
-            'name' => 'Admin One',
-            'email' => 'admin@example.com',
-            'password' => $password,
-        ]);
+        $admin = User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin One',
+                'cpf_no' => '222222',
+                'password' => $password,
+            ]
+        );
 
-        $superAdmin = User::factory()->create([
-            'name' => 'Super Admin',
-            'email' => 'superadmin@example.com',
-            'password' => $password,
-        ]);
+        $superAdmin = User::updateOrCreate(
+            ['email' => 'superadmin@example.com'],
+            [
+                'name' => 'Super Admin',
+                'cpf_no' => '333333',
+                'password' => $password,
+            ]
+        );
 
-        DB::table('role_user')->insert([
-            ['user_id' => $user->id, 'role_id' => $roleMap['user']->id, 'created_at' => now(), 'updated_at' => now()],
-            ['user_id' => $admin->id, 'role_id' => $roleMap['admin']->id, 'created_at' => now(), 'updated_at' => now()],
-            ['user_id' => $superAdmin->id, 'role_id' => $roleMap['super-admin']->id, 'created_at' => now(), 'updated_at' => now()],
-        ]);
+        DB::table('role_user')->updateOrInsert(
+            ['user_id' => $user->id, 'role_id' => $roleMap['user']->id],
+            ['created_at' => now(), 'updated_at' => now()]
+        );
+
+        DB::table('role_user')->updateOrInsert(
+            ['user_id' => $admin->id, 'role_id' => $roleMap['admin']->id],
+            ['created_at' => now(), 'updated_at' => now()]
+        );
+
+        DB::table('role_user')->updateOrInsert(
+            ['user_id' => $superAdmin->id, 'role_id' => $roleMap['super-admin']->id],
+            ['created_at' => now(), 'updated_at' => now()]
+        );
     }
 }

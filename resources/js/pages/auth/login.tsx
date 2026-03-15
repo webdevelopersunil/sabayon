@@ -187,50 +187,52 @@ export default function Login({
                                             {/* Aadhar Number Field - Only for ONGCian */}
                                             {loginType === 'ongcian' && (
                                                 <div className="grid gap-2">
-                                                    <Label htmlFor="aadhar" className="text-gray-700">
-                                                        Aadhar Number
-                                                        <span className="text-[#E65F2B] ml-1">*</span>
-                                                    </Label>
-                                                    <div className="relative">
-                                                        <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                                        <Input
-                                                            id="aadhar"
-                                                            type="text"
-                                                            name="aadhar"
-                                                            required={loginType === 'ongcian'}
-                                                            autoFocus={loginType === 'ongcian'}
-                                                            tabIndex={1}
-                                                            placeholder="XXXX XXXX XXXX"
-                                                            className="pl-9 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20"
-                                                        />
-                                                    </div>
-                                                    <InputError message={errors.aadhar} />
+                                                <Label htmlFor="cpf_no" className="text-gray-700">
+                                                    CPF Number
+                                                    <span className="text-[#E65F2B] ml-1">*</span>
+                                                </Label>
+                                                <div className="relative">
+                                                    <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                    <Input
+                                                        id="cpf_no"
+                                                        type="text"
+                                                        name="cpf_no"
+                                                        required={loginType === 'ongcian'}
+                                                        autoFocus={loginType === 'ongcian'}
+                                                        tabIndex={1}
+                                                        placeholder="Enter 6-digit CPF"
+                                                        maxLength={6}
+                                                        className="pl-9 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20"
+                                                    />
                                                 </div>
+                                                <InputError message={errors.cpf_no} />
+                                            </div>
                                             )}
 
                                             {/* Email Field - Only for Other Users */}
                                             {loginType === 'other' && (
-                                                <div className="grid gap-2">
-                                                    <Label htmlFor="email" className="text-gray-700">
-                                                        Email Address
-                                                        <span className="text-[#E65F2B] ml-1">*</span>
-                                                    </Label>
-                                                    <div className="relative">
-                                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                                        <Input
-                                                            id="email"
-                                                            type="email"
-                                                            name="email"
-                                                            required={loginType === 'other'}
-                                                            autoFocus={loginType === 'other'}
-                                                            tabIndex={1}
-                                                            autoComplete="email"
-                                                            placeholder="email@example.com"
-                                                            className="pl-9 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20"
-                                                        />
-                                                    </div>
-                                                    <InputError message={errors.email} />
+
+
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="aadhar" className="text-gray-700">
+                                                    Aadhar Number
+                                                    <span className="text-[#E65F2B] ml-1">*</span>
+                                                </Label>
+                                                <div className="relative">
+                                                    <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                    <Input
+                                                        id="aadhar"
+                                                        type="text"
+                                                        name="aadhar"
+                                                        
+                                                        tabIndex={1}
+                                                        placeholder="XXXX XXXX XXXX"
+                                                        className="pl-9 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20"
+                                                    />
                                                 </div>
+                                                <InputError message={errors.aadhar} />
+                                            </div>
+                                               
                                             )}
 
                                             {/* Password Field - Common for both */}
