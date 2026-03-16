@@ -21,7 +21,11 @@ export default function Step1({ onNext }: StepProps) {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
+
+        console.log('hellow');
         // Depending on your requirements, you can optionally save the step progress to an API endpoint here using `post`.
+
+
         onNext();
     };
 
