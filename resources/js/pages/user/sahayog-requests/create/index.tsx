@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { ArrowLeft, ArrowRight, FileText, Send, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, Send, Sparkles, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { dashboard } from '@/routes';
@@ -17,11 +17,21 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function SahayogRequestCreatePage({ title, steps }: { title: string; steps: string[] }) {
     const [currentStep, setCurrentStep] = useState(1);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+
+    const handleNext = (nextStep: number) => {
+        setIsTransitioning(true);
+        // Using a timeout here to simulate a network request or validation processing.
+        setTimeout(() => {
+            setCurrentStep(nextStep);
+            setIsTransitioning(false);
+        }, 500);
+    };
 
     const currentStepComponent = useMemo(() => {
-        if (currentStep === 1) return <Step1 onNext={() => setCurrentStep(2)} />;
-        if (currentStep === 2) return <Step2 onNext={() => setCurrentStep(3)} />;
-        if (currentStep === 3) return <Step3 onNext={() => setCurrentStep(4)} />;
+        if (currentStep === 1) return <Step1 onNext={() => handleNext(2)} />;
+        if (currentStep === 2) return <Step2 onNext={() => handleNext(3)} />;
+        if (currentStep === 3) return <Step3 onNext={() => handleNext(4)} />;
         return <Step4 onSubmit={() => alert('Final submission goes here!')} />;
     }, [currentStep]);
 
@@ -78,7 +88,7 @@ export default function SahayogRequestCreatePage({ title, steps }: { title: stri
                         <button
                             type="button"
                             onClick={() => setCurrentStep((prev) => Math.max(1, prev - 1))}
-                            disabled={currentStep === 1}
+                            disabled={currentStep === 1 || isTransitioning}
                             className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 disabled:opacity-50"
                         >
                             Previous
@@ -87,17 +97,35 @@ export default function SahayogRequestCreatePage({ title, steps }: { title: stri
                             <button
                                 type="submit"
                                 form={`step${currentStep}-form`}
-                                className="rounded-lg bg-[#E65F2B] px-3 py-2 text-sm font-medium text-white hover:bg-[#C44A1F]"
+                                disabled={isTransitioning}
+                                className="inline-flex items-center rounded-lg bg-[#E65F2B] px-3 py-2 text-sm font-medium text-white hover:bg-[#C44A1F] disabled:opacity-75 disabled:cursor-not-allowed"
                             >
-                                Next <ArrowRight className="inline h-4 w-4 ml-1" />
+                                {isTransitioning ? (
+                                    <>
+                                        <Loader2 className="inline h-4 w-4 mr-1 animate-spin" /> Processing...
+                                    </>
+                                ) : (
+                                    <>
+                                        Next <ArrowRight className="inline h-4 w-4 ml-1" />
+                                    </>
+                                )}
                             </button>
                         ) : (
                             <button
                                 type="submit"
                                 form="step4-form"
-                                className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
+                                disabled={isTransitioning}
+                                className="inline-flex items-center rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-75 disabled:cursor-not-allowed"
                             >
-                                <Send className="inline h-4 w-4 mr-1" /> Submit Request
+                                {isTransitioning ? (
+                                    <>
+                                        <Loader2 className="inline h-4 w-4 mr-1 animate-spin" /> Submitting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="inline h-4 w-4 mr-1" /> Submit Request
+                                    </>
+                                )}
                             </button>
                         )}
                     </div>
