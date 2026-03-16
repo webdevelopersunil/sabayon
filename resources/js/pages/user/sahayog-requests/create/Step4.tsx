@@ -1,8 +1,8 @@
-import { useState, ChangeEvent } from 'react';
+import { ChangeEvent, FormEvent } from 'react';
+import { useForm } from '@inertiajs/react';
 
 interface Step4Props {
-    formData: Record<string, string>;
-    onChange: (field: string, value: string) => void;
+    onSubmit: () => void;
 }
 
 const docs = [
@@ -14,17 +14,26 @@ const docs = [
     'Copy of school leaving certificate/ ration card indicating the name of ward(s).',
 ];
 
-export default function Step4({ formData, onChange }: Step4Props) {
-    const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+export default function Step4({ onSubmit }: Step4Props) {
+    const { data, setData, post, processing } = useForm({
+        cliamearlier: '',
+        timelimit: '',
+        files: [] as File[],
+    });
 
     const onFilesChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
         const next = Array.from(e.target.files);
-        setUploadedFiles((prev) => [...prev, ...next]);
+        setData('files', [...data.files, ...next]);
+    };
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        onSubmit(); // Depending on actual submit logic, you could do post('/api-endpoint') here.
     };
 
     return (
-        <div className="space-y-4">
+        <form id="step4-form" onSubmit={handleSubmit} className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Step 4: Documents and Declarations</h3>
             <p className="text-sm text-gray-600">Please upload the required documents and confirm declarations below.</p>
 
@@ -40,16 +49,16 @@ export default function Step4({ formData, onChange }: Step4Props) {
             <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">Upload documents (multiple allowed)</label>
                 <input type="file" multiple onChange={onFilesChange} className="block w-full text-sm text-gray-500 file:border-0 file:bg-[#E65F2B]/10 file:px-3 file:py-2 file:rounded-md file:text-[#4B1F06] cursor-pointer" />
-                {uploadedFiles.length > 0 && (
+                {data.files.length > 0 && (
                     <div className="rounded-lg border border-gray-200 bg-white p-3 text-sm">
                         <div className="font-medium text-gray-700">Files You Have Uploaded</div>
                         <ul className="list-disc list-inside mt-2 space-y-1">
-                            {uploadedFiles.map((file, idx) => (
+                            {data.files.map((file, idx) => (
                                 <li key={`${file.name}-${idx}`} className="flex items-center justify-between gap-3">
                                     <span>{file.name}</span>
                                     <button
                                         type="button"
-                                        onClick={() => setUploadedFiles((prev) => prev.filter((_, i) => i !== idx))}
+                                        onClick={() => setData('files', data.files.filter((_, i) => i !== idx))}
                                         className="text-xs text-red-600 hover:text-red-700"
                                     >
                                         Remove
@@ -66,8 +75,8 @@ export default function Step4({ formData, onChange }: Step4Props) {
                 <label className="flex items-start gap-2">
                     <input
                         type="checkbox"
-                        checked={formData.cliamearlier === '1'}
-                        onChange={(e) => onChange('cliamearlier', e.target.checked ? '1' : '')}
+                        checked={data.cliamearlier === '1'}
+                        onChange={(e) => setData('cliamearlier', e.target.checked ? '1' : '')}
                         className="mt-1"
                     />
                     <span>I have not preferred this invoice/claim earlier.</span>
@@ -75,13 +84,13 @@ export default function Step4({ formData, onChange }: Step4Props) {
                 <label className="flex items-start gap-2">
                     <input
                         type="checkbox"
-                        checked={formData.timelimit === '1'}
-                        onChange={(e) => onChange('timelimit', e.target.checked ? '1' : '')}
+                        checked={data.timelimit === '1'}
+                        onChange={(e) => setData('timelimit', e.target.checked ? '1' : '')}
                         className="mt-1"
                     />
                     <span>I have preferred the invoice/Claim within the prescribed time limit as per the Sahayog Scheme.</span>
                 </label>
             </div>
-        </div>
+        </form>
     );
 }

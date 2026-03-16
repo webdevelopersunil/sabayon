@@ -1,4 +1,5 @@
-import { ChangeEvent } from 'react';
+import { FormEvent } from 'react';
+import { useForm } from '@inertiajs/react';
 
 interface Beneficiary {
     name: string;
@@ -6,10 +7,7 @@ interface Beneficiary {
 }
 
 interface StepProps {
-    formData: Record<string, string>;
-    onChange: (field: string, value: string) => void;
-    beneficiaries: Beneficiary[];
-    onBeneficiariesChange: (val: Beneficiary[]) => void;
+    onNext: () => void;
 }
 
 const relationships = [
@@ -20,25 +18,35 @@ const relationships = [
     'Other',
 ];
 
-export default function Step2({ formData, onChange, beneficiaries, onBeneficiariesChange }: StepProps) {
+export default function Step2({ onNext }: StepProps) {
+    const { data, setData, post } = useForm({
+        beneficiaries: [{ name: '', relationship: '' }] as Beneficiary[],
+        assistance_for: '',
+    });
+
     const updateBeneficiary = (index: number, field: keyof Beneficiary, value: string) => {
-        const next = beneficiaries.map((item, idx) => (idx === index ? { ...item, [field]: value } : item));
-        onBeneficiariesChange(next);
+        const next = data.beneficiaries.map((item, idx) => (idx === index ? { ...item, [field]: value } : item));
+        setData('beneficiaries', next);
     };
 
     const addBeneficiary = () => {
-        onBeneficiariesChange([...beneficiaries, { name: '', relationship: '' }]);
+        setData('beneficiaries', [...data.beneficiaries, { name: '', relationship: '' }]);
     };
 
     const removeBeneficiary = (index: number) => {
-        if (beneficiaries.length <= 1) return;
-        onBeneficiariesChange(beneficiaries.filter((_, idx) => idx !== index));
+        if (data.beneficiaries.length <= 1) return;
+        setData('beneficiaries', data.beneficiaries.filter((_, idx) => idx !== index));
+    };
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        onNext();
     };
 
     return (
-        <div className="space-y-4">
+        <form id="step2-form" onSubmit={handleSubmit} className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Step 2: Request details</h3>
-            
+
             <div className="space-y-3">
                 <div className="flex items-center justify-between">
                     <h4 className="text-md font-semibold text-gray-700">Beneficiaries (multiple allowed)</h4>
@@ -51,14 +59,14 @@ export default function Step2({ formData, onChange, beneficiaries, onBeneficiari
                     </button>
                 </div>
                 <div className="space-y-3">
-                    {beneficiaries.map((beneficiary, index) => (
+                    {data.beneficiaries.map((beneficiary, index) => (
                         <div key={`beneficiary-${index}`} className="rounded-lg border border-gray-200 p-3 bg-gray-50">
                             <div className="flex items-start justify-between gap-2">
                                 <p className="font-medium text-sm">Beneficiary {index + 1}</p>
                                 <button
                                     type="button"
                                     onClick={() => removeBeneficiary(index)}
-                                    disabled={beneficiaries.length === 1}
+                                    disabled={data.beneficiaries.length === 1}
                                     className="text-xs text-red-600 disabled:opacity-40"
                                 >
                                     Remove
@@ -99,8 +107,8 @@ export default function Step2({ formData, onChange, beneficiaries, onBeneficiari
                     <label className="space-y-1 text-sm">
                         Select for whom Financial Assistance is required?*
                         <select
-                            value={formData.assistance_for || ''}
-                            onChange={(e) => onChange('assistance_for', e.target.value)}
+                            value={data.assistance_for}
+                            onChange={(e) => setData('assistance_for', e.target.value)}
                             className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                         >
                             <option value="">Select an option</option>
@@ -114,6 +122,6 @@ export default function Step2({ formData, onChange, beneficiaries, onBeneficiari
                 </div>
 
             </div>
-        </div>
+        </form>
     );
 }

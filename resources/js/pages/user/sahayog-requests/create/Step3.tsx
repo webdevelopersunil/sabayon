@@ -1,8 +1,8 @@
-import { ChangeEvent } from 'react';
+import { ChangeEvent, FormEvent } from 'react';
+import { useForm } from '@inertiajs/react';
 
 interface StepProps {
-    formData: Record<string, string>;
-    onChange: (field: string, value: string) => void;
+    onNext: () => void;
 }
 
 const requiredDocs: Record<string, string[]> = {
@@ -33,19 +33,30 @@ const requiredDocs: Record<string, string[]> = {
     ],
 };
 
-export default function Step3({ formData, onChange }: StepProps) {
-    const selected = formData.financialOption || '';
+export default function Step3({ onNext }: StepProps) {
+    const { data, setData, post } = useForm({
+        financialOption: '',
+        otherDetails: '',
+        amount: '',
+    });
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        onNext();
+    };
+
+    const selected = data.financialOption || '';
     const docs = requiredDocs[selected] || [];
 
     return (
-        <div className="space-y-4">
+        <form id="step3-form" onSubmit={handleSubmit} className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800">Step 3: Financial Documents</h3>
 
             <label className="space-y-1 text-sm block">
                 Select Financial Option
                 <select
-                    value={formData.financialOption || ''}
-                    onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange('financialOption', e.target.value)}
+                    value={data.financialOption}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) => setData('financialOption', e.target.value)}
                     className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                 >
                     <option value="">Please Select</option>
@@ -56,7 +67,7 @@ export default function Step3({ formData, onChange }: StepProps) {
                 </select>
             </label>
 
-            
+
 
             {docs.length > 0 && (
                 <div className="rounded-xl border border-orange-300 bg-orange-50 p-3">
@@ -74,8 +85,8 @@ export default function Step3({ formData, onChange }: StepProps) {
                     <label htmlFor="otherDetails" className="text-sm font-medium text-gray-700">Mention the details</label>
                     <textarea
                         id="otherDetails"
-                        value={formData.otherDetails || ''}
-                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onChange('otherDetails', e.target.value)}
+                        value={data.otherDetails}
+                        onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setData('otherDetails', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                         rows={4}
                         placeholder="Leave a comment here"
@@ -89,8 +100,8 @@ export default function Step3({ formData, onChange }: StepProps) {
                     <span className="px-3 py-2 bg-gray-100 text-gray-700">₹</span>
                     <input
                         type="number"
-                        value={formData.amount || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('amount', e.target.value)}
+                        value={data.amount}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setData('amount', e.target.value)}
                         className="w-full border-none px-3 py-2 focus:outline-none"
                         id="moneyInput"
                         placeholder="Enter amount"
@@ -101,6 +112,6 @@ export default function Step3({ formData, onChange }: StepProps) {
             <div id="message" className="my-1 rounded-md border border-orange-300 bg-orange-50 px-3 py-2 text-sm text-orange-800">
                 Your level is eligible for maximum amount of 5.00 lakh
             </div>
-        </div>
+        </form>
     );
 }

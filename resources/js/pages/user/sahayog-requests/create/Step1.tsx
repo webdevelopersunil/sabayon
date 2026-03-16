@@ -1,14 +1,33 @@
-import { ChangeEvent } from 'react';
+import { FormEvent } from 'react';
+import { useForm } from '@inertiajs/react';
 
 interface StepProps {
-    formData: Record<string, string>;
-    onChange: (field: string, value: string) => void;
+    onNext: () => void;
 }
 
-export default function Step1({ formData, onChange }: StepProps) {
+export default function Step1({ onNext }: StepProps) {
+    const { data, setData, post, processing, errors } = useForm({
+        date_of_seperation: '',
+        work_center: '',
+        place_of_posting: '',
+        seperation_reason: '',
+        bank_and_branch: '',
+        seperation_benefits: '',
+        savingaccount_No: '',
+        dependants_no: '',
+        ifsc_code: '',
+        gross_annual_income: '',
+    });
+
+    const handleSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        // Depending on your requirements, you can optionally save the step progress to an API endpoint here using `post`.
+        onNext();
+    };
+
     return (
-        <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-gray-800">Step 1: Applicant Information</h3>
+        <form id="step1-form" onSubmit={handleSubmit} className="space-y-6">
+            <h3 className="text-lg font-semibold text-gray-800">Applicant Information</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
@@ -40,8 +59,8 @@ export default function Step1({ formData, onChange }: StepProps) {
                     Date of Separation:
                     <input
                         type="date"
-                        value={formData.date_of_seperation || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('date_of_seperation', e.target.value)}
+                        value={data.date_of_seperation}
+                        onChange={(e) => setData('date_of_seperation', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                 </label>
@@ -49,8 +68,8 @@ export default function Step1({ formData, onChange }: StepProps) {
                 <label className="space-y-1 text-sm">
                     Work center where file is retained:
                     <select
-                        value={formData.work_center || ''}
-                        onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange('work_center', e.target.value)}
+                        value={data.work_center}
+                        onChange={(e) => setData('work_center', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     >
                         <option value="">Select Location</option>
@@ -69,8 +88,8 @@ export default function Step1({ formData, onChange }: StepProps) {
                     Place of Posting * :
                     <input
                         type="text"
-                        value={formData.place_of_posting || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('place_of_posting', e.target.value)}
+                        value={data.place_of_posting}
+                        onChange={(e) => setData('place_of_posting', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                 </label>
@@ -78,8 +97,8 @@ export default function Step1({ formData, onChange }: StepProps) {
                     Reason for Separation(Retirement/Vol.Retirment/Death/Resignation):
                     <input
                         type="text"
-                        value={formData.seperation_reason || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('seperation_reason', e.target.value)}
+                        value={data.seperation_reason}
+                        onChange={(e) => setData('seperation_reason', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                 </label>
@@ -92,8 +111,8 @@ export default function Step1({ formData, onChange }: StepProps) {
                     Name of Bank and Branch *:
                     <input
                         type="text"
-                        value={formData.bank_and_branch || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('bank_and_branch', e.target.value)}
+                        value={data.bank_and_branch}
+                        onChange={(e) => setData('bank_and_branch', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                 </label>
@@ -101,8 +120,8 @@ export default function Step1({ formData, onChange }: StepProps) {
                     Total benefits recieved on seperation:
                     <input
                         type="text"
-                        value={formData.seperation_benefits || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('seperation_benefits', e.target.value)}
+                        value={data.seperation_benefits}
+                        onChange={(e) => setData('seperation_benefits', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                 </label>
@@ -118,8 +137,8 @@ export default function Step1({ formData, onChange }: StepProps) {
                     Savings Bank Account No *:
                     <input
                         type="text"
-                        value={formData.savingaccount_No || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('savingaccount_No', e.target.value)}
+                        value={data.savingaccount_No}
+                        onChange={(e) => setData('savingaccount_No', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                 </label>
@@ -129,8 +148,8 @@ export default function Step1({ formData, onChange }: StepProps) {
                         type="number"
                         min={1}
                         max={10}
-                        value={formData.dependants_no || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('dependants_no', e.target.value)}
+                        value={data.dependants_no}
+                        onChange={(e) => setData('dependants_no', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                 </label>
@@ -145,8 +164,8 @@ export default function Step1({ formData, onChange }: StepProps) {
                     IFSC Code of Bank Branch *:
                     <input
                         type="text"
-                        value={formData.ifsc_code || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('ifsc_code', e.target.value)}
+                        value={data.ifsc_code}
+                        onChange={(e) => setData('ifsc_code', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                 </label>
@@ -155,13 +174,13 @@ export default function Step1({ formData, onChange }: StepProps) {
                     Gross Annual Income *:
                     <input
                         type="number"
-                        value={formData.gross_annual_income || ''}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange('gross_annual_income', e.target.value)}
+                        value={data.gross_annual_income}
+                        onChange={(e) => setData('gross_annual_income', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                 </label>
 
             </div>
-        </div>
+        </form>
     );
 }

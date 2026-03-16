@@ -17,48 +17,13 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function SahayogRequestCreatePage({ title, steps }: { title: string; steps: string[] }) {
     const [currentStep, setCurrentStep] = useState(1);
-    const [formData, setFormData] = useState<Record<string, string>>({
-        doj_ongc: '',
-        date_of_seperation: '',
-        place_of_posting: '',
-        bank_and_branch: '',
-        savingaccount_No: '',
-        ifsc_code: '',
-        work_center: '',
-        seperation_reason: '',
-        seperation_benefits: '',
-        dependants_no: '',
-        gross_annual_income: '',
-        requestType: '',
-        amount: '',
-        purpose: '',
-        comments: '',
-        beneficiaries: JSON.stringify([{ name: '', relationship: '' }]),
-    });
-
-    const [beneficiaries, setBeneficiaries] = useState([{ name: '', relationship: '' }]);
 
     const currentStepComponent = useMemo(() => {
-        const props = {
-            formData,
-            onChange: (field: string, value: string) => setFormData((prev) => ({ ...prev, [field]: value })),
-        };
-
-        if (currentStep === 1) return <Step1 {...props} />;
-        if (currentStep === 2)
-            return (
-                <Step2
-                    {...props}
-                    beneficiaries={beneficiaries}
-                    onBeneficiariesChange={(next) => {
-                        setBeneficiaries(next);
-                        setFormData((prev) => ({ ...prev, beneficiaries: JSON.stringify(next) }));
-                    }}
-                />
-            );
-        if (currentStep === 3) return <Step3 {...props} />;
-        return <Step4 {...props} />;
-    }, [currentStep, formData]);
+        if (currentStep === 1) return <Step1 onNext={() => setCurrentStep(2)} />;
+        if (currentStep === 2) return <Step2 onNext={() => setCurrentStep(3)} />;
+        if (currentStep === 3) return <Step3 onNext={() => setCurrentStep(4)} />;
+        return <Step4 onSubmit={() => alert('Final submission goes here!')} />;
+    }, [currentStep]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -120,14 +85,18 @@ export default function SahayogRequestCreatePage({ title, steps }: { title: stri
                         </button>
                         {currentStep < steps.length ? (
                             <button
-                                type="button"
-                                onClick={() => setCurrentStep((prev) => Math.min(steps.length, prev + 1))}
+                                type="submit"
+                                form={`step${currentStep}-form`}
                                 className="rounded-lg bg-[#E65F2B] px-3 py-2 text-sm font-medium text-white hover:bg-[#C44A1F]"
                             >
                                 Next <ArrowRight className="inline h-4 w-4 ml-1" />
                             </button>
                         ) : (
-                            <button type="button" className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700">
+                            <button
+                                type="submit"
+                                form="step4-form"
+                                className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
+                            >
                                 <Send className="inline h-4 w-4 mr-1" /> Submit Request
                             </button>
                         )}
