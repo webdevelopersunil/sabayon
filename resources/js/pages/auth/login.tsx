@@ -243,22 +243,7 @@ export default function Login({
                                             {/* Email Field - Only for Other Users */}
                                             {loginType === 'other' && (
                                             <div className="grid gap-2">
-<Label className="text-gray-700 font-medium mb-2">
-                                                    Employee Type <span className="text-[#E65F2B]">*</span>
-                                                </Label>
-                                                <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-[#E65F2B]/50 cursor-pointer transition-all">
-                                                    <input
-                                                        type="radio"
-                                                        id="contractor_employee"
-                                                        name="employee_type"
-                                                        value="contractor_employee"
-                                                        className="w-4 h-4 text-[#E65F2B] border-gray-300 focus:ring-[#E65F2B]"
-                                                        required
-                                                    />
-                                                    <label htmlFor="contractor_employee" className="cursor-pointer text-sm font-medium text-gray-700">
-                                                        Contractor Employee
-                                                    </label>
-                                                </div>
+                                                
                                                 <InputError message={errors.employee_type} className="mt-2" />
                                                 <Label htmlFor="aadhar" className="text-gray-700">
                                                     Aadhar Number
