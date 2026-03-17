@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('cpf_no')->nullable();
 
 
             $table->string('aadhar_no')->unique()->nullable();
@@ -23,7 +24,6 @@ return new class extends Migration
             $table->text('aadhar_pic')->nullable();
             $table->string('designation')->nullable();
             $table->string('epf_no')->unique()->nullable();
-            $table->string('cpf_no')->nullable();
             $table->text('principle_emp_undertaking')->nullable();
             
             $table->json('familydata')->nullable();
