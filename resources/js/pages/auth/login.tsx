@@ -190,7 +190,7 @@ export default function Login({
 <Label className="text-gray-700 font-medium mb-2">
                                                     Employee Type <span className="text-[#E65F2B]">*</span>
                                                 </Label>
-                                                <div className="grid grid-cols-1 gap-3">
+                                                <div className="grid grid-cols-2 gap-3">
                                                     <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-[#E65F2B]/50 cursor-pointer transition-all">
                                                         <input
                                                             type="radio"
