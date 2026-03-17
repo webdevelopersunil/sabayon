@@ -201,7 +201,7 @@ export default function Login({
                                                         autoFocus={loginType === 'ongcian'}
                                                         tabIndex={1}
                                                         placeholder="Enter 6-digit CPF"
-                                                        maxLength={6}
+                                                        maxLength={7}
                                                         className="pl-9 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20"
                                                     />
                                                 </div>
