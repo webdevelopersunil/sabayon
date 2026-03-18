@@ -11,13 +11,13 @@ import { Spinner } from '@/components/ui/spinner';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
-import { 
-    Menu, 
-    X, 
-    Users, 
-    Building2, 
-    Phone, 
-    Mail, 
+import {
+    Menu,
+    X,
+    Users,
+    Building2,
+    Phone,
+    Mail,
     MapPin,
     ExternalLink,
     ArrowRight,
@@ -40,15 +40,17 @@ export default function Login({
 }: Props) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [loginType, setLoginType] = useState<'ongcian' | 'other'>('ongcian');
+    const [selected, setSelected] = useState("active_employee"); // default selected
+
 
     return (
         <>
             <Head title="Login - ONGC Sahayog" />
-            
+
             {/* Background decorative elements */}
             <div className="fixed top-0 right-0 w-[800px] h-[800px] bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             <div className="fixed bottom-0 left-0 w-[600px] h-[600px] bg-[#E65F2B]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-            
+
             <div className="min-h-screen bg-white font-['Inter'] flex flex-col">
                 {/* Navigation - Same as Landing Page */}
                 <nav className="relative z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0">
@@ -152,22 +154,20 @@ export default function Login({
                         <div className="flex gap-2 mb-6 p-1 bg-gray-100 rounded-lg">
                             <button
                                 onClick={() => setLoginType('ongcian')}
-                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                                    loginType === 'ongcian'
-                                        ? 'bg-white text-[#E65F2B] shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-700'
-                                }`}
+                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${loginType === 'ongcian'
+                                    ? 'bg-white text-[#E65F2B] shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
                             >
                                 <Fingerprint className="h-4 w-4" />
                                 ONGCian Login
                             </button>
                             <button
                                 onClick={() => setLoginType('other')}
-                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                                    loginType === 'other'
-                                        ? 'bg-white text-[#E65F2B] shadow-sm'
-                                        : 'text-gray-500 hover:text-gray-700'
-                                }`}
+                                className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-all ${loginType === 'other'
+                                    ? 'bg-white text-[#E65F2B] shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    }`}
                             >
                                 <Users className="h-4 w-4" />
                                 Other User
@@ -187,83 +187,87 @@ export default function Login({
                                             {/* Aadhar Number Field - Only for ONGCian */}
                                             {loginType === 'ongcian' && (
                                                 <div className="grid gap-2">
-<Label className="text-gray-700 font-medium mb-2">
-                                                    Employee Type <span className="text-[#E65F2B]">*</span>
-                                                </Label>
-                                                <div className="grid grid-cols-2 gap-3">
-                                                    <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-[#E65F2B]/50 cursor-pointer transition-all">
-                                                        <input
-                                                            type="radio"
-                                                            id="active_employee"
-                                                            name="employee_type"
-                                                            value="active_employee"
-                                                            className="w-4 h-4 text-[#E65F2B] border-gray-300 focus:ring-[#E65F2B]"
-                                                            required
-                                                        />
-                                                        <label htmlFor="active_employee" className="cursor-pointer text-sm font-medium text-gray-700">
-                                                            Active Employee (LDAP)
-                                                        </label>
+                                                    <Label className="text-gray-700 font-medium mb-2">
+                                                        Employee Type <span className="text-[#E65F2B]">*</span>
+                                                    </Label>
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-[#E65F2B]/50 cursor-pointer transition-all">
+                                                            <input
+                                                                type="radio"
+                                                                id="active_employee"
+                                                                name="employee_type"
+                                                                value="active_employee"
+                                                                checked={selected === "active_employee"}
+                                                                onChange={(e) => setSelected(e.target.value)}
+                                                                className="w-4 h-4 text-[#E65F2B] border-gray-300 focus:ring-[#E65F2B]"
+                                                                required
+                                                            />
+                                                            <label htmlFor="active_employee" className="cursor-pointer text-sm font-medium text-gray-700">
+                                                                Active Employee (LDAP)
+                                                            </label>
+                                                        </div>
+                                                        <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-[#E65F2B]/50 cursor-pointer transition-all">
+                                                            <input
+                                                                type="radio"
+                                                                id="retired_employee"
+                                                                name="employee_type"
+                                                                checked={selected === "retired_employee"}
+                                                                onChange={(e) => setSelected(e.target.value)}
+                                                                value="retired_employee"
+                                                                className="w-4 h-4 text-[#E65F2B] border-gray-300 focus:ring-[#E65F2B]"
+                                                            />
+                                                            <label htmlFor="retired_employee" className="cursor-pointer text-sm font-medium text-gray-700">
+                                                                Retired Employee
+                                                            </label>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-[#E65F2B]/50 cursor-pointer transition-all">
-                                                        <input
-                                                            type="radio"
-                                                            id="retired_employee"
-                                                            name="employee_type"
-                                                            value="retired_employee"
-                                                            className="w-4 h-4 text-[#E65F2B] border-gray-300 focus:ring-[#E65F2B]"
+                                                    <InputError message={errors.employee_type} className="mt-2" />
+                                                    <Label htmlFor="cpf_no" className="text-gray-700">
+                                                        CPF Number
+                                                        <span className="text-[#E65F2B] ml-1">*</span>
+                                                    </Label>
+                                                    <div className="relative">
+                                                        <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                        <Input
+                                                            id="cpf_no"
+                                                            type="text"
+                                                            name="cpf_no"
+                                                            required={loginType === 'ongcian'}
+                                                            autoFocus={loginType === 'ongcian'}
+                                                            tabIndex={1}
+                                                            placeholder="Enter 6-digit CPF"
+                                                            maxLength={7}
+                                                            className="pl-9 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20"
                                                         />
-                                                        <label htmlFor="retired_employee" className="cursor-pointer text-sm font-medium text-gray-700">
-                                                            Retired Employee
-                                                        </label>
                                                     </div>
+                                                    <InputError message={errors.cpf_no} />
                                                 </div>
-                                                <InputError message={errors.employee_type} className="mt-2" />
-                                                <Label htmlFor="cpf_no" className="text-gray-700">
-                                                    CPF Number
-                                                    <span className="text-[#E65F2B] ml-1">*</span>
-                                                </Label>
-                                                <div className="relative">
-                                                    <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                                    <Input
-                                                        id="cpf_no"
-                                                        type="text"
-                                                        name="cpf_no"
-                                                        required={loginType === 'ongcian'}
-                                                        autoFocus={loginType === 'ongcian'}
-                                                        tabIndex={1}
-                                                        placeholder="Enter 6-digit CPF"
-                                                        maxLength={7}
-                                                        className="pl-9 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20"
-                                                    />
-                                                </div>
-                                                <InputError message={errors.cpf_no} />
-                                            </div>
                                             )}
 
                                             {/* Email Field - Only for Other Users */}
                                             {loginType === 'other' && (
-                                            <div className="grid gap-2">
-                                                
-                                                <InputError message={errors.employee_type} className="mt-2" />
-                                                <Label htmlFor="aadhar" className="text-gray-700">
-                                                    Aadhar Number
-                                                    <span className="text-[#E65F2B] ml-1">*</span>
-                                                </Label>
-                                                <div className="relative">
-                                                    <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                                                    <Input
-                                                        id="aadhar"
-                                                        type="text"
-                                                        name="aadhar"
-                                                        
-                                                        tabIndex={1}
-                                                        placeholder="XXXX XXXX XXXX"
-                                                        className="pl-9 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20"
-                                                    />
+                                                <div className="grid gap-2">
+
+                                                    <InputError message={errors.employee_type} className="mt-2" />
+                                                    <Label htmlFor="aadhar" className="text-gray-700">
+                                                        Aadhar Number
+                                                        <span className="text-[#E65F2B] ml-1">*</span>
+                                                    </Label>
+                                                    <div className="relative">
+                                                        <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                        <Input
+                                                            id="aadhar"
+                                                            type="text"
+                                                            name="aadhar"
+
+                                                            tabIndex={1}
+                                                            placeholder="XXXX XXXX XXXX"
+                                                            className="pl-9 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20"
+                                                        />
+                                                    </div>
+                                                    <InputError message={errors.aadhar} />
                                                 </div>
-                                                <InputError message={errors.aadhar} />
-                                            </div>
-                                               
+
                                             )}
 
                                             {/* Password Field - Common for both */}
@@ -311,7 +315,7 @@ export default function Login({
                                                         Remember me
                                                     </Label>
                                                 </div>
-                                                
+
                                                 {/* Language Selector */}
                                                 <div className="flex items-center gap-1 text-sm text-gray-500">
                                                     <Globe className="h-4 w-4" />
@@ -344,8 +348,8 @@ export default function Login({
                                             {canRegister && (
                                                 <div className="text-sm text-gray-500">
                                                     New User?{' '}
-                                                    <TextLink 
-                                                        href={register()} 
+                                                    <TextLink
+                                                        href={register()}
                                                         tabIndex={5}
                                                         className="text-[#E65F2B] hover:text-[#C44A1F] font-medium"
                                                     >
@@ -353,11 +357,11 @@ export default function Login({
                                                     </TextLink>
                                                 </div>
                                             )}
-                                            
+
                                             {canResetPassword && (
                                                 <div className="text-sm">
-                                                    <TextLink 
-                                                        href={request()} 
+                                                    <TextLink
+                                                        href={request()}
                                                         tabIndex={6}
                                                         className="text-gray-400 hover:text-[#E65F2B] text-xs"
                                                     >
