@@ -9,6 +9,7 @@ use App\Models\Step4Data;
 use App\Models\WizardData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Admin;
 use Illuminate\Support\Str;
 
 class SahayogRequestController extends Controller
@@ -23,8 +24,11 @@ class SahayogRequestController extends Controller
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
+        $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
+
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
+            'workCenters' => $workCenters,
             'steps' => [
                 'Enter details of your employement.',
                 'Add Dependent details.(You have mentioned 4 in previous step):',

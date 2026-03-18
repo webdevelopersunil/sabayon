@@ -3,9 +3,10 @@ import { useForm } from '@inertiajs/react';
 
 interface StepProps {
     onNext: () => void;
+    workCenters: string[];
 }
 
-export default function Step1({ onNext }: StepProps) {
+export default function Step1({ onNext, workCenters }: StepProps) {
     const { data, setData, post, processing, errors, transform } = useForm({
         date_of_seperation: '',
         work_center: '',
@@ -92,9 +93,9 @@ export default function Step1({ onNext }: StepProps) {
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     >
                         <option value="">Select Location</option>
-                        <option value="Location A">Location A</option>
-                        <option value="Location B">Location B</option>
-                        <option value="Location C">Location C</option>
+                        {workCenters.map((center) => (
+                            <option key={center} value={center}>{center}</option>
+                        ))}
                     </select>
                     {errors.work_center && <p className="text-red-600 text-xs mt-1">{errors.work_center}</p>}
                 </label>
