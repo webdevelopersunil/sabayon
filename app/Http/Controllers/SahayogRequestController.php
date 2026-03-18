@@ -26,8 +26,8 @@ class SahayogRequestController extends Controller
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
             'steps' => [
-                'Basic info',
-                'Request details',
+                'Enter details of your employement.',
+                'Add Dependent details.(You have mentioned 4 in previous step):',
                 'Review',
                 'Submit',
             ],
@@ -97,7 +97,7 @@ class SahayogRequestController extends Controller
             'step4' => 'nullable|array',
         ]);
 
-        
+
 
         // Step 1 specific business validation
         $this->step1FormProcessing($payload);
@@ -190,7 +190,7 @@ class SahayogRequestController extends Controller
             'work_center' => 'required|string|max:255',
 
             'place_of_posting' => 'required|string|max:255',
-            'seperation_reason' => 'required|string|max:500',
+            'seperation_reason' => 'nullable|string|max:500',
 
             'bank_and_branch' => 'required|string|max:255',
             'seperation_benefits' => 'nullable|string|max:500',
