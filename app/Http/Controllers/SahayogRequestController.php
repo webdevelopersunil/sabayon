@@ -97,45 +97,23 @@ class SahayogRequestController extends Controller
             'step4' => 'nullable|array',
         ]);
 
-        // Step 1 specific business validation
-        if ($payload['step'] === 1 && isset($payload['step1'])) {
-
-            $noHtml = 'not_regex:/<[^>]*>/';
-
-            // dd($payload);
         
-            $step1Validator = \Validator::make($payload['step1'], [
 
-                'date_of_seperation' => 'nullable|date|before_or_equal:today',
-                'work_center' => 'required|string|max:255',
+        // Step 1 specific business validation
+        $this->step1FormProcessing($payload);
 
-                'place_of_posting' => 'required|string|max:255',
-                'seperation_reason' => 'required|string|max:500',
 
-                'bank_and_branch' => 'required|string|max:255',
-                'seperation_benefits' => 'nullable|string|max:500',
 
-                'savingaccount_No' => 'required|string|max:50',
-                'dependants_no' => 'required|integer|min:0|max:10',
-
-                'ifsc_code' => 'required|string|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
-                'gross_annual_income' => 'required|numeric|min:0',
-            ]);
-
-            
-            $step1Validator->validate();
-        }
-
-        $wizard = WizardData::updateOrCreate(
-            ['id' => $payload['wizard_data_id'] ?? null],
-            [
-                'request_no' => $request->input('request_no', Str::uuid()),
-                'user_id' => $request->user()->id,
-                'step' => $payload['step'],
-                'status' => 'draft',
-                'data' => $request->input('data', []),
-            ]
-        );
+        // $wizard = WizardData::updateOrCreate(
+        //     ['id' => $payload['wizard_data_id'] ?? null],
+        //     [
+        //         'request_no' => $request->input('request_no', Str::uuid()),
+        //         'user_id' => $request->user()->id,
+        //         'step' => $payload['step'],
+        //         'status' => 'draft',
+        //         'data' => $request->input('data', []),
+        //     ]
+        // );
 
         if ($payload['step'] === 1 && isset($payload['step1'])) {
             $step1 = $payload['step1'];
@@ -201,4 +179,32 @@ class SahayogRequestController extends Controller
 
         return back()->with('message', 'Step saved successfully.');
     }
+
+    public function step1FormProcessing($payload){
+        
+        $noHtml = 'not_regex:/<[^>]*>/';
+
+        $step1Validator = \Validator::make($payload['step1'], [
+
+            'date_of_seperation' => 'nullable|date|before_or_equal:today',
+            'work_center' => 'required|string|max:255',
+
+            'place_of_posting' => 'required|string|max:255',
+            'seperation_reason' => 'required|string|max:500',
+
+            'bank_and_branch' => 'required|string|max:255',
+            'seperation_benefits' => 'nullable|string|max:500',
+
+            'savingaccount_No' => 'required|string|max:50',
+            'dependants_no' => 'required|integer|min:0|max:10',
+
+            'ifsc_code' => 'required|string|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
+            'gross_annual_income' => 'required|numeric|min:0',
+        ]);
+
+        
+        $step1Validator->validate();
+
+    }
+    
 }
