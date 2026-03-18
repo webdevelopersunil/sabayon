@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Admin;
 use Illuminate\Support\Str;
+use App\Http\Requests\SahayogStep1Request;
 
 class SahayogRequestController extends Controller
 {
@@ -184,31 +185,18 @@ class SahayogRequestController extends Controller
         return back()->with('message', 'Step saved successfully.');
     }
 
-    public function step1FormProcessing($payload){
-        
-        $noHtml = 'not_regex:/<[^>]*>/';
+    public function step1FormProcessing($payload)
+{
+        $requestClass = new SahayogStep1Request();
 
-        $step1Validator = \Validator::make($payload['step1'], [
+        $step1Validator = \Validator::make(
+            $payload['step1'],
+            $requestClass->rules(),
+            $requestClass->messages(),
+            $requestClass->attributes()
+        );
 
-            'date_of_seperation' => 'nullable|date|before_or_equal:today',
-            'work_center' => 'required|string|max:255',
-
-            'place_of_posting' => 'required|string|max:255',
-            'seperation_reason' => 'nullable|string|max:500',
-
-            'bank_and_branch' => 'required|string|max:255',
-            'seperation_benefits' => 'nullable|string|max:500',
-
-            'savingaccount_No' => 'required|string|max:50',
-            'dependants_no' => 'required|integer|min:0|max:10',
-
-            'ifsc_code' => 'required|string|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
-            'gross_annual_income' => 'required|numeric|min:0',
-        ]);
-
-        
-        $step1Validator->validate();
-
-    }
+    $step1Validator->validate();
+}
     
 }
