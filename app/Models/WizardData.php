@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Services\RequestNumberService;
 
 class WizardData extends Model
 {
@@ -42,6 +43,22 @@ class WizardData extends Model
         'returned_at' => 'datetime',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($wizardData) {
+
+            if (!$wizardData->request_no) {
+
+                // Resolve service from container
+                $service = app(RequestNumberService::class);
+
+                $wizardData->request_no = $service->generate($wizardData->user_id);
+            }
+        });
+    }
+
     public function step1Data()
     {
         return $this->hasOne(Step1Data::class, 'wizard_data_id');
@@ -60,5 +77,35 @@ class WizardData extends Model
     public function step4Data()
     {
         return $this->hasOne(Step4Data::class, 'wizard_data_id');
+    }
+
+    public static function generateRequestNumber($aadhar)
+    {
+        $aadharLast4Digits = substr($aadhar ?? '0000000000000000', -4);
+        $currentYear = date('Y');
+
+        $lastRecord = self::orderByDesc('id')->first();
+
+        $sequence = 1;
+
+        if ($lastRecord && $lastRecord->request_no) {
+            $lastSequence = (int) substr($lastRecord->request_no, -4);
+            $sequence = $lastSequence + 1;
+        }
+
+        do {
+            $formattedSequence = str_pad($sequence, 4, '0', STR_PAD_LEFT);
+
+            $requestNumber = $aadharLast4Digits . $currentYear . $formattedSequence;
+
+            $exists = self::where('request_no', $requestNumber)->exists();
+
+            if ($exists) {
+                $sequence++;
+            }
+
+        } while ($exists);
+
+        return $requestNumber;
     }
 }

@@ -89,10 +89,19 @@ class SahayogRequestController extends Controller
         ]);
     }
 
-    public function saveStep(Request $request)
+    public function saveStep(Request $request, WizardData $wizard)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
+        $userId = auth()->id();
+        // dd($request->all());
+        // Check if wizard data exists for the user and step is in progress, else create new
+        $data = WizardData::where('user_id', $userId)->whereIn('step', [1, 2, 3, 4])->where('hr_status', 'Draft')->latest()->first();
+        // If not found create One wizard entry
+        if (!$data) {
+            $data = WizardData::create( [ 'user_id' => $userId, 'hr_status' => 'Draft', ] );
+        }
+        
         $payload = $request->validate([
             'step' => 'required|integer|min:1|max:4',
             'wizard_data_id' => 'nullable|integer|exists:wizard_data,id',
@@ -108,38 +117,29 @@ class SahayogRequestController extends Controller
         $this->step1FormProcessing($payload);
 
 
-
-        // $wizard = WizardData::updateOrCreate(
-        //     ['id' => $payload['wizard_data_id'] ?? null],
-        //     [
-        //         'request_no' => $request->input('request_no', Str::uuid()),
-        //         'user_id' => $request->user()->id,
-        //         'step' => $payload['step'],
-        //         'status' => 'draft',
-        //         'data' => $request->input('data', []),
-        //     ]
-        // );
-
         if ($payload['step'] === 1 && isset($payload['step1'])) {
             $step1 = $payload['step1'];
             $wizard->step1Data()->updateOrCreate(
-                ['wizard_data_id' => $wizard->id],
+                ['wizard_data_id' => $data->id],
                 [
                     'name' => $step1['name'] ?? '',
                     'type' => $step1['type'] ?? '',
                     'cpfno' => $step1['cpfno'] ?? '',
                     'doj_ongc' => $step1['doj_ongc'] ?? null,
-                    'ifsc_code' => $step1['ifsc_code'] ?? '',
                     'designation' => $step1['designation'] ?? '',
-                    'work_center' => $step1['work_center'] ?? '',
-                    'dependants_no' => $step1['dependants_no'] ?? 0,
-                    'bank_and_branch' => $step1['bank_and_branch'] ?? '',
-                    'place_of_posting' => $step1['place_of_posting'] ?? '',
-                    'savingaccount_No' => $step1['savingaccount_No'] ?? '',
-                    'seperation_reason' => $step1['seperation_reason'] ?? '',
+
+
                     'date_of_seperation' => $step1['date_of_seperation'] ?? null,
-                    'gross_annual_income' => $step1['gross_annual_income'] ?? 0,
+                    'work_center' => $step1['work_center'] ?? '',
+                    'place_of_posting' => $step1['place_of_posting'] ?? '',
+                    'seperation_reason' => $step1['seperation_reason'] ?? '',
+                    'bank_and_branch' => $step1['bank_and_branch'] ?? '',
                     'seperation_benefits' => $step1['seperation_benefits'] ?? null,
+                    'savingaccount_No' => $step1['savingaccount_No'] ?? '',
+                    'dependants_no' => $step1['dependants_no'] ?? 0,
+                    'ifsc_code' => $step1['ifsc_code'] ?? '',
+                    'gross_annual_income' => $step1['gross_annual_income'] ?? 0,
+
                 ]
             );
         }
