@@ -123,11 +123,7 @@ class SahayogRequestController extends Controller
             ]);
 
             
-            if ($step1Validator->fails()) {
-                return response()->json([
-                    'errors' => $step1Validator->errors()
-                ], 422);
-            }
+            $step1Validator->validate();
         }
 
         $wizard = WizardData::updateOrCreate(
@@ -203,10 +199,6 @@ class SahayogRequestController extends Controller
         $wizard->step = max($wizard->step, $payload['step']);
         $wizard->save();
 
-        return response()->json([
-            'wizard_data_id' => $wizard->id,
-            'step' => $wizard->step,
-            'message' => 'Step saved successfully.',
-        ]);
+        return back()->with('message', 'Step saved successfully.');
     }
 }

@@ -1,12 +1,12 @@
 import { FormEvent } from 'react';
-import { useForm, router } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 
 interface StepProps {
     onNext: () => void;
 }
 
 export default function Step1({ onNext }: StepProps) {
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, transform } = useForm({
         date_of_seperation: '',
         work_center: '',
         place_of_posting: '',
@@ -22,18 +22,16 @@ export default function Step1({ onNext }: StepProps) {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        router.post('/sahayog-request/save-step', {
+        transform((data) => ({
             step: 1,
             step1: data,
-        }, {
+        }));
+
+        post('/sahayog-request/save-step', {
             preserveState: true,
             preserveScroll: true,
             onSuccess: () => {
                 onNext();
-            },
-            onError: (errors) => {
-                // Errors will populate form errors automatically
-                console.error('Validation errors:', errors);
             },
         });
     };
@@ -43,11 +41,13 @@ export default function Step1({ onNext }: StepProps) {
             <h3 className="text-lg font-semibold text-gray-800">Applicant Information</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {Object.entries(errors).map(([field, message]) => (
-                    <div key={field} className="col-span-full text-red-600 text-sm">
-                        {field}: {String(message)}
+                {Object.keys(errors).length > 0 && (
+                    <div className="col-span-full rounded-md bg-red-50 p-4 mb-4">
+                        <div className="text-sm text-red-700">
+                            Please correct the errors below before proceeding.
+                        </div>
                     </div>
-                ))}
+                )}
 
                 {/* Trashed code for reference, not to be added back in the future. */}
                 {/* @if(auth()->user()->date_of_joining_ongc==null) 
@@ -81,6 +81,7 @@ export default function Step1({ onNext }: StepProps) {
                         onChange={(e) => setData('date_of_seperation', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
+                    {errors.date_of_seperation && <p className="text-red-600 text-xs mt-1">{errors.date_of_seperation}</p>}
                 </label>
 
                 <label className="space-y-1 text-sm">
@@ -95,6 +96,7 @@ export default function Step1({ onNext }: StepProps) {
                         <option value="Location B">Location B</option>
                         <option value="Location C">Location C</option>
                     </select>
+                    {errors.work_center && <p className="text-red-600 text-xs mt-1">{errors.work_center}</p>}
                 </label>
 
 
@@ -110,6 +112,7 @@ export default function Step1({ onNext }: StepProps) {
                         onChange={(e) => setData('place_of_posting', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
+                    {errors.place_of_posting && <p className="text-red-600 text-xs mt-1">{errors.place_of_posting}</p>}
                 </label>
                 <label className="space-y-1 text-sm">
                     Reason for Separation(Retirement/Vol.Retirment/Death/Resignation):
@@ -119,6 +122,7 @@ export default function Step1({ onNext }: StepProps) {
                         onChange={(e) => setData('seperation_reason', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
+                    {errors.seperation_reason && <p className="text-red-600 text-xs mt-1">{errors.seperation_reason}</p>}
                 </label>
 
 
@@ -133,6 +137,7 @@ export default function Step1({ onNext }: StepProps) {
                         onChange={(e) => setData('bank_and_branch', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
+                    {errors.bank_and_branch && <p className="text-red-600 text-xs mt-1">{errors.bank_and_branch}</p>}
                 </label>
                 <label className="space-y-1 text-sm">
                     Total benefits recieved on seperation:
@@ -142,6 +147,7 @@ export default function Step1({ onNext }: StepProps) {
                         onChange={(e) => setData('seperation_benefits', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
+                    {errors.seperation_benefits && <p className="text-red-600 text-xs mt-1">{errors.seperation_benefits}</p>}
                 </label>
 
 
@@ -159,6 +165,7 @@ export default function Step1({ onNext }: StepProps) {
                         onChange={(e) => setData('savingaccount_No', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
+                    {errors.savingaccount_No && <p className="text-red-600 text-xs mt-1">{errors.savingaccount_No}</p>}
                 </label>
                 <label className="space-y-1 text-sm">
                     No. of Dependents (with relationship) *:
@@ -170,6 +177,7 @@ export default function Step1({ onNext }: StepProps) {
                         onChange={(e) => setData('dependants_no', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
+                    {errors.dependants_no && <p className="text-red-600 text-xs mt-1">{errors.dependants_no}</p>}
                 </label>
 
 
@@ -186,6 +194,7 @@ export default function Step1({ onNext }: StepProps) {
                         onChange={(e) => setData('ifsc_code', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
+                    {errors.ifsc_code && <p className="text-red-600 text-xs mt-1">{errors.ifsc_code}</p>}
                 </label>
 
                 <label className="space-y-1 text-sm">
@@ -196,6 +205,7 @@ export default function Step1({ onNext }: StepProps) {
                         onChange={(e) => setData('gross_annual_income', e.target.value)}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
+                    {errors.gross_annual_income && <p className="text-red-600 text-xs mt-1">{errors.gross_annual_income}</p>}
                 </label>
 
             </div>
