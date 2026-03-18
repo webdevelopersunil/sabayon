@@ -119,29 +119,31 @@ class SahayogRequestController extends Controller
 
         if ($payload['step'] === 1 && isset($payload['step1'])) {
             $step1 = $payload['step1'];
-            $wizard->step1Data()->updateOrCreate(
-                ['wizard_data_id' => $data->id],
-                [
-                    'name' => $step1['name'] ?? '',
-                    'type' => $step1['type'] ?? '',
-                    'cpfno' => $step1['cpfno'] ?? '',
-                    'doj_ongc' => $step1['doj_ongc'] ?? null,
-                    'designation' => $step1['designation'] ?? '',
+            
+            $data->step1Data()->updateOrCreate(
+    [], // ✅ DO NOT pass wizard_data_id
+    [
+        'name' => $step1['name'] ?? '',
+        'type' => $step1['type'] ?? '',
+        'cpfno' => $step1['cpfno'] ?? '',
+        'doj_ongc' => $step1['doj_ongc'] ?? null,
+        'designation' => $step1['designation'] ?? '',
 
+        'doj_ongc' => date('Y-m-d'),
+        'user_id'   => $userId,
 
-                    'date_of_seperation' => $step1['date_of_seperation'] ?? null,
-                    'work_center' => $step1['work_center'] ?? '',
-                    'place_of_posting' => $step1['place_of_posting'] ?? '',
-                    'seperation_reason' => $step1['seperation_reason'] ?? '',
-                    'bank_and_branch' => $step1['bank_and_branch'] ?? '',
-                    'seperation_benefits' => $step1['seperation_benefits'] ?? null,
-                    'savingaccount_No' => $step1['savingaccount_No'] ?? '',
-                    'dependants_no' => $step1['dependants_no'] ?? 0,
-                    'ifsc_code' => $step1['ifsc_code'] ?? '',
-                    'gross_annual_income' => $step1['gross_annual_income'] ?? 0,
-
-                ]
-            );
+        'date_of_seperation' => $step1['date_of_seperation'] ?? null,
+        'work_center' => $step1['work_center'] ?? '',
+        'place_of_posting' => $step1['place_of_posting'] ?? '',
+        'seperation_reason' => $step1['seperation_reason'] ?? '',
+        'bank_and_branch' => $step1['bank_and_branch'] ?? '',
+        'seperation_benefits' => $step1['seperation_benefits'] ?? null,
+        'savingaccount_No' => $step1['savingaccount_No'] ?? '',
+        'dependants_no' => $step1['dependants_no'] ?? 0,
+        'ifsc_code' => $step1['ifsc_code'] ?? '',
+        'gross_annual_income' => $step1['gross_annual_income'] ?? 0,
+    ]
+);
         }
 
         if ($payload['step'] === 2 && isset($payload['step2'])) {
