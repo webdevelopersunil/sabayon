@@ -1,5 +1,5 @@
 import { FormEvent } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, router } from '@inertiajs/react';
 
 interface StepProps {
     onNext: () => void;
@@ -22,11 +22,20 @@ export default function Step1({ onNext }: StepProps) {
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        console.log('hellow');
-        // Depending on your requirements, you can optionally save the step progress to an API endpoint here using `post`.
-
-
-        onNext();
+        router.post('/sahayog-request/save-step', {
+            step: 1,
+            step1: data,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                onNext();
+            },
+            onError: (errors) => {
+                // Errors will populate form errors automatically
+                console.error('Validation errors:', errors);
+            },
+        });
     };
 
     return (
@@ -34,6 +43,11 @@ export default function Step1({ onNext }: StepProps) {
             <h3 className="text-lg font-semibold text-gray-800">Applicant Information</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {Object.entries(errors).map(([field, message]) => (
+                    <div key={field} className="col-span-full text-red-600 text-sm">
+                        {field}: {String(message)}
+                    </div>
+                ))}
 
                 {/* Trashed code for reference, not to be added back in the future. */}
                 {/* @if(auth()->user()->date_of_joining_ongc==null) 

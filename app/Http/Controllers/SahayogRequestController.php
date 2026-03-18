@@ -97,6 +97,39 @@ class SahayogRequestController extends Controller
             'step4' => 'nullable|array',
         ]);
 
+        // Step 1 specific business validation
+        if ($payload['step'] === 1 && isset($payload['step1'])) {
+
+            $noHtml = 'not_regex:/<[^>]*>/';
+
+            // dd($payload);
+        
+            $step1Validator = \Validator::make($payload['step1'], [
+
+                'date_of_seperation' => 'nullable|date|before_or_equal:today',
+                'work_center' => 'required|string|max:255',
+
+                'place_of_posting' => 'required|string|max:255',
+                'seperation_reason' => 'required|string|max:500',
+
+                'bank_and_branch' => 'required|string|max:255',
+                'seperation_benefits' => 'nullable|string|max:500',
+
+                'savingaccount_No' => 'required|string|max:50',
+                'dependants_no' => 'required|integer|min:0|max:10',
+
+                'ifsc_code' => 'required|string|regex:/^[A-Z]{4}0[A-Z0-9]{6}$/',
+                'gross_annual_income' => 'required|numeric|min:0',
+            ]);
+
+            
+            if ($step1Validator->fails()) {
+                return response()->json([
+                    'errors' => $step1Validator->errors()
+                ], 422);
+            }
+        }
+
         $wizard = WizardData::updateOrCreate(
             ['id' => $payload['wizard_data_id'] ?? null],
             [
