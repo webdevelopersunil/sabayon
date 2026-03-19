@@ -33,7 +33,7 @@ class SahayogRequestController extends Controller
             'workCenters' => $workCenters,
             'step1' => $wizardData ? $wizardData->step1Data : null,
             'step2' => $wizardData ? $wizardData->step2Data : null,
-            'selectedBeneficiary' => $wizardData->selected_beneficiary,
+            'selectedBeneficiary' => $wizardData ? $wizardData->selected_beneficiary : null,
             'steps' => [
                 'Enter details of your employement.',
                 'Add Dependent details.(You have mentioned 4 in previous step):',

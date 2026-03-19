@@ -8,7 +8,8 @@ interface Beneficiary {
 
 interface StepProps {
     onNext: () => void;
-    initialData?: any;
+    initialData?: Beneficiary[];
+    selectedBeneficiary?: string;
 }
 
 const relationships = [
@@ -23,10 +24,10 @@ const relationships = [
     'Sister in Law (Husband sister for DOD)'
 ];
 
-export default function Step2({ onNext, initialData }: StepProps) {
+export default function Step2({ onNext, initialData, selectedBeneficiary }: StepProps) {
     const { data, setData, post, transform, errors: formErrors, processing } = useForm({
         beneficiaries: (initialData && initialData.length > 0) ? initialData : [{ name: '', relationship: '' }] as Beneficiary[],
-        selected_beneficiary: (initialData && initialData.length > 0) ? initialData[0].selected_beneficiary : '',
+        selected_beneficiary: selectedBeneficiary || '',
     });
 
     const errors = formErrors as Record<string, string | undefined>;
@@ -42,7 +43,12 @@ export default function Step2({ onNext, initialData }: StepProps) {
 
     const removeBeneficiary = (index: number) => {
         if (data.beneficiaries.length <= 1) return;
-        setData('beneficiaries', data.beneficiaries.filter((_, idx) => idx !== index));
+        const beneficiaryToRemove = data.beneficiaries[index];
+        const optionValue = beneficiaryToRemove.name && beneficiaryToRemove.relationship ? `${beneficiaryToRemove.name}-${beneficiaryToRemove.relationship}` : beneficiaryToRemove.name;
+        
+        const newBeneficiaries = data.beneficiaries.filter((_, idx) => idx !== index);
+        // Also clear the selected_beneficiary if the user removes the one they had selected
+        setData({ ...data, beneficiaries: newBeneficiaries, selected_beneficiary: data.selected_beneficiary === optionValue ? '' : data.selected_beneficiary });
     };
 
     const handleSubmit = (e: FormEvent) => {
@@ -135,11 +141,14 @@ export default function Step2({ onNext, initialData }: StepProps) {
                             className={`w-full rounded-lg border px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40 ${errors['step2.selected_beneficiary'] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                         >
                             <option value="">Select an option</option>
-                            <option value="self">Self</option>
-                            <option value="spouse">Spouse</option>
-                            <option value="child">Child</option>
-                            <option value="parent">Parent</option>
-                            <option value="other">Other</option>
+                            {data.beneficiaries.map((beneficiary, index) => {
+                                const optionValue = beneficiary.name && beneficiary.relationship ? `${beneficiary.name}-${beneficiary.relationship}` : beneficiary.name;
+                                return optionValue ? (
+                                    <option key={index} value={optionValue}>
+                                        {beneficiary.name} {beneficiary.relationship ? `(${beneficiary.relationship})` : ''}
+                                    </option>
+                                ) : null;
+                            })}
                         </select>
                         {errors['step2.selected_beneficiary'] && (
                             <p className="text-xs text-red-600 mt-1">{errors['step2.selected_beneficiary']}</p>
