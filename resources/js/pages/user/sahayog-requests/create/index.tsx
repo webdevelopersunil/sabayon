@@ -32,7 +32,7 @@ export default function SahayogRequestCreatePage({ title, steps, workCenters, st
         if (currentStep === 1) return <Step1 onNext={() => handleNext(2)} workCenters={workCenters} initialData={step1} />;
         if (currentStep === 2) return <Step2 onNext={() => handleNext(3)} initialData={step2} selectedBeneficiary={selectedBeneficiary} />;
         if (currentStep === 3) return <Step3 onNext={() => handleNext(4)} initialData={step3} />;
-        return <Step4 onSubmit={() => alert('Final submission goes here!')} />;
+        return <Step4 onSubmit={() => console.log('Final submission completed')} />;
     }, [currentStep, workCenters, step1, step2, step3, selectedBeneficiary]);
 
     return (

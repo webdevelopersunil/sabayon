@@ -222,17 +222,46 @@ class SahayogRequestController extends Controller
         }
 
         if ($payload['step'] === 4 && isset($payload['step4'])) {
+            $request->validate([
+                'step4.files' => 'required|array|min:1|max:5',
+                'step4.files.*' => 'file|max:10240', // 10MB max limit
+                'step4.cliamearlier' => 'required|accepted',
+                'step4.timelimit' => 'required|accepted',
+            ], [
+                'step4.files.required' => 'Please upload at least one document.',
+                'step4.files.max' => 'You can upload a maximum of 5 documents.',
+                'step4.cliamearlier.required' => 'You must accept this declaration.',
+                'step4.cliamearlier.accepted' => 'You must accept this declaration.',
+                'step4.timelimit.required' => 'You must accept this declaration.',
+                'step4.timelimit.accepted' => 'You must accept this declaration.',
+            ]);
+
             $step4 = $payload['step4'];
-            $wizard->step4Data()->updateOrCreate(
-                ['wizard_data_id' => $wizard->id],
+            $filePaths = [];
+
+            if ($request->hasFile('step4.files')) {
+                foreach ($request->file('step4.files') as $file) {
+                    $filePaths[] = $file->store('sahayog-documents', 'public');
+                }
+            }
+
+            $data->step4Data()->updateOrCreate(
+                ['wizard_data_id' => $data->id],
                 [
-                    'attachment' => $step4['attachment'] ?? '',
+                    'attachment' => json_encode($filePaths),
                 ]
             );
+
+            $data->status = 'Pending';
+            $data->hr_status = 'Pending';
         }
 
-        $data->step = max($wizard->step, $payload['step']);
+        $data->step = max($data->step ?? 1, $payload['step']);
         $data->save();
+
+        if ($payload['step'] === 4) {
+            return redirect('/dashboard')->with('message', 'Sahayog Request submitted successfully.');
+        }
 
         return back()->with('message', 'Step saved successfully.');
     }
