@@ -26,13 +26,14 @@ class SahayogRequestController extends Controller
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
         $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
-        $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->with('step1Data','step2Data')->first();
+        $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->with(['step1Data', 'step2Data', 'step3Data'])->first();
         
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
             'workCenters' => $workCenters,
             'step1' => $wizardData ? $wizardData->step1Data : null,
             'step2' => $wizardData ? $wizardData->step2Data : null,
+            'step3' => $wizardData ? $wizardData->step3Data : null,
             'selectedBeneficiary' => $wizardData ? $wizardData->selected_beneficiary : null,
             'steps' => [
                 'Enter details of your employement.',
@@ -197,14 +198,25 @@ class SahayogRequestController extends Controller
         }
 
         if ($payload['step'] === 3 && isset($payload['step3'])) {
+            $request->validate([
+                'step3.financialOption' => 'required|string',
+                'step3.amount' => 'required|numeric|min:1',
+                'step3.otherDetails' => 'required_if:step3.financialOption,other',
+            ], [
+                'step3.financialOption.required' => 'Please select a financial option.',
+                'step3.amount.required' => 'Please enter the amount needed.',
+                'step3.amount.numeric' => 'Amount must be a valid number.',
+                'step3.otherDetails.required_if' => 'Please provide details for the other purpose.',
+            ]);
+
             $step3 = $payload['step3'];
-            $wizard->step3Data()->updateOrCreate(
-                ['wizard_data_id' => $wizard->id],
+            $data->step3Data()->updateOrCreate(
+                ['wizard_data_id' => $data->id],
                 [
-                    'requested_amount' => $step3['requested_amount'] ?? 0,
-                    'other_details' => $step3['other_details'] ?? null,
-                    'eligible_amount' => $step3['eligible_amount'] ?? 0,
-                    'financialoptions' => $step3['financialoptions'] ?? '',
+                    'requested_amount' => $step3['amount'] ?? 0,
+                    'other_details' => $step3['otherDetails'] ?? null,
+                    'eligible_amount'=> 40000,
+                    'financialoptions' => $step3['financialOption'] ?? '',
                 ]
             );
         }

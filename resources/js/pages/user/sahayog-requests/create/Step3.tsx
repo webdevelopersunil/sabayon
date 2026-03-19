@@ -3,10 +3,11 @@ import { useForm } from '@inertiajs/react';
 
 interface StepProps {
     onNext: () => void;
+    initialData?: any;
 }
-
+ 
 const requiredDocs: Record<string, string[]> = {
-    Medical: [
+    'Medical': [
         'Latest proof of employment such as photocopy of Identity card, pay slip, certificate from the contractor or any other valid proof.',
         'Dependency declaration/certificate in case of parents/spouse.',
         'Copy of ration card showing parents/spouse’s name.',
@@ -33,16 +34,28 @@ const requiredDocs: Record<string, string[]> = {
     ],
 };
 
-export default function Step3({ onNext }: StepProps) {
-    const { data, setData, post } = useForm({
-        financialOption: '',
-        otherDetails: '',
-        amount: '',
+export default function Step3({ onNext, initialData }: StepProps) {
+    const { data, setData, post, transform, errors: formErrors, processing } = useForm({
+        financialOption: initialData?.financialoptions || '',
+        otherDetails: initialData?.other_details || '',
+        amount: initialData?.requested_amount || '',
     });
+
+    const errors = formErrors as Record<string, string | undefined>;
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        onNext();
+        
+        transform((data) => ({
+            step: 3,
+            step3: data,
+        }));
+
+        post('/sahayog-request/save-step', {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => onNext(),
+        });
     };
 
     const selected = data.financialOption || '';
@@ -57,7 +70,7 @@ export default function Step3({ onNext }: StepProps) {
                 <select
                     value={data.financialOption}
                     onChange={(e: ChangeEvent<HTMLSelectElement>) => setData('financialOption', e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                    className={`w-full rounded-lg border px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40 ${errors['step3.financialOption'] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                 >
                     <option value="">Please Select</option>
                     <option value="Medical">Medical Treatement</option>
@@ -65,6 +78,9 @@ export default function Step3({ onNext }: StepProps) {
                     <option value="Daughter Marriage">Marriage of Dependent Daughter (Maximum can take is 50000)</option>
                     <option value="other">Any other purpose - Furnish Details</option>
                 </select>
+                {errors['step3.financialOption'] && (
+                    <p className="text-xs text-red-600 mt-1">{errors['step3.financialOption']}</p>
+                )}
             </label>
 
 
@@ -87,27 +103,33 @@ export default function Step3({ onNext }: StepProps) {
                         id="otherDetails"
                         value={data.otherDetails}
                         onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setData('otherDetails', e.target.value)}
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                        className={`w-full rounded-lg border px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40 ${errors['step3.otherDetails'] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                         rows={4}
                         placeholder="Leave a comment here"
                     />
+                    {errors['step3.otherDetails'] && (
+                        <p className="text-xs text-red-600 mt-1">{errors['step3.otherDetails']}</p>
+                    )}
                 </div>
             )}
 
             <label className="space-y-1 text-sm block">
                 Amount needed
-                <div className="flex rounded-lg border border-gray-200 focus-within:border-[#E65F2B] focus-within:ring-[#E65F2B]/40 items-center overflow-hidden">
-                    <span className="px-3 py-2 bg-gray-100 text-gray-700">₹</span>
+                <div className={`flex rounded-lg border focus-within:border-[#E65F2B] focus-within:ring-[#E65F2B]/40 items-center overflow-hidden ${errors['step3.amount'] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}>
+                    <span className={`px-3 py-2 text-gray-700 ${errors['step3.amount'] ? 'bg-red-100' : 'bg-gray-100'}`}>₹</span>
                     <input
                         type="number"
                         value={data.amount}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setData('amount', e.target.value)}
-                        className="w-full border-none px-3 py-2 focus:outline-none"
+                        className={`w-full border-none px-3 py-2 focus:outline-none ${errors['step3.amount'] ? 'bg-red-50' : ''}`}
                         id="moneyInput"
                         placeholder="Enter amount"
                         aria-label="Amount (to the nearest Indian Rupees)"
                     />
                 </div>
+                {errors['step3.amount'] && (
+                    <p className="text-xs text-red-600 mt-1">{errors['step3.amount']}</p>
+                )}
             </label>
             <div id="message" className="my-1 rounded-md border border-orange-300 bg-orange-50 px-3 py-2 text-sm text-orange-800">
                 Your level is eligible for maximum amount of 5.00 lakh
