@@ -26,12 +26,12 @@ class SahayogRequestController extends Controller
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
         $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
-        $step1  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->first();
+        $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->with('step1Data')->first();
         
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
             'workCenters' => $workCenters,
-            'step1' => $step1,
+            'step1' => $wizardData ? $wizardData->step1Data : null,
             'steps' => [
                 'Enter details of your employement.',
                 'Add Dependent details.(You have mentioned 4 in previous step):',

@@ -15,7 +15,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Sahayog Requests', href: dashboard() },
 ];
 
-export default function SahayogRequestCreatePage({ title, steps, workCenters }: { title: string; steps: string[]; workCenters: string[] }) {
+export default function SahayogRequestCreatePage({ title, steps, workCenters, step1 }: { title: string; steps: string[]; workCenters: string[]; step1?: any }) {
     const [currentStep, setCurrentStep] = useState(1);
     const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -29,11 +29,11 @@ export default function SahayogRequestCreatePage({ title, steps, workCenters }: 
     };
 
     const currentStepComponent = useMemo(() => {
-        if (currentStep === 1) return <Step1 onNext={() => handleNext(2)} workCenters={workCenters} />;
+        if (currentStep === 1) return <Step1 onNext={() => handleNext(2)} workCenters={workCenters} initialData={step1} />;
         if (currentStep === 2) return <Step2 onNext={() => handleNext(3)} />;
         if (currentStep === 3) return <Step3 onNext={() => handleNext(4)} />;
         return <Step4 onSubmit={() => alert('Final submission goes here!')} />;
-    }, [currentStep]);
+    }, [currentStep, workCenters, step1]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>

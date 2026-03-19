@@ -4,22 +4,23 @@ import { useForm } from '@inertiajs/react';
 interface StepProps {
     onNext: () => void;
     workCenters: string[];
+    initialData?: any;
 }
 
-export default function Step1({ onNext, workCenters }: StepProps) {
+export default function Step1({ onNext, workCenters, initialData }: StepProps) {
     const { data, setData, post, processing, errors, transform } = useForm({
-        date_of_seperation: '',
-        work_center: '',
-        place_of_posting: '',
-        seperation_reason: '',
-        bank_and_branch: '',
-        seperation_benefits: '',
-        savingaccount_No: '',
-        dependants_no: '',
-        ifsc_code: '',
-        gross_annual_income: '',
+        date_of_seperation: initialData?.date_of_seperation || '',
+        work_center: initialData?.work_center || '',
+        place_of_posting: initialData?.place_of_posting || '',
+        seperation_reason: initialData?.seperation_reason || '',
+        bank_and_branch: initialData?.bank_and_branch || '',
+        seperation_benefits: initialData?.seperation_benefits || '',
+        savingaccount_No: initialData?.savingaccount_No || '',
+        dependants_no: initialData?.dependants_no || '',
+        ifsc_code: initialData?.ifsc_code || '',
+        gross_annual_income: initialData?.gross_annual_income || '',
     });
-
+ 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
