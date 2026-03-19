@@ -113,13 +113,10 @@ class SahayogRequestController extends Controller
             'step4' => 'nullable|array',
         ]);
 
-
-
-        // Step 1 specific business validation
-        $this->step1FormProcessing($payload);
-
-
         if ($payload['step'] === 1 && isset($payload['step1'])) {
+            // Step 1 specific business validation
+            $this->step1FormProcessing($payload);
+
             $step1 = $payload['step1'];
             
             $data->step1Data()->updateOrCreate(
@@ -149,15 +146,30 @@ class SahayogRequestController extends Controller
         }
 
         if ($payload['step'] === 2 && isset($payload['step2'])) {
+
+            $request->validate([
+                'step2.beneficiaries' => 'required|array|min:1',
+                'step2.beneficiaries.*.name' => 'required|string|max:255',
+                'step2.beneficiaries.*.relationship' => 'required|string|max:255',
+                'step2.assistance_for' => 'required|string|max:255',
+            ], [
+                'step2.beneficiaries.*.name.required' => 'Beneficiary name is required.',
+                'step2.beneficiaries.*.relationship.required' => 'Relationship is required.',
+                'step2.assistance_for.required' => 'Please select an option.',
+            ]);
+
             $step2 = $payload['step2'];
-            $wizard->step2Data()->updateOrCreate(
-                ['wizard_data_id' => $wizard->id],
-                [
-                    'name' => $step2['name'] ?? '',
-                    'relationship' => $step2['relationship'] ?? 'Spouse',
-                    'is_editable' => $step2['is_editable'] ?? true,
-                ]
-            );
+            
+            $data->step2Data()->delete(); // Clear previous selection for this step
+            
+            foreach ($step2['beneficiaries'] as $beneficiary) {
+                $data->step2Data()->create([
+                    'name' => $beneficiary['name'] ?? '',
+                    'relationship' => $beneficiary['relationship'] ?? '',
+                    // 'assistance_for' => $step2['assistance_for'] ?? '',
+                    'is_editable' => true,
+                ]);
+            }
         }
 
         if ($payload['step'] === 3 && isset($payload['step3'])) {

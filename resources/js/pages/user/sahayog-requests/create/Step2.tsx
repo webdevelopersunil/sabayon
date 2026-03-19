@@ -8,6 +8,7 @@ interface Beneficiary {
 
 interface StepProps {
     onNext: () => void;
+    initialData?: any;
 }
 
 const relationships = [
@@ -18,11 +19,13 @@ const relationships = [
     'Other',
 ];
 
-export default function Step2({ onNext }: StepProps) {
-    const { data, setData, post } = useForm({
-        beneficiaries: [{ name: '', relationship: '' }] as Beneficiary[],
-        assistance_for: '',
+export default function Step2({ onNext, initialData }: StepProps) {
+    const { data, setData, post, transform, errors: formErrors, processing } = useForm({
+        beneficiaries: (initialData && initialData.length > 0) ? initialData : [{ name: '', relationship: '' }] as Beneficiary[],
+        assistance_for: (initialData && initialData.length > 0) ? initialData[0].assistance_for : '',
     });
+
+    const errors = formErrors as Record<string, string | undefined>;
 
     const updateBeneficiary = (index: number, field: keyof Beneficiary, value: string) => {
         const next = data.beneficiaries.map((item, idx) => (idx === index ? { ...item, [field]: value } : item));
@@ -40,7 +43,17 @@ export default function Step2({ onNext }: StepProps) {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        onNext();
+        
+        transform((data) => ({
+            step: 2,
+            step2: data,
+        }));
+
+        post('/sahayog-request/save-step', {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: () => onNext(),
+        });
     };
 
     return (
@@ -79,22 +92,28 @@ export default function Step2({ onNext }: StepProps) {
                                         type="text"
                                         value={beneficiary.name}
                                         onChange={(e) => updateBeneficiary(index, 'name', e.target.value)}
-                                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                                        className={`w-full rounded-lg border px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40 ${errors[`step2.beneficiaries.${index}.name`] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                                         placeholder="Beneficiary name"
                                     />
+                                    {errors[`step2.beneficiaries.${index}.name`] && (
+                                        <p className="text-xs text-red-600 mt-1">{errors[`step2.beneficiaries.${index}.name`]}</p>
+                                    )}
                                 </label>
                                 <label className="space-y-1 text-sm">
                                     Relationship with Applicant
                                     <select
                                         value={beneficiary.relationship}
                                         onChange={(e) => updateBeneficiary(index, 'relationship', e.target.value)}
-                                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                                        className={`w-full rounded-lg border px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40 ${errors[`step2.beneficiaries.${index}.relationship`] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                                     >
                                         <option value="">Select relationship</option>
                                         {relationships.map((rel) => (
                                             <option key={rel} value={rel}>{rel}</option>
                                         ))}
                                     </select>
+                                    {errors[`step2.beneficiaries.${index}.relationship`] && (
+                                        <p className="text-xs text-red-600 mt-1">{errors[`step2.beneficiaries.${index}.relationship`]}</p>
+                                    )}
                                 </label>
                             </div>
                         </div>
@@ -109,7 +128,7 @@ export default function Step2({ onNext }: StepProps) {
                         <select
                             value={data.assistance_for}
                             onChange={(e) => setData('assistance_for', e.target.value)}
-                            className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                            className={`w-full rounded-lg border px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40 ${errors['step2.assistance_for'] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                         >
                             <option value="">Select an option</option>
                             <option value="self">Self</option>
@@ -118,6 +137,9 @@ export default function Step2({ onNext }: StepProps) {
                             <option value="parent">Parent</option>
                             <option value="other">Other</option>
                         </select>
+                        {errors['step2.assistance_for'] && (
+                            <p className="text-xs text-red-600 mt-1">{errors['step2.assistance_for']}</p>
+                        )}
                     </label>
                 </div>
 
