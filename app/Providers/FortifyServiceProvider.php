@@ -76,6 +76,7 @@ class FortifyServiceProvider extends ServiceProvider
                                 'employee_type'=>$request->employee_type,
                                 'designation'=>$isFound['title'][0],
                                 'location'=>$isFound['physicaldeliveryofficename'][0],
+                                'date_of_joining_ongc'=> !empty($isFound['ongcjoiningdate'][0]) ? $isFound['ongcjoiningdate'][0] : now()->subYear()->format('Y-m-d'),
                                 'admin_verified'=>true
                             ]);
 
@@ -97,7 +98,7 @@ class FortifyServiceProvider extends ServiceProvider
                     $body = ['cpfNo' => $username];
 
                     $client = new Client();
-                    
+
                     dd($client);
 
                     try
