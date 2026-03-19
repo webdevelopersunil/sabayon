@@ -160,13 +160,14 @@ class SahayogRequestController extends Controller
 
             $step2 = $payload['step2'];
             
-            $data->step2Data()->delete(); // Clear previous selection for this step
+            // Clear previous selection for this step matched by wizard_data_id
+            \App\Models\Step2Data::where('wizard_data_id', $data->id)->delete();
             
             foreach ($step2['beneficiaries'] as $beneficiary) {
-                $data->step2Data()->create([
+                \App\Models\Step2Data::create([
+                    'wizard_data_id' => $data->id,
                     'name' => $beneficiary['name'] ?? '',
                     'relationship' => $beneficiary['relationship'] ?? '',
-                    // 'assistance_for' => $step2['assistance_for'] ?? '',
                     'is_editable' => true,
                 ]);
             }

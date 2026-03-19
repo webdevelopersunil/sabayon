@@ -14,9 +14,13 @@ interface StepProps {
 const relationships = [
     'Spouse',
     'Child',
-    'Parent',
-    'Sibling',
-    'Other',
+    'Sister',
+    'Father',
+    'Mother',
+    'Brother',
+    'Father in Law',
+    'Mother-in-Law',
+    'Sister in Law (Husband sister for DOD)'
 ];
 
 export default function Step2({ onNext, initialData }: StepProps) {
