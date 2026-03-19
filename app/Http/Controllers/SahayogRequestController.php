@@ -162,16 +162,33 @@ class SahayogRequestController extends Controller
 
             $step2 = $payload['step2'];
             
-            // Clear previous selection for this step matched by wizard_data_id
-            (new Step2Data())->where('wizard_data_id', $data->id)->delete();
+            $providedIds = collect($step2['beneficiaries'])->pluck('id')->filter()->all();
+
+            // Delete records that exist in the database but were removed from the form
+            if (!empty($providedIds)) {
+                Step2Data::where('wizard_data_id', $data->id)->whereNotIn('id', $providedIds)->delete();
+            } else {
+                Step2Data::where('wizard_data_id', $data->id)->delete();
+            }
             
             foreach ($step2['beneficiaries'] as $beneficiary) {
-                (new Step2Data())->create([
-                    'wizard_data_id' => $data->id,
-                    'name' => $beneficiary['name'] ?? '',
-                    'relationship' => $beneficiary['relationship'] ?? '',
-                    'is_editable' => true,
-                ]);
+                if (!empty($beneficiary['id'])) {
+                    // Update existing record
+                    Step2Data::where('id', $beneficiary['id'])
+                        ->where('wizard_data_id', $data->id)
+                        ->update([
+                            'name' => $beneficiary['name'] ?? '',
+                            'relationship' => $beneficiary['relationship'] ?? '',
+                        ]);
+                } else {
+                    // Create new record
+                    Step2Data::create([
+                        'wizard_data_id' => $data->id,
+                        'name' => $beneficiary['name'] ?? '',
+                        'relationship' => $beneficiary['relationship'] ?? '',
+                        'is_editable' => true,
+                    ]);
+                }
             }
 
             $data->where('id', $data->id)->update([

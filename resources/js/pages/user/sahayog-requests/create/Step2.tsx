@@ -2,6 +2,7 @@ import { FormEvent } from 'react';
 import { useForm } from '@inertiajs/react';
 
 interface Beneficiary {
+    id?: number;
     name: string;
     relationship: string;
 }
