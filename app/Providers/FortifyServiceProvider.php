@@ -12,6 +12,11 @@ use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
+use LdapRecord\Container;
+
+use Illuminate\Validation\ValidationException;
+use Exception;
+
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -31,6 +36,58 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureActions();
         $this->configureViews();
         $this->configureRateLimiting();
+
+        Fortify::authenticateUsing(function ($request) {
+
+            $username = strtoupper($request->input('cpf_no'));
+            $password = $request->input('password');
+
+            
+            if(request()->employee_type!=='contractor_employee')
+            {
+                if($request->employee_type=='active_employee')
+                {
+                    $isFound    =   $this->ldapRecord($username);
+                    
+                    if (!$isFound) {
+                        
+                        throw ValidationException::withMessages([
+                            'cpf_no' => 'User not found',
+                        ]);
+                    }
+
+                    try {
+                        $connection = Container::getDefaultConnection();
+                        
+                        if ($connection->auth()->attempt($isFound['dn'], $password)) {
+                            
+                            
+                        }
+                    } catch (Exception $e) {
+                        // Allow it to fall through to Fortify's default failed login response, or log the error
+                    }
+                }
+            }
+
+
+        });
+
+    }
+
+    public function ldapRecord($cpfNo)
+    {
+        try {
+            $connection = Container::getConnection('default');
+
+            $record = $connection->query()->findBy('samaccountname', $cpfNo);
+
+            return $record;
+
+        } catch (Exception $e) {
+            throw ValidationException::withMessages([
+                'cpf_no' => 'Cannot connect to LDAP server',
+            ]);
+        }
     }
 
     /**
