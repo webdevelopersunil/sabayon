@@ -64,11 +64,10 @@ class FortifyServiceProvider extends ServiceProvider
                         if ($connection->auth()->attempt($isFound['dn'], $password)) {
                             
                             $user = User::firstOrCreate([
-                                'cpf_no' => $request->cpf_no
+                                'cpf_no' => $username
                             ],
                             [
                                 'name' => strtolower($isFound['cn'][0]),
-                                'cpf_no' => $request->cpf_no,
                                 'password' => bcrypt($request->password),
                                 'email' => $isFound['mail'][0],
                                 // 'mobileno'=>$data['user']['mobileNo']??'N/A',
