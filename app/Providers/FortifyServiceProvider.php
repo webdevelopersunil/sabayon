@@ -15,6 +15,7 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use LdapRecord\Container;
+use GuzzleHttp\Client;
 
 use Illuminate\Validation\ValidationException;
 use Exception;
@@ -88,6 +89,47 @@ class FortifyServiceProvider extends ServiceProvider
                     } catch (Exception $e) {
                         // Allow it to fall through to Fortify's default failed login response, or log the error
                     }
+                }else{
+
+                    // /implement this here
+
+                    $url = 'https://bandhan.ongc.co.in/o/bandhan-api/getUserByCPFNumber';
+                    $body = ['cpfNo' => $username];
+
+                    $client = new Client();
+                    
+                    dd($client);
+
+                    try
+                    {
+                        $response = $client->post($url,
+                        [
+                            'auth' => [$username, $password], // Basic Authentication
+                            'json' => $body, // Request body as JSON
+                        ]);
+                        if ($response->getStatusCode() === 200)
+                        {
+                            $this->data = json_decode($response->getBody(), true);
+                            return true;
+                        }
+
+                    }
+                    catch (Exception $e)
+                    {
+                        throw ValidationException::withMessages([
+                            'cpf_no' => "You have entered wrong Username or Password"
+                        ]);
+                    }
+
+
+
+
+
+
+
+
+
+
                 }
             }
 
