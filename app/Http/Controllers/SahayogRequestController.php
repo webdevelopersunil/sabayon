@@ -26,12 +26,14 @@ class SahayogRequestController extends Controller
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
         $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
-        $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->with('step1Data')->first();
+        $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->with('step1Data','step2Data')->first();
         
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
             'workCenters' => $workCenters,
             'step1' => $wizardData ? $wizardData->step1Data : null,
+            'step2' => $wizardData ? $wizardData->step2Data : null,
+            'selectedBeneficiary' => $wizardData->selected_beneficiary,
             'steps' => [
                 'Enter details of your employement.',
                 'Add Dependent details.(You have mentioned 4 in previous step):',
@@ -151,26 +153,30 @@ class SahayogRequestController extends Controller
                 'step2.beneficiaries' => 'required|array|min:1',
                 'step2.beneficiaries.*.name' => 'required|string|max:255',
                 'step2.beneficiaries.*.relationship' => 'required|string|max:255',
-                'step2.assistance_for' => 'required|string|max:255',
+                'step2.selected_beneficiary' => 'required|string|max:255',
             ], [
                 'step2.beneficiaries.*.name.required' => 'Beneficiary name is required.',
                 'step2.beneficiaries.*.relationship.required' => 'Relationship is required.',
-                'step2.assistance_for.required' => 'Please select an option.',
+                'step2.selected_beneficiary.required' => 'Please select an option.',
             ]);
 
             $step2 = $payload['step2'];
             
             // Clear previous selection for this step matched by wizard_data_id
-            \App\Models\Step2Data::where('wizard_data_id', $data->id)->delete();
+            (new Step2Data())->where('wizard_data_id', $data->id)->delete();
             
             foreach ($step2['beneficiaries'] as $beneficiary) {
-                \App\Models\Step2Data::create([
+                (new Step2Data())->create([
                     'wizard_data_id' => $data->id,
                     'name' => $beneficiary['name'] ?? '',
                     'relationship' => $beneficiary['relationship'] ?? '',
                     'is_editable' => true,
                 ]);
             }
+
+            $data->where('id', $data->id)->update([
+                'selected_beneficiary' => $step2['selected_beneficiary'] ?? '',
+            ]);
         }
 
         if ($payload['step'] === 3 && isset($payload['step3'])) {

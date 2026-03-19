@@ -26,7 +26,7 @@ const relationships = [
 export default function Step2({ onNext, initialData }: StepProps) {
     const { data, setData, post, transform, errors: formErrors, processing } = useForm({
         beneficiaries: (initialData && initialData.length > 0) ? initialData : [{ name: '', relationship: '' }] as Beneficiary[],
-        assistance_for: (initialData && initialData.length > 0) ? initialData[0].assistance_for : '',
+        selected_beneficiary: (initialData && initialData.length > 0) ? initialData[0].selected_beneficiary : '',
     });
 
     const errors = formErrors as Record<string, string | undefined>;
@@ -130,9 +130,9 @@ export default function Step2({ onNext, initialData }: StepProps) {
                     <label className="space-y-1 text-sm">
                         Select for whom Financial Assistance is required?*
                         <select
-                            value={data.assistance_for}
-                            onChange={(e) => setData('assistance_for', e.target.value)}
-                            className={`w-full rounded-lg border px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40 ${errors['step2.assistance_for'] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
+                            value={data.selected_beneficiary}
+                            onChange={(e) => setData('selected_beneficiary', e.target.value)}
+                            className={`w-full rounded-lg border px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40 ${errors['step2.selected_beneficiary'] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                         >
                             <option value="">Select an option</option>
                             <option value="self">Self</option>
@@ -141,8 +141,8 @@ export default function Step2({ onNext, initialData }: StepProps) {
                             <option value="parent">Parent</option>
                             <option value="other">Other</option>
                         </select>
-                        {errors['step2.assistance_for'] && (
-                            <p className="text-xs text-red-600 mt-1">{errors['step2.assistance_for']}</p>
+                        {errors['step2.selected_beneficiary'] && (
+                            <p className="text-xs text-red-600 mt-1">{errors['step2.selected_beneficiary']}</p>
                         )}
                     </label>
                 </div>

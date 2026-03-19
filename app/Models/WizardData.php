@@ -66,7 +66,7 @@ class WizardData extends Model
 
     public function step2Data()
     {
-        return $this->hasOne(Step2Data::class, 'wizard_data_id');
+        return $this->hasMany(Step2Data::class, 'wizard_data_id');
     }
 
     public function step3Data()
