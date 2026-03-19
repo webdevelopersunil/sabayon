@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Models\Role;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -51,7 +52,6 @@ class FortifyServiceProvider extends ServiceProvider
                     $isFound    =   $this->ldapRecord($username);
                     
                     if (!$isFound) {
-                        
                         throw ValidationException::withMessages([
                             'cpf_no' => 'User not found',
                         ]);
@@ -67,7 +67,6 @@ class FortifyServiceProvider extends ServiceProvider
                             ],
                             [
                                 'name' => strtolower($isFound['cn'][0]),
-
                                 'cpf_no' => $request->cpf_no,
                                 'password' => bcrypt($request->password),
                                 'email' => $isFound['mail'][0],
@@ -78,6 +77,11 @@ class FortifyServiceProvider extends ServiceProvider
                                 'location'=>$isFound['physicaldeliveryofficename'][0],
                                 'admin_verified'=>true
                             ]);
+
+                            // Assign the 'user' role using Eloquent Models
+                            if ($role = Role::where('name', 'user')->first()) {
+                                $user->roles()->syncWithoutDetaching([$role->id]);
+                            }
                             
                             return $user;
                         }
