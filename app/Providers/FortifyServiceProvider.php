@@ -109,7 +109,7 @@ class FortifyServiceProvider extends ServiceProvider
                         ]);
                         if ($response->getStatusCode() === 200)
                         {
-                            $this->data = json_decode($response->getBody(), true);
+                            // $this->data = json_decode($response->getBody(), true);
                             return true;
                         }
 

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('request_no')->unique();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->integer('step')->default(1);
-            $table->enum('status', ['complete', 'draft'])->default('draft');
+            $table->enum('status', ['Complete', 'Draft'])->default('Draft');
             $table->enum('hr_status', ['Approved', 'Under-Process','Rejected','Returned','Draft'])->default('Draft');
             $table->enum('trust_admin_payment_status', ['Payment-Rejected', 'Payment-Released'])->nullable();
             $table->text('hr_updates')->nullable();

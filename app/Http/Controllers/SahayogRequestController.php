@@ -26,10 +26,12 @@ class SahayogRequestController extends Controller
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
         $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
-
+        $step1  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->first();
+        
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
             'workCenters' => $workCenters,
+            'step1' => $step1,
             'steps' => [
                 'Enter details of your employement.',
                 'Add Dependent details.(You have mentioned 4 in previous step):',
@@ -121,29 +123,29 @@ class SahayogRequestController extends Controller
             $step1 = $payload['step1'];
             
             $data->step1Data()->updateOrCreate(
-    [], // ✅ DO NOT pass wizard_data_id
-    [
-        'name' => $step1['name'] ?? '',
-        'type' => $step1['type'] ?? '',
-        'cpfno' => $step1['cpfno'] ?? '',
-        'doj_ongc' => $step1['doj_ongc'] ?? null,
-        'designation' => $step1['designation'] ?? '',
+                            [], // ✅ DO NOT pass wizard_data_id
+                            [
+                                'name' => $step1['name'] ?? '',
+                                'type' => $step1['type'] ?? '',
+                                'cpfno' => $step1['cpfno'] ?? '',
+                                'doj_ongc' => $step1['doj_ongc'] ?? null,
+                                'designation' => $step1['designation'] ?? '',
 
-        'doj_ongc' => date('Y-m-d'),
-        'user_id'   => $userId,
+                                'doj_ongc' => date('Y-m-d'),
+                                'user_id'   => $userId,
 
-        'date_of_seperation' => $step1['date_of_seperation'] ?? null,
-        'work_center' => $step1['work_center'] ?? '',
-        'place_of_posting' => $step1['place_of_posting'] ?? '',
-        'seperation_reason' => $step1['seperation_reason'] ?? '',
-        'bank_and_branch' => $step1['bank_and_branch'] ?? '',
-        'seperation_benefits' => $step1['seperation_benefits'] ?? null,
-        'savingaccount_No' => $step1['savingaccount_No'] ?? '',
-        'dependants_no' => $step1['dependants_no'] ?? 0,
-        'ifsc_code' => $step1['ifsc_code'] ?? '',
-        'gross_annual_income' => $step1['gross_annual_income'] ?? 0,
-    ]
-);
+                                'date_of_seperation' => $step1['date_of_seperation'] ?? null,
+                                'work_center' => $step1['work_center'] ?? '',
+                                'place_of_posting' => $step1['place_of_posting'] ?? '',
+                                'seperation_reason' => $step1['seperation_reason'] ?? '',
+                                'bank_and_branch' => $step1['bank_and_branch'] ?? '',
+                                'seperation_benefits' => $step1['seperation_benefits'] ?? null,
+                                'savingaccount_No' => $step1['savingaccount_No'] ?? '',
+                                'dependants_no' => $step1['dependants_no'] ?? 0,
+                                'ifsc_code' => $step1['ifsc_code'] ?? '',
+                                'gross_annual_income' => $step1['gross_annual_income'] ?? 0,
+                            ]
+                        );
         }
 
         if ($payload['step'] === 2 && isset($payload['step2'])) {
@@ -181,8 +183,8 @@ class SahayogRequestController extends Controller
             );
         }
 
-        $wizard->step = max($wizard->step, $payload['step']);
-        $wizard->save();
+        $data->step = max($wizard->step, $payload['step']);
+        $data->save();
 
         return back()->with('message', 'Step saved successfully.');
     }
