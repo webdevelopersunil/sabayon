@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -61,7 +62,24 @@ class FortifyServiceProvider extends ServiceProvider
                         
                         if ($connection->auth()->attempt($isFound['dn'], $password)) {
                             
+                            $user = User::firstOrCreate([
+                                'cpf_no' => $request->cpf_no
+                            ],
+                            [
+                                'name' => strtolower($isFound['cn'][0]),
+
+                                'cpf_no' => $request->cpf_no,
+                                'password' => bcrypt($request->password),
+                                'email' => $isFound['mail'][0],
+                                // 'mobileno'=>$data['user']['mobileNo']??'N/A',
+                                'mobileno' => $isFound['telephonenumber'][0],
+                                'employee_type'=>$request->employee_type,
+                                'designation'=>$isFound['title'][0],
+                                'location'=>$isFound['physicaldeliveryofficename'][0],
+                                'admin_verified'=>true
+                            ]);
                             
+                            return $user;
                         }
                     } catch (Exception $e) {
                         // Allow it to fall through to Fortify's default failed login response, or log the error
