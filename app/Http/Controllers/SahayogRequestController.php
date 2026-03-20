@@ -224,7 +224,7 @@ class SahayogRequestController extends Controller
         }
 
         if ($step === 4 && isset($payload['step4'])) {
-            dd($payload);
+            // dd($payload);
             $request->validate([
                 'step4.files' => 'required|array|min:1|max:5',
                 'step4.files.*' => 'file|max:10240', // 10MB max limit
@@ -255,8 +255,8 @@ class SahayogRequestController extends Controller
                 ]
             );
 
-            $data->status = 'Pending';
-            $data->hr_status = 'Pending';
+            $data->status = 'Complete';
+            $data->hr_status = 'Under-Process';
         }
 
         $data->step = max($data->step ?? 1, $step);
