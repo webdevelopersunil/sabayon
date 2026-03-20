@@ -1,5 +1,6 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { useState, useEffect, useRef } from 'react';
 import { 
     Search, 
     Eye, 
@@ -14,7 +15,6 @@ import {
     AlertCircle,
     FileQuestion
 } from 'lucide-react';
-import { useState } from 'react';
 
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
@@ -27,66 +27,47 @@ const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Sahayog Requests',
         href: dashboard(),
-    }
+    },
+    {
+        title: 'Sahayog Request History',
+        href: dashboard(),
+    },
 ];
 
-export default function SahayogRequestListPage() {
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
-    
-    const sampleRequests = [
-        { 
-            id: 'SAH-2024-001', 
-            title: 'Medical assistance request for family member', 
-            admin_status: 'Under-Review',
-            created_at: '2024-03-15',
-            priority: 'High'
-        },
-        { 
-            id: 'SAH-2024-002', 
-            title: 'School fee reimbursement request', 
-            admin_status: 'Accepted',
-            created_at: '2024-03-14',
-            priority: 'Medium'
-        },
-        { 
-            id: 'SAH-2024-003', 
-            title: '', // Empty title test
-            admin_status: 'Rejected',
-            created_at: '2024-03-13',
-            priority: 'Low'
-        },
-        { 
-            id: 'SAH-2024-004', 
-            title: 'Emergency medical fund request', 
-            admin_status: 'Under-Review',
-            created_at: '2024-03-12',
-            priority: 'High'
-        },
-        { 
-            id: 'SAH-2024-005', 
-            title: 'Education scholarship application', 
-            admin_status: 'Accepted',
-            created_at: '2024-03-11',
-            priority: 'Medium'
-        },
-        { 
-            id: 'SAH-2024-006', 
-            title: '', // Another empty title test
-            admin_status: 'Rejected',
-            created_at: '2024-03-10',
-            priority: 'High'
-        },
-    ];
+interface HistoryProps {
+    requests: any;
+    filters: { search?: string; status?: string };
+}
 
-    const itemsPerPage = 5;
-    const totalPages = Math.ceil(sampleRequests.length / itemsPerPage);
-    
-    const paginatedRequests = sampleRequests.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
+export default function SahayogRequestListPage( { requests, filters }: HistoryProps ) {
+    const [search, setSearch] = useState(filters.search || '');
+    const [status, setStatus] = useState(filters.status || '');
+    const isFirstRender = useRef(true);
+
+    // Automatically submit a new Inertia request when filters change
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeoutId = setTimeout(() => {
+            router.get(
+                window.location.pathname, // Stays on the current route automatically
+                { search, status },
+                { preserveState: true, replace: true, preserveScroll: true }
+            );
+        }, 300); // 300ms debounce prevents spamming the server while typing
+
+        return () => clearTimeout(timeoutId);
+    }, [search, status]);
+
+    const mapStatusToBadge = (hrStatus: string, basicStatus: string) => {
+        const combined = hrStatus || basicStatus;
+        if (combined === 'Complete' || combined === 'Approved') return 'Accepted';
+        if (combined === 'Rejected') return 'Rejected';
+        return 'Under-Review';
+    };
 
     const getStatusBadge = (status: string) => {
         const statusConfig = {
@@ -185,22 +166,22 @@ export default function SahayogRequestListPage() {
                             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Search by Request ID or Title..."
+                                placeholder="Search by Request ID..."
                                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:border-[#E65F2B] focus:ring-1 focus:ring-[#E65F2B] transition-all outline-none text-gray-800 placeholder-gray-400"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
                             />
                         </div>
                         <div className="flex gap-3">
                             <select
                                 className="px-4 py-2.5 rounded-lg border border-gray-200 focus:border-[#E65F2B] focus:ring-1 focus:ring-[#E65F2B] transition-all outline-none text-gray-700 bg-white"
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value)}
                             >
-                                <option value="all">All Status</option>
-                                <option value="Accepted">Accepted</option>
-                                <option value="Under-Review">Under Review</option>
-                                <option value="Rejected">Rejected</option>
+                                <option value="">All Statuses</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Under-Process">Under Process</option>
+                                <option value="Complete">Complete</option>
                             </select>
                             <button className="px-4 py-2.5 rounded-lg border border-gray-200 hover:border-[#E65F2B]/30 hover:bg-gray-50 transition-all text-gray-600">
                                 <Filter className="h-5 w-5" />
@@ -215,24 +196,24 @@ export default function SahayogRequestListPage() {
                     <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
                             <p className="text-xs text-gray-500">Total Requests</p>
-                            <p className="text-xl font-semibold text-gray-800">{sampleRequests.length}</p>
+                            <p className="text-xl font-semibold text-gray-800">{requests?.total || 0}</p>
                         </div>
                         <div className="bg-green-50 rounded-lg p-3 border border-green-100">
                             <p className="text-xs text-green-600">Accepted</p>
                             <p className="text-xl font-semibold text-green-700">
-                                {sampleRequests.filter(r => r.admin_status === 'Accepted').length}
+                                {requests?.data?.filter((r: any) => mapStatusToBadge(r.hr_status, r.status) === 'Accepted').length || 0}
                             </p>
                         </div>
                         <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-100">
                             <p className="text-xs text-yellow-600">Under Review</p>
                             <p className="text-xl font-semibold text-yellow-700">
-                                {sampleRequests.filter(r => r.admin_status === 'Under-Review').length}
+                                {requests?.data?.filter((r: any) => mapStatusToBadge(r.hr_status, r.status) === 'Under-Review').length || 0}
                             </p>
                         </div>
                         <div className="bg-red-50 rounded-lg p-3 border border-red-100">
                             <p className="text-xs text-red-600">Rejected</p>
                             <p className="text-xl font-semibold text-red-700">
-                                {sampleRequests.filter(r => r.admin_status === 'Rejected').length}
+                                {requests?.data?.filter((r: any) => mapStatusToBadge(r.hr_status, r.status) === 'Rejected').length || 0}
                             </p>
                         </div>
                     </div>
@@ -248,11 +229,11 @@ export default function SahayogRequestListPage() {
                                         <tr className="bg-gray-50 border-b border-gray-200">
                                             <th className="w-[100px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                                 <div className="flex items-center gap-2">
-                                                    Request ID
+                                                    Index
                                                 </div>
                                             </th>
                                             <th className="w-[400px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                                Title
+                                                Request Number
                                             </th>
                                             <th className="w-[120px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                                 <div className="flex items-center gap-2">
@@ -269,30 +250,36 @@ export default function SahayogRequestListPage() {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-100">
-                                        {paginatedRequests.map((request, index) => (
-                                            <tr 
-                                                key={request.id} 
-                                                className="group hover:bg-gray-50/50 transition-colors"
-                                            >
+                                        {requests?.data?.length > 0 ? (
+                                            requests.data.map((request: any, index: number) => {
+                                                const displayId = `REQ-${String().padStart(4, '0')}`;
+                                                const mappedStatus = mapStatusToBadge(request.hr_status, request.status);
+                                                const itemIndex = (requests.current_page - 1) * requests.per_page + index + 1;
+                                                
+                                                return (
+                                                    <tr 
+                                                        key={request.id} 
+                                                        className="group hover:bg-gray-50/50 transition-colors"
+                                                    >
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 rounded-lg bg-[#E65F2B]/10 flex items-center justify-center shrink-0">
                                                             <span className="text-xs font-semibold text-[#E65F2B]">
-                                                                #{index + 1 + (currentPage - 1) * itemsPerPage}
+                                                                #{itemIndex}
                                                             </span>
                                                         </div>
-                                                        <span className="font-mono text-sm font-medium text-gray-800 truncate" title={request.id}>
-                                                            {request.id}
+                                                        <span className="font-mono text-sm font-medium text-gray-800 truncate" title={displayId}>
+                                                            {displayId}
                                                         </span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="min-w-[250px] max-w-[350px]">
                                                         <div className="text-sm font-medium text-gray-800 break-words">
-                                                            {displayTitle(request.title, request.id)}
+                                                            {displayTitle(`Sahayog Request (Step ${request.step})`, displayId)}
                                                         </div>
-                                                        <p className="text-xs text-gray-400 mt-0.5 truncate" title={request.id}>
-                                                            ID: {request.id}
+                                                        <p className="text-xs text-gray-400 mt-0.5 truncate" title={displayId}>
+                                                            ID: {displayId}
                                                         </p>
                                                     </div>
                                                 </td>
@@ -310,12 +297,12 @@ export default function SahayogRequestListPage() {
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="min-w-[110px]">
-                                                        {getStatusBadge(request.admin_status)}
+                                                        {getStatusBadge(mappedStatus)}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <Link
-                                                        href={`/sahayog-requests/${request.id}`}
+                                                        href={`/sahayog-requests/view/${request.id}`}
                                                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#E65F2B]/10 text-[#E65F2B] hover:bg-[#E65F2B] hover:text-white transition-all duration-300 group/btn whitespace-nowrap"
                                                     >
                                                         <Eye className="h-4 w-4 group-hover/btn:scale-110 transition-transform shrink-0" />
@@ -323,7 +310,15 @@ export default function SahayogRequestListPage() {
                                                     </Link>
                                                 </td>
                                             </tr>
-                                        ))}
+                                                );
+                                            })
+                                        ) : (
+                                            <tr>
+                                                <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
+                                                    No requests found matching your filters.
+                                                </td>
+                                            </tr>
+                                        )}
                                     </tbody>
                                 </table>
                             </div>
@@ -332,48 +327,64 @@ export default function SahayogRequestListPage() {
                             <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
                                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                                     <p className="text-sm text-gray-500">
-                                        Showing <span className="font-medium text-gray-700">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
-                                        <span className="font-medium text-gray-700">
-                                            {Math.min(currentPage * itemsPerPage, sampleRequests.length)}
-                                        </span>{' '}
-                                        of <span className="font-medium text-gray-700">{sampleRequests.length}</span> results
+                                        Showing <span className="font-medium text-gray-700">{requests?.from || 0}</span> to{' '}
+                                        <span className="font-medium text-gray-700">{requests?.to || 0}</span>{' '}
+                                        of <span className="font-medium text-gray-700">{requests?.total || 0}</span> results
                                     </p>
                                     
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                                            disabled={currentPage === 1}
-                                            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:text-gray-600"
-                                        >
-                                            <ChevronLeft className="h-4 w-4" />
-                                            Previous
-                                        </button>
-                                        
+                                    {requests?.links && requests.links.length > 3 && (
                                         <div className="flex items-center gap-1">
-                                            {[...Array(totalPages)].map((_, i) => (
-                                                <button
-                                                    key={i}
-                                                    onClick={() => setCurrentPage(i + 1)}
-                                                    className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${
-                                                        currentPage === i + 1
-                                                            ? 'bg-[#E65F2B] text-white shadow-md'
-                                                            : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                                    }`}
-                                                >
-                                                    {i + 1}
-                                                </button>
-                                            ))}
+                                            {requests.links.map((link: any, i: number) => {
+                                                const isPrevious = i === 0;
+                                                const isNext = i === requests.links.length - 1;
+                                                
+                                                if (isPrevious) {
+                                                    return (
+                                                        <Link
+                                                            key={i}
+                                                            href={link.url || '#'}
+                                                            preserveScroll
+                                                            preserveState
+                                                            className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all mr-1 ${!link.url ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+                                                        >
+                                                            <ChevronLeft className="h-4 w-4" />
+                                                            Previous
+                                                        </Link>
+                                                    );
+                                                }
+                                                
+                                                if (isNext) {
+                                                    return (
+                                                        <Link
+                                                            key={i}
+                                                            href={link.url || '#'}
+                                                            preserveScroll
+                                                            preserveState
+                                                            className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all ml-1 ${!link.url ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+                                                        >
+                                                            Next
+                                                            <ChevronRight className="h-4 w-4" />
+                                                        </Link>
+                                                    );
+                                                }
+                                                
+                                                return (
+                                                    <Link
+                                                        key={i}
+                                                        href={link.url || '#'}
+                                                        preserveScroll
+                                                        preserveState
+                                                        className={`w-9 h-9 flex items-center justify-center rounded-lg text-sm font-medium transition-all ${
+                                                            link.active
+                                                                ? 'bg-[#E65F2B] text-white shadow-md'
+                                                                : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                                        } ${!link.url ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+                                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    />
+                                                );
+                                            })}
                                         </div>
-                                        
-                                        <button
-                                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                                            disabled={currentPage === totalPages}
-                                            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:text-gray-600"
-                                        >
-                                            Next
-                                            <ChevronRight className="h-4 w-4" />
-                                        </button>
-                                    </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -381,7 +392,7 @@ export default function SahayogRequestListPage() {
                 </div>
 
                 {/* Quick Actions Footer */}
-                <div className="mt-6 flex justify-end gap-3">
+                {/* <div className="mt-6 flex justify-end gap-3">
                     <button className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all">
                         Export as CSV
                     </button>
@@ -389,7 +400,7 @@ export default function SahayogRequestListPage() {
                         <Download className="h-4 w-4" />
                         Download Report
                     </button>
-                </div>
+                </div> */}
             </div>
         </AppLayout>
     );

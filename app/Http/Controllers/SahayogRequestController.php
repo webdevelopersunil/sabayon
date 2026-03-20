@@ -49,7 +49,26 @@ class SahayogRequestController extends Controller
     public function history(Request $request)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.history');
-        return Inertia::render('user/sahayog-requests/list/index');
+
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        $requests = WizardData::select('id', 'step', 'status', 'hr_status', 'created_at')
+            ->where('user_id', auth()->id())
+            ->when($search, function ($query, $search) {
+                $query->where('request_no', 'like', "%{$search}%");
+            })
+            ->when($status, function ($query, $status) {
+                $query->where(fn($q) => $q->where('status', $status)->orWhere('hr_status', $status));
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+                
+        return Inertia::render('user/sahayog-requests/list/index', [
+            'requests' => $requests,
+            'filters' => $request->only(['search', 'status']),
+        ]);
     }
 
     public function show(Request $request, $id)
