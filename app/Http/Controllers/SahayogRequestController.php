@@ -277,10 +277,6 @@ class SahayogRequestController extends Controller
         $data->step = max($data->step ?? 1, $step);
         $data->save();
 
-        if ($step === 4) {
-            return redirect('/dashboard')->with('message', 'Sahayog Request submitted successfully.');
-        }
-
         return back()->with('message', 'Step saved successfully.');
     }
 

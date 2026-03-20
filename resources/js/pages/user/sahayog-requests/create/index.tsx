@@ -1,6 +1,6 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import { ArrowLeft, ArrowRight, FileText, Send, Sparkles, Loader2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FileText, Send, Sparkles, Loader2, CheckCircle } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { dashboard } from '@/routes';
@@ -18,6 +18,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function SahayogRequestCreatePage({ title, steps, workCenters, step1, step2, step3, selectedBeneficiary }: { title: string; steps: string[]; workCenters: string[]; step1?: any; step2?: any; step3?: any; selectedBeneficiary?: string }) {
     const [currentStep, setCurrentStep] = useState(1);
     const [isTransitioning, setIsTransitioning] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleNext = (nextStep: number) => {
         setIsTransitioning(true);
@@ -32,7 +33,12 @@ export default function SahayogRequestCreatePage({ title, steps, workCenters, st
         if (currentStep === 1) return <Step1 onNext={() => handleNext(2)} workCenters={workCenters} initialData={step1} />;
         if (currentStep === 2) return <Step2 onNext={() => handleNext(3)} initialData={step2} selectedBeneficiary={selectedBeneficiary} />;
         if (currentStep === 3) return <Step3 onNext={() => handleNext(4)} initialData={step3} />;
-        return <Step4 onSubmit={() => console.log('Final submission completed')} />;
+        return <Step4 onSubmit={() => {
+            setShowSuccessModal(true);
+            setTimeout(() => {
+                router.visit(dashboard());
+            }, 1000);
+        }} />;
     }, [currentStep, workCenters, step1, step2, step3, selectedBeneficiary]);
 
     return (
@@ -131,6 +137,17 @@ export default function SahayogRequestCreatePage({ title, steps, workCenters, st
                     </div>
                 </div>
             </div>
+
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+                    <div className="rounded-2xl bg-white p-8 text-center shadow-xl w-80">
+                        <CheckCircle className="mx-auto mb-4 h-12 w-12 text-green-500" />
+                        <h2 className="text-xl font-bold text-gray-800">Success!</h2>
+                        <p className="mt-2 text-sm text-gray-600">Request submitted successfully.</p>
+                        <p className="mt-4 text-xs text-gray-400">Redirecting to dashboard...</p>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }
