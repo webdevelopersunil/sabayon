@@ -302,7 +302,7 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <Link
-                                                        href={`/sahayog-requests/view/${request.id}`}
+                                                        href={`/sahayog-requests/${request.id}`}
                                                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#E65F2B]/10 text-[#E65F2B] hover:bg-[#E65F2B] hover:text-white transition-all duration-300 group/btn whitespace-nowrap"
                                                     >
                                                         <Eye className="h-4 w-4 group-hover/btn:scale-110 transition-transform shrink-0" />
