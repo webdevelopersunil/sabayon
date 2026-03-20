@@ -10,6 +10,7 @@ use App\Models\WizardData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Admin;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Http\Requests\SahayogStep1Request;
 
@@ -26,7 +27,7 @@ class SahayogRequestController extends Controller
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
         $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
-        $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->with(['step1Data', 'step2Data', 'step3Data'])->first();
+        $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])->first();
         
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
@@ -34,6 +35,7 @@ class SahayogRequestController extends Controller
             'step1' => $wizardData ? $wizardData->step1Data : null,
             'step2' => $wizardData ? $wizardData->step2Data : null,
             'step3' => $wizardData ? $wizardData->step3Data : null,
+            'step4' => $wizardData ? $wizardData->step4Data()->get() : [],
             'selectedBeneficiary' => $wizardData ? $wizardData->selected_beneficiary : null,
             'steps' => [
                 'Enter details of your employement.',
@@ -200,6 +202,7 @@ class SahayogRequestController extends Controller
         }
 
         if ($step === 3 && isset($payload['step3'])) {
+            
             $request->validate([
                 'step3.financialOption' => 'required|string',
                 'step3.amount' => 'required|numeric|min:1',
@@ -224,26 +227,41 @@ class SahayogRequestController extends Controller
         }
 
         if ($step === 4 && isset($payload['step4'])) {
-            // dd($payload);
+            $step4 = $payload['step4'];
+
+            // Custom validation for file counts (New + Existing)
+            $newFilesCount = $request->hasFile('step4.files') ? count($request->file('step4.files')) : 0;
+            $existingFilesCount = isset($step4['existing_files']) ? count($step4['existing_files']) : 0;
+
+            if (($newFilesCount + $existingFilesCount) === 0) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['step4.files' => 'Please upload at least one document.']);
+            }
+            if (($newFilesCount + $existingFilesCount) > 5) {
+                throw \Illuminate\Validation\ValidationException::withMessages(['step4.files' => 'You can upload a maximum of 5 documents.']);
+            }
+
             $request->validate([
-                'step4.files' => 'required|array|min:1|max:5',
+                'step4.files' => 'nullable|array',
                 'step4.files.*' => 'file|max:10240', // 10MB max limit
                 'step4.cliamearlier' => 'required|accepted',
                 'step4.timelimit' => 'required|accepted',
             ], [
-                'step4.files.required' => 'Please upload at least one document.',
-                'step4.files.max' => 'You can upload a maximum of 5 documents.',
                 'step4.cliamearlier.required' => 'You must accept this declaration.',
                 'step4.cliamearlier.accepted' => 'You must accept this declaration.',
                 'step4.timelimit.required' => 'You must accept this declaration.',
                 'step4.timelimit.accepted' => 'You must accept this declaration.',
             ]);
 
-            $step4 = $payload['step4'];
+            $keptFileIds = $step4['existing_files'] ?? [];
+
+            // Find files that were removed on the frontend and delete them securely
+            $removedFiles = $data->step4Data()->whereNotIn('id', $keptFileIds)->get();
+            foreach ($removedFiles as $removedFile) {
+                Storage::disk('public')->delete($removedFile->attachment); // Remove physical file
+                $removedFile->delete(); // Remove DB entry
+            }
 
             if ($request->hasFile('step4.files')) {
-                $data->step4Data()->delete(); // Clear previously uploaded file entries for this request
-
                 foreach ($request->file('step4.files') as $file) {
                     $filePath = $file->store('sahayog-documents', 'public');
                     $data->step4Data()->create([
@@ -253,7 +271,7 @@ class SahayogRequestController extends Controller
             }
 
             // $data->status = 'Complete';
-            $data->hr_status = 'Under-Process';
+            // $data->hr_status = 'Under-Process';
         }
 
         $data->step = max($data->step ?? 1, $step);

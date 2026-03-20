@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 
 interface Step4Props {
     onSubmit: () => void;
@@ -15,18 +15,23 @@ const docs = [
 ];
 
 export default function Step4({ onSubmit }: Step4Props) {
+    const { step4 } = usePage().props as any;
+    const initialExistingFiles = Array.isArray(step4) ? step4 : [];
+
     const { data, setData, post, processing, errors: formErrors, transform } = useForm({
         cliamearlier: '',
         timelimit: '',
         files: [] as File[],
+        existing_files: initialExistingFiles.map((f: any) => f.id) as number[],
     });
 
     const errors = formErrors as Record<string, string | undefined>;
+    const visibleExistingFiles = initialExistingFiles.filter((f: any) => data.existing_files.includes(f.id));
 
     const onFilesChange = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
         const next = Array.from(e.target.files);
-        if (data.files.length + next.length > 5) {
+        if (data.files.length + next.length + data.existing_files.length > 5) {
             alert('You can upload a maximum of 5 files.');
             return;
         }
@@ -42,7 +47,6 @@ export default function Step4({ onSubmit }: Step4Props) {
         }));
 
         post('/sahayog-request/save-step', {
-            forceFormData: true,
             preserveState: true,
             preserveScroll: true,
             onSuccess: () => onSubmit(),
@@ -71,17 +75,29 @@ export default function Step4({ onSubmit }: Step4Props) {
                     <p key={k} className="text-xs text-red-600 mt-1">{errors[k]}</p>
                 ))}
 
-                {data.files.length > 0 && (
+                {(data.files.length > 0 || visibleExistingFiles.length > 0) && (
                     <div className="rounded-lg border border-gray-200 bg-white p-3 text-sm">
-                        <div className="font-medium text-gray-700">Files You Have Uploaded ({data.files.length}/5)</div>
+                        <div className="font-medium text-gray-700">Files You Have Uploaded ({data.files.length + visibleExistingFiles.length}/5)</div>
                         <ul className="list-disc list-inside mt-2 space-y-1">
+                            {visibleExistingFiles.map((file: any) => (
+                                <li key={`existing-${file.id}`} className="flex items-center justify-between gap-3">
+                                    <span className="truncate">{file.attachment.split('/').pop()}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => setData('existing_files', data.existing_files.filter((id: number) => id !== file.id))}
+                                        className="text-xs text-red-600 hover:text-red-700 whitespace-nowrap"
+                                    >
+                                        Remove
+                                    </button>
+                                </li>
+                            ))}
                             {data.files.map((file, idx) => (
                                 <li key={`${file.name}-${idx}`} className="flex items-center justify-between gap-3">
-                                    <span>{file.name}</span>
+                                    <span className="truncate">{file.name} <span className="text-xs text-gray-400">(New)</span></span>
                                     <button
                                         type="button"
                                         onClick={() => setData('files', data.files.filter((_, i) => i !== idx))}
-                                        className="text-xs text-red-600 hover:text-red-700"
+                                        className="text-xs text-red-600 hover:text-red-700 whitespace-nowrap"
                                     >
                                         Remove
                                     </button>
