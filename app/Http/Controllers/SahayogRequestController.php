@@ -116,7 +116,9 @@ class SahayogRequestController extends Controller
             'step4' => 'nullable|array',
         ]);
 
-        if ($payload['step'] === 1 && isset($payload['step1'])) {
+        $step = (int) $payload['step'];
+
+        if ($step === 1 && isset($payload['step1'])) {
             // Step 1 specific business validation
             $this->step1FormProcessing($payload);
 
@@ -148,7 +150,7 @@ class SahayogRequestController extends Controller
                         );
         }
 
-        if ($payload['step'] === 2 && isset($payload['step2'])) {
+        if ($step === 2 && isset($payload['step2'])) {
 
             $request->validate([
                 'step2.beneficiaries' => 'required|array|min:1',
@@ -197,7 +199,7 @@ class SahayogRequestController extends Controller
             ]);
         }
 
-        if ($payload['step'] === 3 && isset($payload['step3'])) {
+        if ($step === 3 && isset($payload['step3'])) {
             $request->validate([
                 'step3.financialOption' => 'required|string',
                 'step3.amount' => 'required|numeric|min:1',
@@ -221,7 +223,8 @@ class SahayogRequestController extends Controller
             );
         }
 
-        if ($payload['step'] === 4 && isset($payload['step4'])) {
+        if ($step === 4 && isset($payload['step4'])) {
+            dd($payload);
             $request->validate([
                 'step4.files' => 'required|array|min:1|max:5',
                 'step4.files.*' => 'file|max:10240', // 10MB max limit
@@ -256,10 +259,10 @@ class SahayogRequestController extends Controller
             $data->hr_status = 'Pending';
         }
 
-        $data->step = max($data->step ?? 1, $payload['step']);
+        $data->step = max($data->step ?? 1, $step);
         $data->save();
 
-        if ($payload['step'] === 4) {
+        if ($step === 4) {
             return redirect('/dashboard')->with('message', 'Sahayog Request submitted successfully.');
         }
 

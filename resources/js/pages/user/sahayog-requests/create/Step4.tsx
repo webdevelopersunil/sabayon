@@ -42,6 +42,7 @@ export default function Step4({ onSubmit }: Step4Props) {
         }));
 
         post('/sahayog-request/save-step', {
+            forceFormData: true,
             preserveState: true,
             preserveScroll: true,
             onSuccess: () => onSubmit(),
