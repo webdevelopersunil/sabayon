@@ -240,22 +240,19 @@ class SahayogRequestController extends Controller
             ]);
 
             $step4 = $payload['step4'];
-            $filePaths = [];
 
             if ($request->hasFile('step4.files')) {
+                $data->step4Data()->delete(); // Clear previously uploaded file entries for this request
+
                 foreach ($request->file('step4.files') as $file) {
-                    $filePaths[] = $file->store('sahayog-documents', 'public');
+                    $filePath = $file->store('sahayog-documents', 'public');
+                    $data->step4Data()->create([
+                        'attachment' => $filePath,
+                    ]);
                 }
             }
 
-            $data->step4Data()->updateOrCreate(
-                ['wizard_data_id' => $data->id],
-                [
-                    'attachment' => json_encode($filePaths),
-                ]
-            );
-
-            $data->status = 'Complete';
+            // $data->status = 'Complete';
             $data->hr_status = 'Under-Process';
         }
 
