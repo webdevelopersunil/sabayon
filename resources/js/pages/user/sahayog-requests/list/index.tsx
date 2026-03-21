@@ -62,45 +62,33 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
         return () => clearTimeout(timeoutId);
     }, [search, status]);
 
-    const mapStatusToBadge = (hrStatus: string, basicStatus: string) => {
-        const combined = hrStatus || basicStatus;
-        if (combined === 'Complete' || combined === 'Approved') return 'Accepted';
-        if (combined === 'Rejected') return 'Rejected';
-        return 'Under-Review';
-    };
-
     const getStatusBadge = (status: string) => {
-        const statusConfig = {
-            'Accepted': { 
-                bg: 'bg-green-50', 
-                text: 'text-green-700', 
-                border: 'border-green-200',
-                icon: CheckCircle,
-                label: 'Accepted'
-            },
-            'Rejected': { 
-                bg: 'bg-red-50', 
-                text: 'text-red-700', 
-                border: 'border-red-200',
-                icon: XCircle,
-                label: 'Rejected'
-            },
-            'Under-Review': { 
-                bg: 'bg-yellow-50', 
-                text: 'text-yellow-700', 
-                border: 'border-yellow-200',
-                icon: AlertCircle,
-                label: 'Under Review'
-            }
+        if (!status) return <span className="text-gray-400 text-xs italic">N/A</span>;
+
+        let config = { 
+            bg: 'bg-gray-50', 
+            text: 'text-gray-700', 
+            border: 'border-gray-200',
+            icon: Clock,
         };
         
-        const config = statusConfig[status as keyof typeof statusConfig] || statusConfig['Under-Review'];
+        const normalized = status.toLowerCase();
+        if (['complete', 'approved', 'accepted'].includes(normalized)) {
+            config = { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', icon: CheckCircle };
+        } else if (['rejected'].includes(normalized)) {
+            config = { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: XCircle };
+        } else if (['under-process', 'under review', 'pending', 'under-review'].includes(normalized)) {
+            config = { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', icon: AlertCircle };
+        } else if (['draft'].includes(normalized)) {
+            config = { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: FileQuestion };
+        }
+        
         const Icon = config.icon;
         
         return (
             <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${config.bg} ${config.text} ${config.border} border`}>
                 <Icon className="h-3.5 w-3.5" />
-                {config.label}
+                {status}
             </span>
         );
     };
@@ -198,22 +186,22 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                             <p className="text-xs text-gray-500">Total Requests</p>
                             <p className="text-xl font-semibold text-gray-800">{requests?.total || 0}</p>
                         </div>
-                        <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-                            <p className="text-xs text-green-600">Accepted</p>
-                            <p className="text-xl font-semibold text-green-700">
-                                {requests?.data?.filter((r: any) => mapStatusToBadge(r.hr_status, r.status) === 'Accepted').length || 0}
+                        <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                            <p className="text-xs text-blue-600">Drafts</p>
+                            <p className="text-xl font-semibold text-blue-700">
+                                {requests?.data?.filter((r: any) => r.status === 'Draft').length || 0}
                             </p>
                         </div>
                         <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-100">
-                            <p className="text-xs text-yellow-600">Under Review</p>
+                            <p className="text-xs text-yellow-600">Under Process (HR)</p>
                             <p className="text-xl font-semibold text-yellow-700">
-                                {requests?.data?.filter((r: any) => mapStatusToBadge(r.hr_status, r.status) === 'Under-Review').length || 0}
+                                {requests?.data?.filter((r: any) => r.hr_status === 'Under-Process').length || 0}
                             </p>
                         </div>
-                        <div className="bg-red-50 rounded-lg p-3 border border-red-100">
-                            <p className="text-xs text-red-600">Rejected</p>
-                            <p className="text-xl font-semibold text-red-700">
-                                {requests?.data?.filter((r: any) => mapStatusToBadge(r.hr_status, r.status) === 'Rejected').length || 0}
+                        <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                            <p className="text-xs text-green-600">Complete</p>
+                            <p className="text-xl font-semibold text-green-700">
+                                {requests?.data?.filter((r: any) => r.status === 'Complete').length || 0}
                             </p>
                         </div>
                     </div>
@@ -232,7 +220,7 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                                     Index
                                                 </div>
                                             </th>
-                                            <th className="w-[400px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            <th className="w-[300px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                                                 Request Number
                                             </th>
                                             <th className="w-[120px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -242,7 +230,10 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                                 </div>
                                             </th>
                                             <th className="w-[130px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                                                Admin Status
+                                                App Status
+                                            </th>
+                                            <th className="w-[130px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                                HR Status
                                             </th>
                                             <th className="w-[100px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center">
                                                 Action
@@ -253,7 +244,6 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                         {requests?.data?.length > 0 ? (
                                             requests.data.map((request: any, index: number) => {
                                                 const displayId = `REQ-${String().padStart(4, '0')}`;
-                                                const mappedStatus = mapStatusToBadge(request.hr_status, request.status);
                                                 const itemIndex = (requests.current_page - 1) * requests.per_page + index + 1;
                                                 
                                                 return (
@@ -297,7 +287,12 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="min-w-[110px]">
-                                                        {getStatusBadge(mappedStatus)}
+                                                        {getStatusBadge(request.status)}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="min-w-[110px]">
+                                                        {getStatusBadge(request.hr_status)}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
