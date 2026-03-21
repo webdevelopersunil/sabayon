@@ -161,12 +161,11 @@ export default function Step1({ onNext, workCenters, initialData }: StepProps) {
 
                 <label className="space-y-1 text-sm">
                     Savings Bank Account No *:
-                    <input
-                        type="text"
-                        value={data.savingaccount_No}
-                        onChange={(e) => setData('savingaccount_No', e.target.value)}
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
-                    />
+                    <input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={20} value={data.savingaccount_No}
+                            onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ''); // allow only digits
+                                setData('savingaccount_No', value);
+                            }} className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40" />
                     {errors.savingaccount_No && <p className="text-red-600 text-xs mt-1">{errors.savingaccount_No}</p>}
                 </label>
                 <label className="space-y-1 text-sm">

@@ -40,9 +40,7 @@ class SahayogStep1Request extends FormRequest
             'seperation_benefits' => [
                 'nullable', 'string', 'max:500', $noHtml
             ],
-            'savingaccount_No' => [
-                'required', 'string', 'max:50', 'regex:/^[0-9]{9,18}$/'
-            ],
+            'savingaccount_No' => [ 'required', 'digits_between:5,20' ],
             'dependants_no' => 'required|integer|min:0|max:10',
             'ifsc_code' => [
                 'required', 'string', 'regex:/^[A-Z]{4}0[A-Z0-9]{6}$/'

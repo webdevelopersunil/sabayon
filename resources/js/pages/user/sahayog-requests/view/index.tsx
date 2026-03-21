@@ -66,52 +66,18 @@ const getFileIcon = (type: string) => {
     return <File className="h-5 w-5 text-gray-500" />;
 };
 
-// Sample data for demonstration
-const sampleApplicationDetails = [
-    { label: 'Full Name', value: 'Rajesh Kumar Sharma' },
-    { label: 'Employee ID', value: 'ONGC/2024/1234' },
-    { label: 'Designation', value: 'Senior Engineer' },
-    { label: 'Department', value: 'Production' },
-    { label: 'Date of Birth', value: '15-03-1985' },
-    { label: 'Date of Joining', value: '10-06-2010' },
-    { label: 'Contact Number', value: '+91 98765 43210' },
-    { label: 'Email Address', value: 'rajesh.sharma@ongc.co.in' },
-    { label: 'Request Type', value: 'Medical Assistance' },
-    { label: 'Priority', value: 'High' },
-    { label: 'Submitted On', value: '15-03-2024' },
-    { label: 'Last Updated', value: '18-03-2024' },
-];
-
-const sampleFinancialDetails = [
-    { label: 'Requested Amount', value: '₹ 1,50,000' },
-    { label: 'Approved Amount', value: '₹ 1,20,000' },
-    { label: 'Disbursed Amount', value: '₹ 1,20,000' },
-    { label: 'Balance Amount', value: '₹ 0' },
-    { label: 'Bank Name', value: 'State Bank of India' },
-    { label: 'Account Number', value: 'XXXX XXXX 1234' },
-    { label: 'IFSC Code', value: 'SBIN0001234' },
-    { label: 'Payment Mode', value: 'NEFT' },
-    { label: 'Transaction ID', value: 'NEFT/2024/03/123456' },
-];
-
-const sampleAttachments = [
-    { name: 'Medical_Certificate.pdf', type: 'PDF', size: '2.4 MB', uploadedAt: '15-03-2024' },
-    { name: 'Prescription_Image.jpg', type: 'Image', size: '1.1 MB', uploadedAt: '15-03-2024' },
-    { name: 'Hospital_Bill.xlsx', type: 'Excel', size: '856 KB', uploadedAt: '16-03-2024' },
-    { name: 'Identity_Proof.pdf', type: 'PDF', size: '1.8 MB', uploadedAt: '15-03-2024' },
-    { name: 'Additional_Docs.pdf', type: 'PDF', size: '3.2 MB', uploadedAt: '17-03-2024' },
-];
-
 export default function SahayogRequestView({ 
-    id = 'SAH-2024-001',
-    applicationDetails = sampleApplicationDetails,
-    financialDetails = sampleFinancialDetails,
-    attachments = sampleAttachments
+    id,
+    applicationDetails = [],
+    basicInformation = [],
+    financialDetails = [],
+    attachments = []
 }: { 
-    id?: string; 
-    applicationDetails?: Array<{ label: string; value: string }>; 
-    financialDetails?: Array<{ label: string; value: string }>; 
-    attachments?: Array<{ name: string; type: string; size?: string; uploadedAt?: string }>; 
+    id: string; 
+    applicationDetails: Array<{ label: string; value: string }>; 
+    basicInformation: Array<{ label: string; value: string }>; 
+    financialDetails: Array<{ label: string; value: string }>; 
+    attachments: Array<{ name: string; type: string; url?: string; size?: string; uploadedAt?: string }>; 
 }) {
     const [expandedAttachments, setExpandedAttachments] = useState<string[]>([]);
 
@@ -204,7 +170,7 @@ export default function SahayogRequestView({
                         </div>
                     </div>
 
-                    {/* Financial Assistance Details Block */}
+                    {/* Basic Information Details Block */}
                     <div className="relative group">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-[#E65F2B]/20 to-transparent rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition duration-500" />
                         <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-all">
@@ -214,31 +180,37 @@ export default function SahayogRequestView({
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
                                         <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                                            <IndianRupee className="h-5 w-5 text-[#E65F2B]" />
-                                            Financial Assistance Details
+                                            <FileText className="h-5 w-5 text-[#E65F2B]" />
+                                            Basic Information
                                         </h2>
-                                        <p className="text-xs text-gray-400 mt-0.5">Amount & payment information</p>
+                                        <p className="text-xs text-gray-400 mt-0.5">Seperation and dependent details</p>
                                     </div>
-                                    <StatusPill status="Accepted" />
+                                    <StatusPill status="Under-review" />
                                 </div>
                                 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                    {financialDetails.map((item, index) => (
+                                    {basicInformation.map((item, index) => (
                                         <div 
                                             key={index} 
                                             className="rounded-lg border border-gray-100 p-3 hover:border-[#E65F2B]/20 hover:bg-gray-50/50 transition-all"
                                         >
                                             <div className="text-xs text-gray-400 mb-1">{item.label}</div>
                                             <div className="text-sm font-medium text-gray-800 break-words">
-                                                {item.label.includes('Amount') ? (
-                                                    <span className="text-green-600 font-semibold">{item.value}</span>
-                                                ) : item.value}
+                                                {item.value}
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
-                            <br />
+                        </div>
+                    </div>
+
+                    {/* Financial Assistance Details Block */}
+                    <div className="relative group">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-[#E65F2B]/20 to-transparent rounded-2xl blur-md opacity-0 group-hover:opacity-100 transition duration-500" />
+                        <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition-all">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-[#E65F2B]/5 rounded-full blur-2xl" />
+                            
                             <div className="relative z-10">
                                 <div className="flex items-center justify-between mb-4">
                                     <div>
