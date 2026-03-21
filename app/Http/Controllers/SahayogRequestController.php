@@ -26,7 +26,10 @@ class SahayogRequestController extends Controller
     public function create(Request $request)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
-
+        if(auth()->user()->aadhar_no == null){
+            return redirect()->route('profile.edit')
+                ->with('error', 'Please update your Aadhar number in your profile to proceed with the Sahayog request.');
+        }
         $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
         $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])->first();
         
@@ -171,6 +174,7 @@ class SahayogRequestController extends Controller
 
     public function saveStep(Request $request, WizardData $wizard)
     {
+        
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
         $userId = auth()->id();

@@ -12,6 +12,7 @@ import SettingsLayout from '@/layouts/settings/layout';
 import { edit } from '@/routes/profile';
 import { send } from '@/routes/verification';
 import type { BreadcrumbItem } from '@/types';
+import { AlertCircle } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,7 +28,7 @@ export default function Profile({
     mustVerifyEmail: boolean;
     status?: string;
 }) {
-    const { auth } = usePage().props;
+    const { auth, flash } = usePage<any>().props;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -36,6 +37,15 @@ export default function Profile({
             <h1 className="sr-only">Profile settings</h1>
 
             <SettingsLayout>
+                {flash?.error && (
+                    <div className="mb-6 rounded-lg bg-red-50 p-4 border border-red-200 shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
+                            <p className="text-sm font-medium text-red-800">{flash.error}</p>
+                        </div>
+                    </div>
+                )}
+
                 <div className="space-y-6">
                     <Heading
                         variant="small"
