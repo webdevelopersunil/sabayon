@@ -101,6 +101,33 @@ export default function Profile({
                                     />
                                 </div>
 
+                                <div className="grid gap-2">
+                                    <Label htmlFor="aadhar_no">Aadhar Number</Label>
+
+                                    <Input
+                                        id="aadhar_no"
+                                        type="text"
+                                        inputMode="numeric"
+                                        className="mt-1 block w-full"
+                                        defaultValue={auth.user.aadhar_no || ''}
+                                        name="aadhar_no"
+                                        required
+                                        pattern="\d{12}"
+                                        maxLength={12}
+                                        minLength={12}
+                                        title="Aadhar number must be exactly 12 digits"
+                                        placeholder="12-digit Aadhar Number"
+                                        onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                            e.target.value = e.target.value.replace(/\D/g, '');
+                                        }}
+                                    />
+
+                                    <InputError
+                                        className="mt-2"
+                                        message={errors.aadhar_no}
+                                    />
+                                </div>
+
                                 {mustVerifyEmail &&
                                     auth.user.email_verified_at === null && (
                                         <div>

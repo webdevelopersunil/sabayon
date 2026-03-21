@@ -47,7 +47,7 @@ export default function Dashboard() {
                                 <Input 
                                     placeholder="Enter request number (e.g., SAH-2024-001)" 
                                     className="pl-10 h-12 bg-white border-2 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20 rounded-xl text-gray-800 placeholder-gray-400"
-                                />
+                                /> 
                             </div>
                             <Button className="h-12 px-8 rounded-xl bg-[#E65F2B] hover:bg-[#C44A1F] text-white shadow-sm hover:shadow transition-all duration-300 gap-2">
                                 Search
