@@ -54,7 +54,7 @@ class SahayogRequestController extends Controller
         $search = $request->input('search');
         $status = $request->input('status');
 
-        $requests = WizardData::select('id', 'step', 'status', 'hr_status', 'created_at')
+        $requests = WizardData::select('id', 'request_no', 'step', 'status', 'hr_status', 'created_at')
             ->where('user_id', auth()->id())
             ->when($search, function ($query, $search) {
                 $query->where('request_no', 'like', "%{$search}%");

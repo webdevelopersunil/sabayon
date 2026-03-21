@@ -243,7 +243,6 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                     <tbody className="divide-y divide-gray-100">
                                         {requests?.data?.length > 0 ? (
                                             requests.data.map((request: any, index: number) => {
-                                                const displayId = `REQ-${String().padStart(4, '0')}`;
                                                 const itemIndex = (requests.current_page - 1) * requests.per_page + index + 1;
                                                 
                                                 return (
@@ -258,18 +257,15 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                                                 #{itemIndex}
                                                             </span>
                                                         </div>
-                                                        <span className="font-mono text-sm font-medium text-gray-800 truncate" title={displayId}>
-                                                            {displayId}
-                                                        </span>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="min-w-[250px] max-w-[350px]">
                                                         <div className="text-sm font-medium text-gray-800 break-words">
-                                                            {displayTitle(`Sahayog Request (Step ${request.step})`, displayId)}
+                                                            {displayTitle(`Sahayog Request (Step ${request.step})`, request.request_no)}
                                                         </div>
-                                                        <p className="text-xs text-gray-400 mt-0.5 truncate" title={displayId}>
-                                                            ID: {displayId}
+                                                        <p className="text-xs text-gray-400 mt-0.5 truncate" title={request.request_no}>
+                                                            ID: {request.request_no || 'N/A'}
                                                         </p>
                                                     </div>
                                                 </td>
