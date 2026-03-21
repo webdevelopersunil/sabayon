@@ -17,6 +17,10 @@ Route::middleware(['auth', 'verified', EnsureHasRole::class.':user'])->group(fun
     Route::get('sahayog-request/create', [SahayogRequestController::class, 'create'])
         ->name('sahayog-request.create')
         ->middleware(EnsureHasPermission::class.':user.sahayog_requests.create');
+        
+    Route::get('sahayog-request/edit/{request_number}', [SahayogRequestController::class, 'edit'])
+        ->name('sahayog-request.edit')
+        ->middleware(EnsureHasPermission::class.':user.sahayog_requests.create');
 
     Route::post('sahayog-request/save-step', [SahayogRequestController::class, 'saveStep'])
         ->name('sahayog-request.saveStep')

@@ -13,7 +13,8 @@ import {
     CheckCircle,
     XCircle,
     AlertCircle,
-    FileQuestion
+    FileQuestion,
+    Edit
 } from 'lucide-react';
 
 import { dashboard } from '@/routes';
@@ -292,6 +293,17 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
+
+                                                {request.status?.toLowerCase() === 'draft' ? (
+                                                    <Link
+                                                        href={`/sahayog-request/edit/${request.request_no}`}
+
+                                                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#E65F2B]/10 text-[#E65F2B] hover:bg-[#E65F2B] hover:text-white transition-all duration-300 group/btn whitespace-nowrap"
+                                                    >
+                                                        <Edit className="h-4 w-4 group-hover/btn:scale-110 transition-transform shrink-0" />
+                                                        <span className="text-sm font-medium">Fill-Up</span> 
+                                                    </Link>
+                                                ) : (
                                                     <Link
                                                         href={`/sahayog-requests/${request.id}`}
                                                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#E65F2B]/10 text-[#E65F2B] hover:bg-[#E65F2B] hover:text-white transition-all duration-300 group/btn whitespace-nowrap"
@@ -299,6 +311,8 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                                         <Eye className="h-4 w-4 group-hover/btn:scale-110 transition-transform shrink-0" />
                                                         <span className="text-sm font-medium">View</span>
                                                     </Link>
+                                                )}
+                                                    
                                                 </td>
                                             </tr>
                                                 );

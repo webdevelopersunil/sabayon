@@ -47,6 +47,33 @@ class SahayogRequestController extends Controller
         ]);
     }
 
+    public function edit(Request $request, $request_number)
+    {
+        $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
+        
+        $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
+        $wizardData  = WizardData::where('request_no', $request_number)
+            ->where('user_id', auth()->id())
+            ->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])
+            ->firstOrFail();
+        
+        return Inertia::render('user/sahayog-requests/create/index', [
+            'title' => 'Sahayog Request - Edit',
+            'workCenters' => $workCenters,
+            'step1' => $wizardData->step1Data,
+            'step2' => $wizardData->step2Data,
+            'step3' => $wizardData->step3Data,
+            'step4' => $wizardData->step4Data()->get(),
+            'selectedBeneficiary' => $wizardData->selected_beneficiary,
+            'steps' => [
+                'Enter details of your employement.',
+                'Add Dependent details.(You have mentioned 4 in previous step):',
+                'Review',
+                'Submit',
+            ],
+        ]);
+    }
+
     public function history(Request $request)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.history');
