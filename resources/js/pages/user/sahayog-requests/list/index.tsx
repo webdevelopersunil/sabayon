@@ -172,12 +172,12 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                 <option value="Under-Process">Under Process</option>
                                 <option value="Complete">Complete</option>
                             </select>
-                            <button className="px-4 py-2.5 rounded-lg border border-gray-200 hover:border-[#E65F2B]/30 hover:bg-gray-50 transition-all text-gray-600">
+                            {/* <button className="px-4 py-2.5 rounded-lg border border-gray-200 hover:border-[#E65F2B]/30 hover:bg-gray-50 transition-all text-gray-600">
                                 <Filter className="h-5 w-5" />
                             </button>
                             <button className="px-4 py-2.5 rounded-lg bg-[#E65F2B]/10 text-[#E65F2B] hover:bg-[#E65F2B]/20 transition-all">
                                 <Download className="h-5 w-5" />
-                            </button>
+                            </button> */}
                         </div>
                     </div>
 
@@ -188,7 +188,7 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                             <p className="text-xl font-semibold text-gray-800">{requests?.total || 0}</p>
                         </div>
                         <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
-                            <p className="text-xs text-blue-600">Drafts</p>
+                            <p className="text-xs text-blue-600">Drafts Application</p>
                             <p className="text-xl font-semibold text-blue-700">
                                 {requests?.data?.filter((r: any) => r.status === 'Draft').length || 0}
                             </p>
@@ -200,7 +200,7 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                             </p>
                         </div>
                         <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-                            <p className="text-xs text-green-600">Complete</p>
+                            <p className="text-xs text-green-600">Complete (Applicaiton Fill-UP) </p>
                             <p className="text-xl font-semibold text-green-700">
                                 {requests?.data?.filter((r: any) => r.status === 'Complete').length || 0}
                             </p>
