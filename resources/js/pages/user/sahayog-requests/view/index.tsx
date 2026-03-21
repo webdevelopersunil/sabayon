@@ -238,8 +238,39 @@ export default function SahayogRequestView({
                                     ))}
                                 </div>
                             </div>
+                            <br />
+                            <div className="relative z-10">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                                            <IndianRupee className="h-5 w-5 text-[#E65F2B]" />
+                                            Financial Assistance Details
+                                        </h2>
+                                        <p className="text-xs text-gray-400 mt-0.5">Amount & payment information</p>
+                                    </div>
+                                    <StatusPill status="Accepted" />
+                                </div>
+                                
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {financialDetails.map((item, index) => (
+                                        <div 
+                                            key={index} 
+                                            className="rounded-lg border border-gray-100 p-3 hover:border-[#E65F2B]/20 hover:bg-gray-50/50 transition-all"
+                                        >
+                                            <div className="text-xs text-gray-400 mb-1">{item.label}</div>
+                                            <div className="text-sm font-medium text-gray-800 break-words">
+                                                {item.label.includes('Amount') ? (
+                                                    <span className="text-green-600 font-semibold">{item.value}</span>
+                                                ) : item.value}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    
                 </div>
 
                 {/* Attachments Block */}

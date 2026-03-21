@@ -9,6 +9,7 @@ use App\Models\Step4Data;
 use App\Models\WizardData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\User;
 use App\Models\Admin;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -76,6 +77,8 @@ class SahayogRequestController extends Controller
         $this->ensureUserPermissions($request, 'user.sahayog_requests.view');
 
         $wizardData = WizardData::with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])->findOrFail($id);
+        $applicationDetails = User::where('id', $wizardData->user_id)->first();
+        // dd($applicationDetails);
 
         $step1 = $wizardData->step1Data;
         $step2 = $wizardData->step2Data;
@@ -87,18 +90,33 @@ class SahayogRequestController extends Controller
         $relationship = $beneficiary->relationship ?? 'N/A';
 
         $applicationDetails = [
-            ['label' => 'Request ID', 'value' => $id],
-            ['label' => 'Applicant Name', 'value' => $step1?->name ?? 'N/A'],
-            ['label' => 'Employee ID', 'value' => $step1?->cpfno ?? 'N/A'],
-            ['label' => 'Designation', 'value' => $step1?->designation ?? 'N/A'],
-            ['label' => 'Work Center', 'value' => $step1?->work_center ?? 'N/A'],
+            ['label' => 'Applicant Name', 'value' => $applicationDetails?->name ?? 'N/A'],
+            ['label' => 'User Type', 'value' => $applicationDetails?->name ?? 'N/A'],
+            ['label' => 'CPF Number', 'value' => $applicationDetails?->cpf_no ?? 'N/A'],
+            ['label' => 'Date of Joining ONGC', 'value' => $applicationDetails?->cpf_no ?? 'N/A'],
+            ['label' => 'Designation', 'value' => $applicationDetails?->cpf_no ?? 'N/A'],
+            ['label' => 'Work Center', 'value' => $applicationDetails?->cpf_no ?? 'N/A'],
+            ['label' => 'Place of Posting', 'value' => $applicationDetails?->cpf_no ?? 'N/A'],
+            
+            // ['label' => 'Request Number', 'value' => $wizardData->request_no],
+            // ['label' => 'Applicant Name', 'value' => $applicationDetails?->name ?? 'N/A'],
+            // ['label' => 'CPF No.', 'value' => $applicationDetails?->cpf_no ?? 'N/A'],
+            // ['label' => 'Designation', 'value' => $step1?->designation ?? 'N/A'],
+            // ['label' => 'Work Center', 'value' => $step1?->work_center ?? 'N/A'],
+            // ['label' => 'Request Type', 'value' => $step3?->financialoptions ?? 'N/A'],
+            // ['label' => 'Date Submitted', 'value' => $wizardData->created_at ? $wizardData->created_at->format('Y-m-d') : 'N/A'],
+            // ['label' => 'Purpose', 'value' => $step3?->other_details ?? 'N/A'],
+            // ['label' => 'Amount Requested', 'value' => '₹' . number_format($step3?->requested_amount ?? 0)],
+            // ['label' => 'Beneficiary Name', 'value' => $beneficiaryName],
+            
+        ];
+
+        $basicInformation = [
+            ['label' => 'Seperation Reason', 'value' => $applicationDetails?->cpf_no ?? 'N/A'],
+            ['label' => 'Date of Seperation', 'value' => $applicationDetails?->cpf_no ?? 'N/A'],
+            ['label' => 'Dependants No', 'value' => $applicationDetails?->cpf_no ?? 'N/A'],
             ['label' => 'Request Type', 'value' => $step3?->financialoptions ?? 'N/A'],
-            ['label' => 'Date Submitted', 'value' => $wizardData->created_at ? $wizardData->created_at->format('Y-m-d') : 'N/A'],
-            ['label' => 'Purpose', 'value' => $step3?->other_details ?? 'N/A'],
-            ['label' => 'Amount Requested', 'value' => '₹' . number_format($step3?->requested_amount ?? 0)],
-            ['label' => 'Beneficiary Name', 'value' => $beneficiaryName],
-            ['label' => 'Relationship', 'value' => $relationship],
-            ['label' => 'Status', 'value' => $wizardData->status ?? 'N/A'],
+            ['label' => 'Seperation Benefits', 'value' => $step3?->financialoptions ?? 'N/A'],
         ];
 
         $financialDetails = [
@@ -107,7 +125,16 @@ class SahayogRequestController extends Controller
             ['label' => 'Bank & Branch', 'value' => $step1?->bank_and_branch ?? 'N/A'],
             ['label' => 'Bank Account', 'value' => $step1?->savingaccount_No ?? 'N/A'],
             ['label' => 'IFSC Code', 'value' => $step1?->ifsc_code ?? 'N/A'],
-            ['label' => 'Dependants No', 'value' => $step1?->dependants_no ?? 'N/A'],
+            ['label' => 'No. of Dependents (with relationship)', 'value' => $step1?->dependants_no ?? 'N/A'],
+        ];
+
+        $details = [
+            ['label' => 'Eligible Amount', 'value' => '₹' . number_format($step3?->eligible_amount ?? 0)],
+            ['label' => 'Gross Annual Income', 'value' => '₹' . number_format($step1?->gross_annual_income ?? 0)],
+            ['label' => 'Bank & Branch', 'value' => $step1?->bank_and_branch ?? 'N/A'],
+            ['label' => 'Bank Account', 'value' => $step1?->savingaccount_No ?? 'N/A'],
+            ['label' => 'IFSC Code', 'value' => $step1?->ifsc_code ?? 'N/A'],
+            ['label' => 'No. of Dependents (with relationship)', 'value' => $step1?->dependants_no ?? 'N/A'],
         ];
 
         // dd($step4);
@@ -125,7 +152,7 @@ class SahayogRequestController extends Controller
             'id' => $id,
             'applicationDetails' => $applicationDetails,
             'financialDetails' => $financialDetails,
-            // 'attachments' => $attachments,   
+            'attachments' => $attachments,   
         ]);
     }
 
