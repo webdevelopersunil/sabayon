@@ -51,11 +51,17 @@ class SahayogRequestController extends Controller
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
         
-        $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
         $wizardData  = WizardData::where('request_no', $request_number)
             ->where('user_id', auth()->id())
             ->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])
             ->firstOrFail();
+        
+        if ($wizardData->status !== 'Draft' && $wizardData->hr_status !== 'Returned') {
+            return redirect()->route('sahayog-requests.history')
+                ->with('error', 'This request is no longer editable.');
+        }
+
+        $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
         
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Edit',
