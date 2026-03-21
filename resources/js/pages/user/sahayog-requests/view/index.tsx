@@ -308,14 +308,20 @@ export default function SahayogRequestView({
                                         {expandedAttachments.includes(att.name) && (
                                             <div className="mt-3 pt-3 border-t border-gray-200">
                                                 <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                    {/* <div className="flex items-center gap-2 text-xs text-gray-500">
                                                         <Eye className="h-3.5 w-3.5" />
                                                         <span>Document Preview</span>
-                                                    </div>
-                                                    <button className="text-xs text-[#E65F2B] hover:underline flex items-center gap-1">
+                                                    </div> */}
+                                                    <a 
+                                                        href={att.url || '#'}
+                                                        download={att.name}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-xs text-[#E65F2B] hover:underline flex items-center gap-1"
+                                                    >
                                                         <Download className="h-3 w-3" />
                                                         Download
-                                                    </button>
+                                                    </a>
                                                 </div>
                                                 <div className="mt-2 h-20 bg-gray-100 rounded-lg flex items-center justify-center">
                                                     <FileText className="h-8 w-8 text-gray-300" />
