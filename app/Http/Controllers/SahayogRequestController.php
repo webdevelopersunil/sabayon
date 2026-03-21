@@ -74,44 +74,58 @@ class SahayogRequestController extends Controller
     public function show(Request $request, $id)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.view');
+
+        $wizardData = WizardData::with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])->findOrFail($id);
+
+        $step1 = $wizardData->step1Data;
+        $step2 = $wizardData->step2Data;
+        $step3 = $wizardData->step3Data;
+        $step4 = $wizardData->step4Data;
+
+        $beneficiary = $step2 ? ($step2->firstWhere('name', $wizardData->selected_beneficiary) ?? $step2->firstWhere('id', $wizardData->selected_beneficiary)) : null;
+        $beneficiaryName = $wizardData->selected_beneficiary ?? ($beneficiary->name ?? 'N/A');
+        $relationship = $beneficiary->relationship ?? 'N/A';
+
         $applicationDetails = [
             ['label' => 'Request ID', 'value' => $id],
-            ['label' => 'Applicant Name', 'value' => 'Rajesh Kumar'],
-            ['label' => 'Employee ID', 'value' => 'ONGC12345'],
-            ['label' => 'Designation', 'value' => 'Senior Engineer'],
-            ['label' => 'Department', 'value' => 'Operations'],
-            ['label' => 'Request Type', 'value' => 'Financial Assistance'],
-            ['label' => 'Date Submitted', 'value' => '2025-01-15'],
-            ['label' => 'Purpose', 'value' => 'Medical treatment'],
-            ['label' => 'Amount Requested', 'value' => '₹120,000'],
-            ['label' => 'Beneficiary Name', 'value' => 'Sunita Devi'],
-            ['label' => 'Relationship', 'value' => 'Spouse'],
-            ['label' => 'Priority', 'value' => 'High'],
+            ['label' => 'Applicant Name', 'value' => $step1?->name ?? 'N/A'],
+            ['label' => 'Employee ID', 'value' => $step1?->cpfno ?? 'N/A'],
+            ['label' => 'Designation', 'value' => $step1?->designation ?? 'N/A'],
+            ['label' => 'Work Center', 'value' => $step1?->work_center ?? 'N/A'],
+            ['label' => 'Request Type', 'value' => $step3?->financialoptions ?? 'N/A'],
+            ['label' => 'Date Submitted', 'value' => $wizardData->created_at ? $wizardData->created_at->format('Y-m-d') : 'N/A'],
+            ['label' => 'Purpose', 'value' => $step3?->other_details ?? 'N/A'],
+            ['label' => 'Amount Requested', 'value' => '₹' . number_format($step3?->requested_amount ?? 0)],
+            ['label' => 'Beneficiary Name', 'value' => $beneficiaryName],
+            ['label' => 'Relationship', 'value' => $relationship],
+            ['label' => 'Status', 'value' => $wizardData->status ?? 'N/A'],
         ];
 
         $financialDetails = [
-            ['label' => 'Total Hospital Bill', 'value' => '₹150,000'],
-            ['label' => 'Insurance Cover', 'value' => '₹50,000'],
-            ['label' => 'Net Request Amount', 'value' => '₹100,000'],
-            ['label' => 'Existing Aid', 'value' => '₹20,000'],
-            ['label' => 'Balance Amount', 'value' => '₹80,000'],
-            ['label' => 'Bank Account', 'value' => 'XXXX-XXXX-XXXX-1234'],
-            ['label' => 'IFSC Code', 'value' => 'SBIN0000456'],
-            ['label' => 'PAN', 'value' => 'ABCDEFGHIJ1Z2'],
-            ['label' => 'Requested Disbursement Date', 'value' => '2025-02-01'],
+            ['label' => 'Eligible Amount', 'value' => '₹' . number_format($step3?->eligible_amount ?? 0)],
+            ['label' => 'Gross Annual Income', 'value' => '₹' . number_format($step1?->gross_annual_income ?? 0)],
+            ['label' => 'Bank & Branch', 'value' => $step1?->bank_and_branch ?? 'N/A'],
+            ['label' => 'Bank Account', 'value' => $step1?->savingaccount_No ?? 'N/A'],
+            ['label' => 'IFSC Code', 'value' => $step1?->ifsc_code ?? 'N/A'],
+            ['label' => 'Dependants No', 'value' => $step1?->dependants_no ?? 'N/A'],
         ];
 
-        $attachments = [
-            ['name' => 'Hospital bill.pdf', 'type' => 'PDF'],
-            ['name' => 'Doctor recommendation.jpg', 'type' => 'Image'],
-            ['name' => 'Bank statement.pdf', 'type' => 'PDF'],
-        ];
+        // dd($step4);
+        $attachments = $step4 ? $step4->map(function ($doc) {
+            $fileName = basename($doc->attachment ?? '');
+            $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+            return [
+                'name' => $fileName ?: 'Document',
+                'type' => strtoupper($extension) ?: 'FILE',
+                'url'  => $doc->attachment ? Storage::url($doc->attachment) : '#',
+            ];
+        })->toArray() : [];
 
         return Inertia::render('user/sahayog-requests/view/index', [
             'id' => $id,
             'applicationDetails' => $applicationDetails,
             'financialDetails' => $financialDetails,
-            'attachments' => $attachments,
+            // 'attachments' => $attachments,   
         ]);
     }
 
@@ -289,8 +303,8 @@ class SahayogRequestController extends Controller
                 }
             }
 
-            // $data->status = 'Complete';
-            // $data->hr_status = 'Under-Process';
+            $data->status = 'Complete';
+            $data->hr_status = 'Under-Process';
         }
 
         $data->step = max($data->step ?? 1, $step);

@@ -76,7 +76,7 @@ class WizardData extends Model
 
     public function step4Data()
     {
-        return $this->hasOne(Step4Data::class, 'wizard_data_id');
+        return $this->hasMany(Step4Data::class, 'wizard_data_id');
     }
 
     public static function generateRequestNumber($aadhar)
