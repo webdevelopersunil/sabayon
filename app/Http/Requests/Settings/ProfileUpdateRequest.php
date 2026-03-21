@@ -19,7 +19,13 @@ class ProfileUpdateRequest extends FormRequest
     {
         return array_merge(
             $this->profileRules($this->user()->id),
-            ['aadhar_no' => ['required', 'string', 'size:12', 'regex:/^[0-9]{12}$/']]
+            [
+                'aadhar_no' => ['required', 'string', 'size:12', 'regex:/^[0-9]{12}$/'],
+                'mobileno' => ['nullable', 'string', 'max:20'],
+                'designation' => ['nullable', 'string', 'max:255'],
+                'category' => ['nullable', 'string', 'max:255'],
+                'location' => ['nullable', 'string', 'max:255'],
+            ]
         );
     }
 }
