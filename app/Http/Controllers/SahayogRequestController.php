@@ -303,7 +303,11 @@ class SahayogRequestController extends Controller
 
             if ($request->hasFile('step4.files')) {
                 foreach ($request->file('step4.files') as $file) {
-                    $filePath = $file->store('sahayog-documents', 'public');
+                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                    $extension = $file->getClientOriginalExtension();
+                    $fileName = Str::slug($originalName) . '_' . date('Ymd_His') . '.' . $extension;
+
+                    $filePath = $file->storeAs('sahayog-documents', $fileName, 'public');
                     $data->step4Data()->create([
                         'attachment' => $filePath,
                     ]);
