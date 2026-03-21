@@ -108,11 +108,11 @@ class SahayogRequestController extends Controller
         ]);
     }
 
-    public function show(Request $request, $id)
+    public function show(Request $request, $request_number)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.view');
 
-        $wizardData = WizardData::with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])->findOrFail($id);
+        $wizardData = WizardData::where('request_no', $request_number)->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])->first();
         $user = User::where('id', $wizardData->user_id)->first();
         // dd($user);
 
@@ -164,7 +164,7 @@ class SahayogRequestController extends Controller
         })->toArray() : [];
 
         return Inertia::render('user/sahayog-requests/view/index', [
-            'id' => $id,
+            'id' => $request_number,
             'applicationDetails' => $applicationDetails,
             'basicInformation' => $basicInformation,
             'financialDetails' => $financialDetails,

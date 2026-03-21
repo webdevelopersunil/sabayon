@@ -45,7 +45,7 @@ export default function Dashboard() {
                             <div className="relative flex-1">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                                 <Input 
-                                    placeholder="Enter request number (e.g., SAH-2024-001)" 
+                                    placeholder="Enter Request Number" 
                                     className="pl-10 h-12 bg-white border-2 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20 rounded-xl text-gray-800 placeholder-gray-400"
                                 /> 
                             </div>
