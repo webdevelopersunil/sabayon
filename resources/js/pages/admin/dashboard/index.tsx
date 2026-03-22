@@ -1,4 +1,5 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { useEffect } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { 
     Search, 
@@ -19,7 +20,6 @@ import {
 } from 'lucide-react';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
-import { Link } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -106,6 +106,25 @@ export default function AdminDashboard({
     
     const totalUsers = verifiedUsers + notVerifiedUsers;
     const totalRequests = underProcess + approved + rejected;
+
+    const { data, setData, post, processing, errors, clearErrors } = useForm({
+        search: '',
+    });
+
+    useEffect(() => {
+        if (errors.search) {
+            const timer = setTimeout(() => clearErrors('search'), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [errors.search, clearErrors]);
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!data.search.trim()) return;
+        post('/admin/sahayog-requests/search/find', {
+            preserveScroll: true,
+        });
+    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -212,19 +231,32 @@ export default function AdminDashboard({
                                     Enter request number to quickly access any Sahayog request
                                 </p>
                             </div>
-                            <div className="flex items-center gap-2 min-w-[300px]">
-                                <div className="relative flex-1">
-                                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        placeholder="Enter request number (e.g., SAH-2025-001)"
-                                        className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 focus:border-[#E65F2B] focus:ring-1 focus:ring-[#E65F2B] transition-all outline-none text-sm"
-                                    />
+                            <form onSubmit={handleSearch} className="flex flex-col items-start gap-2 min-w-[300px]">
+                                <div className="flex items-center gap-2 w-full">
+                                    <div className="relative flex-1">
+                                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            value={data.search}
+                                            onChange={(e) => setData('search', e.target.value)}
+                                            placeholder="Enter request number (e.g., SAH-2025-001)"
+                                            className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 focus:border-[#E65F2B] focus:ring-1 focus:ring-[#E65F2B] transition-all outline-none text-sm"
+                                        />
+                                    </div>
+                                    <button 
+                                        type="submit" 
+                                        disabled={processing}
+                                        className="px-4 py-2.5 rounded-lg bg-[#E65F2B] text-white text-sm font-medium hover:bg-[#C44A1F] transition-colors shadow-sm whitespace-nowrap disabled:opacity-50"
+                                    >
+                                        Search
+                                    </button>
                                 </div>
-                                <button className="px-4 py-2.5 rounded-lg bg-[#E65F2B] text-white text-sm font-medium hover:bg-[#C44A1F] transition-colors shadow-sm whitespace-nowrap">
-                                    Search
-                                </button>
-                            </div>
+                                {errors.search && (
+                                    <p className="text-xs text-red-500 font-medium ml-1 animate-in fade-in">
+                                        {errors.search}
+                                    </p>
+                                )}
+                            </form>
                         </div>
                     </div>
                 </div>

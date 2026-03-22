@@ -28,6 +28,9 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('admin/sahayog-requests', [AdminController::class, 'sahayogRequest'])
         ->name('admin.sahayogRequest');
 
+    Route::post('admin/sahayog-requests/search/find', [AdminController::class, 'find'])
+        ->name('admin.find');
+
     Route::get('admin/sahayog-requests/{request_number}', [AdminController::class, 'show'])
         ->name('admin.show');
 });

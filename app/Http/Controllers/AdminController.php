@@ -102,6 +102,23 @@ class AdminController extends Controller
         ]);
     }
 
+    public function find(Request $request)
+    {
+        $this->ensureAdminPermissions($request, 'admin.sahayog_requests.view');
+
+        $request->validate([
+            'search' => ['required', 'string']
+        ]);
+
+        $request_no = $request->input('search');
+
+        if (WizardData::where('request_no', $request_no)->exists()) {
+            return redirect()->route('admin.show', ['request_number' => $request_no]);
+        }
+
+        return back()->withErrors(['search' => 'Request Number not found.']);
+    }
+
     public function show(Request $request, $request_number)
     {
 
