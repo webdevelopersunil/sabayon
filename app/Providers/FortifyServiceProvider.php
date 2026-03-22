@@ -19,6 +19,7 @@ use GuzzleHttp\Client;
 
 use Illuminate\Validation\ValidationException;
 use Exception;
+use Illuminate\Support\Facades\Auth;
 
 
 class FortifyServiceProvider extends ServiceProvider
@@ -40,88 +41,86 @@ class FortifyServiceProvider extends ServiceProvider
         $this->configureViews();
         $this->configureRateLimiting();
 
-        Fortify::authenticateUsing(function ($request) {
+        // Fortify::authenticateUsing(function ($request) {
 
-            $username = strtoupper($request->input('cpf_no'));
-            $password = $request->input('password');
+        //     $username = strtoupper($request->input('cpf_no'));
+        //     $password = $request->input('password');
 
             
-            if(request()->employee_type!=='contractor_employee')
-            {
-                if($request->employee_type=='active_employee')
-                {
-                    $isFound    =   $this->ldapRecord($username);
+        //     if(request()->employee_type!=='contractor_employee')
+        //     {
+        //         if($request->employee_type=='active_employee')
+        //         {
+        //             $isFound    =   $this->ldapRecord($username);
                     
-                    if (!$isFound) {
-                        throw ValidationException::withMessages([
-                            'cpf_no' => 'User not found',
-                        ]);
-                    }
+        //             if (!$isFound) {
+        //                 throw ValidationException::withMessages([
+        //                     'cpf_no' => 'User not found',
+        //                 ]);
+        //             }
 
-                    try {
-                        $connection = Container::getDefaultConnection();
+        //             try {
+        //                 $connection = Container::getDefaultConnection();
                         
-                        if ($connection->auth()->attempt($isFound['dn'], $password)) {
+        //                 if ($connection->auth()->attempt($isFound['dn'], $password)) {
                             
-                            $user = User::firstOrCreate([
-                                'cpf_no' => $username
-                            ],
-                            [
-                                'name' => strtolower($isFound['cn'][0]),
-                                'password' => bcrypt($request->password),
-                                'email' => $isFound['mail'][0],
-                                // 'mobileno'=>$data['user']['mobileNo']??'N/A',
-                                'mobileno' => $isFound['telephonenumber'][0],
-                                'employee_type'=>$request->employee_type,
-                                'designation'=>$isFound['title'][0],
-                                'location'=>$isFound['physicaldeliveryofficename'][0],
-                                'date_of_joining_ongc'=> !empty($isFound['ongcjoiningdate'][0]) ? $isFound['ongcjoiningdate'][0] : now()->subYear()->format('Y-m-d'),
-                                'admin_verified'=>true
-                            ]);
+        //                     $user = User::firstOrCreate([
+        //                         'cpf_no' => $username
+        //                     ],
+        //                     [
+        //                         'name' => strtolower($isFound['cn'][0]),
+        //                         'password' => bcrypt($request->password),
+        //                         'email' => $isFound['mail'][0],
+        //                         // 'mobileno'=>$data['user']['mobileNo']??'N/A',
+        //                         'mobileno' => $isFound['telephonenumber'][0],
+        //                         'employee_type'=>$request->employee_type,
+        //                         'designation'=>$isFound['title'][0],
+        //                         'location'=>$isFound['physicaldeliveryofficename'][0],
+        //                         'date_of_joining_ongc'=> !empty($isFound['ongcjoiningdate'][0]) ? $isFound['ongcjoiningdate'][0] : now()->subYear()->format('Y-m-d'),
+        //                         'admin_verified'=>true
+        //                     ]);
 
-                            // Assign the 'user' role using Eloquent Models
-                            if ($role = Role::where('name', 'user')->first()) {
-                                $user->roles()->syncWithoutDetaching([$role->id]);
-                            }
+        //                     // Assign the 'user' role using Eloquent Models
+        //                     if ($role = Role::where('name', 'user')->first()) {
+        //                         $user->roles()->syncWithoutDetaching([$role->id]);
+        //                     }
                             
-                            return $user;
-                        }
-                    } catch (Exception $e) {
-                        // Allow it to fall through to Fortify's default failed login response, or log the error
-                    }
-                }else{
+        //                     return $user;
+        //                 }
+        //             } catch (Exception $e) {
+        //                 // Allow it to fall through to Fortify's default failed login response, or log the error
+        //             }
+        //         }else{
 
-                    // /implement this here
+        //             // /implement this here
 
-                    $url = 'https://bandhan.ongc.co.in/o/bandhan-api/getUserByCPFNumber';
-                    $body = ['cpfNo' => $username];
+        //             $url = 'https://bandhan.ongc.co.in/o/bandhan-api/getUserByCPFNumber';
+        //             $body = ['cpfNo' => $username];
 
-                    $client = new Client();
+        //             $client = new Client();
 
-                    dd($client);
+        //             dd($client);
 
-                    try
-                    {
-                        $response = $client->post($url,
-                        [
-                            'auth' => [$username, $password], // Basic Authentication
-                            'json' => $body, // Request body as JSON
-                        ]);
-                        if ($response->getStatusCode() === 200)
-                        {
-                            // $this->data = json_decode($response->getBody(), true);
-                            return true;
-                        }
+        //             try
+        //             {
+        //                 $response = $client->post($url,
+        //                 [
+        //                     'auth' => [$username, $password], // Basic Authentication
+        //                     'json' => $body, // Request body as JSON
+        //                 ]);
+        //                 if ($response->getStatusCode() === 200)
+        //                 {
+        //                     // $this->data = json_decode($response->getBody(), true);
+        //                     return true;
+        //                 }
 
-                    }
-                    catch (Exception $e)
-                    {
-                        throw ValidationException::withMessages([
-                            'cpf_no' => "You have entered wrong Username or Password"
-                        ]);
-                    }
-
-
+        //             }
+        //             catch (Exception $e)
+        //             {
+        //                 throw ValidationException::withMessages([
+        //                     'cpf_no' => "You have entered wrong Username or Password"
+        //                 ]);
+        //             }
 
 
 
@@ -130,9 +129,11 @@ class FortifyServiceProvider extends ServiceProvider
 
 
 
-                }
-            }
-        });
+
+
+        //         }
+        //     }
+        // });
 
     }
 
@@ -166,11 +167,16 @@ class FortifyServiceProvider extends ServiceProvider
      */
     private function configureViews(): void
     {
-        Fortify::loginView(fn (Request $request) => Inertia::render('auth/login', [
-            'canResetPassword' => Features::enabled(Features::resetPasswords()),
-            'canRegister' => Features::enabled(Features::registration()),
-            'status' => $request->session()->get('status'),
-        ]));
+        Fortify::loginView(function (Request $request) {
+            if (Auth::guard('admin')->check()) {
+                return redirect()->route('admin.dashboard');
+            }
+            return Inertia::render('auth/login', [
+                'canResetPassword' => Features::enabled(Features::resetPasswords()),
+                'canRegister' => Features::enabled(Features::registration()),
+                'status' => $request->session()->get('status'),
+            ]);
+        });
 
         Fortify::resetPasswordView(fn (Request $request) => Inertia::render('auth/reset-password', [
             'email' => $request->email,
@@ -185,7 +191,12 @@ class FortifyServiceProvider extends ServiceProvider
             'status' => $request->session()->get('status'),
         ]));
 
-        Fortify::registerView(fn () => Inertia::render('auth/register'));
+        Fortify::registerView(function () {
+            if (Auth::guard('admin')->check()) {
+                return redirect()->route('admin.dashboard');
+            }
+            return Inertia::render('auth/register');
+        });
 
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
 

@@ -9,16 +9,14 @@ class AdminController extends Controller
 {
     private function ensureAdminPermissions(Request $request, string $permission)
     {
-        abort_unless($request->user()?->hasRole('admin'), 403, 'Admin role required.');
-        abort_unless($request->user()?->hasPermission($permission), 403, 'Permission required: '.$permission);
+        abort_unless($request->user('admin'), 403, 'Admin access required.');
     }
 
     public function dashboard(Request $request)
     {
         $this->ensureAdminPermissions($request, 'admin.dashboard.view');
-
         return Inertia::render('admin/dashboard/index', [
-            'userName' => $request->user()?->name ?? 'Admin User',
+            'userName' => $request->user('admin')?->name ?? 'Admin User',
             'verifiedUsers' => 180,
             'notVerifiedUsers' => 32,
             'underProcess' => 12,

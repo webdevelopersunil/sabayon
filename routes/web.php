@@ -3,10 +3,20 @@
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Features;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
-Route::inertia('/', 'welcome', [
-    'canRegister' => Features::enabled(Features::registration()),
-])->name('home');
+Route::get('/', function () {
+    if (Auth::guard('admin')->check()) {
+        return redirect()->route('admin.dashboard');
+    }
+    if (Auth::guard('web')->check()) {
+        return redirect()->route('dashboard');
+    }
+    return Inertia::render('welcome', [
+        'canRegister' => Features::enabled(Features::registration()),
+    ]);
+})->name('home');
 
 
 

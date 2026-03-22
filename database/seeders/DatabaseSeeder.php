@@ -76,14 +76,14 @@ class DatabaseSeeder extends Seeder
 
         $password = bcrypt('welcome@123');
 
-        // $user = User::updateOrCreate(
-        //     ['email' => 'user@example.com'],
-        //     [
-        //         'name' => 'User One',
-        //         'cpf_no' => '111111',
-        //         'password' => $password,
-        //     ]
-        // );
+        $user = User::updateOrCreate(
+            ['email' => 'user@example.com'],
+            [
+                'name' => 'User One',
+                'cpf_no' => '111111',
+                'password' => $password,
+            ]
+        );
 
         $admin = User::updateOrCreate(
             ['email' => 'admin@example.com'],
@@ -103,10 +103,10 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // DB::table('role_user')->updateOrInsert(
-        //     ['user_id' => $user->id, 'role_id' => $roleMap['user']->id],
-        //     ['created_at' => now(), 'updated_at' => now()]
-        // );
+        DB::table('role_user')->updateOrInsert(
+            ['user_id' => $user->id, 'role_id' => $roleMap['user']->id],
+            ['created_at' => now(), 'updated_at' => now()]
+        );
 
         DB::table('role_user')->updateOrInsert(
             ['user_id' => $admin->id, 'role_id' => $roleMap['admin']->id],
