@@ -43,4 +43,15 @@ class AuthController extends Controller
             'admin_id' => 'The provided credentials do not match our records.',
         ])->onlyInput('admin_id');
     }
+
+    public function logout(Request $request)
+    {
+        Auth::guard('admin')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect()->route('admin.login.view');
+    }
 }

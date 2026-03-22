@@ -10,6 +10,8 @@ use App\Http\Middleware\EnsureHasRole;
 
 Route::get('admin/login', [AuthController::class, 'loginView'])->name('admin.login.view');
 Route::post('admin/login', [AuthController::class, 'login'])->name('admin.login');
+Route::post('admin/logout', [AuthController::class, 'logout'])->name('admin.logout');
+Route::get('admin/logout', [AuthController::class, 'logout']); // Allows normal links to log out successfully
 
 
 Route::middleware(['auth:admin'])->group(function () {
