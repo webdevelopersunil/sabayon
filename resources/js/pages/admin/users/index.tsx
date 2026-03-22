@@ -1,5 +1,5 @@
-import { Head, Link } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import { useState, useEffect, useRef } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { 
     Search, 
@@ -25,69 +25,6 @@ const breadcrumbs = [
     { title: 'Verify Users', href: '/admin/verify-users' },
 ];
 
-const sampleUsers = [
-    {
-        id: 'U-001',
-        name: 'Amit Sharma',
-        verified: 'Approved',
-        rejectedAt: '',
-        aadhar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=80&q=80',
-        email: 'amit.sharma@ongc.co.in',
-        department: 'Production',
-        mobile: '+91 98765 43210',
-    },
-    {
-        id: 'U-002',
-        name: 'Sita Devi',
-        verified: 'Rejected',
-        rejectedAt: '2026-03-10',
-        aadhar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=80&q=80',
-        email: 'sita.devi@ongc.co.in',
-        department: 'HR',
-        mobile: '+91 98765 43211',
-    },
-    {
-        id: 'U-003',
-        name: 'Rahul Jain',
-        verified: 'Pending',
-        rejectedAt: '',
-        aadhar: 'https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?auto=format&fit=crop&w=80&q=80',
-        email: 'rahul.jain@ongc.co.in',
-        department: 'Finance',
-        mobile: '+91 98765 43212',
-    },
-    {
-        id: 'U-004',
-        name: 'Neha Patel',
-        verified: 'Approved',
-        rejectedAt: '',
-        aadhar: 'https://images.unsplash.com/photo-1542204165-94c19a76f102?auto=format&fit=crop&w=80&q=80',
-        email: 'neha.patel@ongc.co.in',
-        department: 'Engineering',
-        mobile: '+91 98765 43213',
-    },
-    {
-        id: 'U-005',
-        name: 'Sunil Rao',
-        verified: 'Pending',
-        rejectedAt: '',
-        aadhar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=80&q=80',
-        email: 'sunil.rao@ongc.co.in',
-        department: 'IT',
-        mobile: '+91 98765 43214',
-    },
-    {
-        id: 'U-006',
-        name: 'Priya Verma',
-        verified: 'Rejected',
-        rejectedAt: '2026-03-07',
-        aadhar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=80&q=80',
-        email: 'priya.verma@ongc.co.in',
-        department: 'Marketing',
-        mobile: '+91 98765 43215',
-    },
-];
-
 const getStatusClass = (status: string) => {
     if (status === 'Approved') {
         return 'bg-green-50 text-green-700 border-green-200';
@@ -109,45 +46,53 @@ const getStatusIcon = (status: string) => {
     }
 };
 
-export default function AdminVerifyUsers() {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [page, setPage] = useState(1);
-    const perPage = 5;
+type User = {
+    id: number;
+    name: string;
+    cpf_no: string;
+    email: string;
+    designation: string;
+    mobileno: string;
+    admin_verified: boolean;
+};
 
-    const filtered = useMemo(() => {
-        const term = searchTerm.trim().toLowerCase();
-        let filteredUsers = sampleUsers;
-        
-        // Apply search filter
-        if (term) {
-            filteredUsers = filteredUsers.filter((u) =>
-                u.id.toLowerCase().includes(term) ||
-                u.name.toLowerCase().includes(term) ||
-                u.email.toLowerCase().includes(term) ||
-                u.department.toLowerCase().includes(term)
-            );
-        }
-        
-        // Apply status filter
-        if (statusFilter !== 'all') {
-            filteredUsers = filteredUsers.filter((u) => 
-                u.verified.toLowerCase() === statusFilter.toLowerCase()
-            );
-        }
-        
-        return filteredUsers;
-    }, [searchTerm, statusFilter]);
-
-    const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
-    const paginated = filtered.slice((page - 1) * perPage, page * perPage);
-
-    const stats = {
-        total: sampleUsers.length,
-        approved: sampleUsers.filter(u => u.verified === 'Approved').length,
-        pending: sampleUsers.filter(u => u.verified === 'Pending').length,
-        rejected: sampleUsers.filter(u => u.verified === 'Rejected').length,
+type Props = {
+    users: {
+        data: User[];
+        current_page: number;
+        last_page: number;
+        total: number;
+        from: number;
+        to: number;
+        links: { url: string | null; label: string; active: boolean }[];
     };
+    filters: {
+        search?: string;
+        status?: string;
+    };
+};
+
+export default function AdminVerifyUsers({ users, filters }: Props) {
+    const [searchTerm, setSearchTerm] = useState(filters?.search || '');
+    const [statusFilter, setStatusFilter] = useState(filters?.status || 'all');
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timeout = setTimeout(() => {
+            router.get(
+                '/admin/verify-users',
+                { search: searchTerm, status: statusFilter !== 'all' ? statusFilter : undefined },
+                { preserveState: true, replace: true }
+            );
+        }, 300); // 300ms debounce
+
+        return () => clearTimeout(timeout);
+    }, [searchTerm, statusFilter]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -195,19 +140,7 @@ export default function AdminVerifyUsers() {
                     <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
                             <p className="text-xs text-gray-500">Total Users</p>
-                            <p className="text-xl font-semibold text-gray-800">{stats.total}</p>
-                        </div>
-                        <div className="bg-green-50 rounded-lg p-3 border border-green-100">
-                            <p className="text-xs text-green-600">Approved</p>
-                            <p className="text-xl font-semibold text-green-700">{stats.approved}</p>
-                        </div>
-                        <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-100">
-                            <p className="text-xs text-yellow-600">Pending</p>
-                            <p className="text-xl font-semibold text-yellow-700">{stats.pending}</p>
-                        </div>
-                        <div className="bg-red-50 rounded-lg p-3 border border-red-100">
-                            <p className="text-xs text-red-600">Rejected</p>
-                            <p className="text-xl font-semibold text-red-700">{stats.rejected}</p>
+                            <p className="text-xl font-semibold text-gray-800">{users.total || 0}</p>
                         </div>
                     </div>
                 </div>
@@ -236,7 +169,6 @@ export default function AdminVerifyUsers() {
                                         value={searchTerm}
                                         onChange={(e) => {
                                             setSearchTerm(e.target.value);
-                                            setPage(1);
                                         }}
                                         placeholder="Search by ID, name, email, department..."
                                         className="w-full pl-9 pr-4 py-2.5 rounded-lg border border-gray-200 focus:border-[#E65F2B] focus:ring-1 focus:ring-[#E65F2B] transition-all outline-none text-sm"
@@ -247,14 +179,12 @@ export default function AdminVerifyUsers() {
                                     value={statusFilter}
                                     onChange={(e) => {
                                         setStatusFilter(e.target.value);
-                                        setPage(1);
                                     }}
                                     className="px-4 py-2.5 rounded-lg border border-gray-200 focus:border-[#E65F2B] focus:ring-1 focus:ring-[#E65F2B] transition-all outline-none text-sm bg-white min-w-[140px]"
                                 >
                                     <option value="all">All Status</option>
-                                    <option value="approved">Approved</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="rejected">Rejected</option>
+                                    <option value="verified">Approved</option>
+                                    <option value="unverified">Pending</option>
                                 </select>
                                 
                                 <button className="px-4 py-2.5 rounded-lg border border-gray-200 hover:border-[#E65F2B]/30 hover:bg-gray-50 transition-all text-gray-600">
@@ -278,49 +208,43 @@ export default function AdminVerifyUsers() {
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="bg-gray-50 border-b border-gray-200">
-                                        <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Aadhar Photo</th>
+                                        <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">User Info</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">User Details</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Admin Verified</th>
-                                        <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Rejected At</th>
+                                        <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Registered</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center w-64">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {paginated.map((user) => (
+                                    {users.data.map((user) => (
                                         <tr key={user.id} className="group/row hover:bg-gray-50/50 transition-colors">
                                             <td className="px-6 py-4">
                                                 <div className="relative">
-                                                    <img 
-                                                        src={user.aadhar} 
-                                                        alt="Aadhar" 
-                                                        className="h-14 w-14 rounded-lg object-cover border-2 border-gray-200 group-hover/row:border-[#E65F2B]/30 transition-all shadow-sm"
-                                                    />
-                                                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
+                                                    <div className="h-14 w-14 rounded-lg bg-gray-100 border-2 border-gray-200 flex items-center justify-center text-gray-400 group-hover/row:border-[#E65F2B]/30 transition-all shadow-sm">
+                                                        <Users className="h-6 w-6" />
+                                                    </div>
+                                                    {user.admin_verified && <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-medium text-gray-800">{user.name}</div>
                                                 <div className="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
-                                                    <span className="font-mono">{user.id}</span>
+                                                    <span className="font-mono">{user.cpf_no}</span>
                                                     <span>•</span>
                                                     <span>{user.email}</span>
                                                 </div>
                                                 <div className="text-xs text-gray-400 mt-1">
-                                                    {user.department} • {user.mobile}
+                                                    {user.designation || 'N/A'} • {user.mobileno || 'N/A'}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${getStatusClass(user.verified)}`}>
-                                                    {getStatusIcon(user.verified)}
-                                                    {user.verified}
+                                                <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${getStatusClass(user.admin_verified ? 'Approved' : 'Pending')}`}>
+                                                    {getStatusIcon(user.admin_verified ? 'Approved' : 'Pending')}
+                                                    {user.admin_verified ? 'Approved' : 'Pending'}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-600">
-                                                {user.rejectedAt ? (
-                                                    <span className="text-red-600 font-medium">{user.rejectedAt}</span>
-                                                ) : (
-                                                    <span className="text-gray-400">-</span>
-                                                )}
+                                                <span className="text-gray-400">-</span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-center gap-2">
@@ -342,7 +266,7 @@ export default function AdminVerifyUsers() {
                                             </td>
                                         </tr>
                                     ))}
-                                    {paginated.length === 0 && (
+                                    {users.data.length === 0 && (
                                         <tr>
                                             <td colSpan={5} className="px-6 py-12 text-center">
                                                 <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
@@ -359,56 +283,63 @@ export default function AdminVerifyUsers() {
                         <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50">
                             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                                 <p className="text-sm text-gray-500">
-                                    Showing <span className="font-medium text-gray-700">{(page - 1) * perPage + 1}</span> to{' '}
+                                    Showing <span className="font-medium text-gray-700">{users.from || 0}</span> to{' '}
                                     <span className="font-medium text-gray-700">
-                                        {Math.min(page * perPage, filtered.length)}
+                                        {users.to || 0}
                                     </span>{' '}
-                                    of <span className="font-medium text-gray-700">{filtered.length}</span> users
+                                    of <span className="font-medium text-gray-700">{users.total || 0}</span> users
                                 </p>
                                 
-                                <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                        disabled={page === 1}
-                                        className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        <ChevronLeft className="h-4 w-4" />
-                                        Previous
-                                    </button>
-                                    
-                                    <div className="flex items-center gap-1">
-                                        {[...Array(Math.min(5, totalPages))].map((_, i) => {
-                                            let pageNum = i + 1;
-                                            if (totalPages > 5 && page > 3) {
-                                                pageNum = page - 3 + i;
-                                            }
-                                            if (pageNum <= totalPages) {
-                                                return (
-                                                    <button
-                                                        key={pageNum}
-                                                        onClick={() => setPage(pageNum)}
-                                                        className={`w-9 h-9 rounded-lg text-sm font-medium transition-all ${
-                                                            page === pageNum
-                                                                ? 'bg-[#E65F2B] text-white shadow-md'
-                                                                : 'text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                                        }`}
-                                                    >
-                                                        {pageNum}
-                                                    </button>
-                                                );
-                                            }
-                                            return null;
-                                        })}
-                                    </div>
-                                    
-                                    <button
-                                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                                        disabled={page === totalPages}
-                                        className="inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                    >
-                                        Next
-                                        <ChevronRight className="h-4 w-4" />
-                                    </button>
+                                <div className="flex items-center gap-1">
+                                    {users.links.map((link, i) => {
+                                        const isPrev = link.label.includes('Previous');
+                                        const isNext = link.label.includes('Next');
+
+                                        if (isPrev) {
+                                            return (
+                                                <Link
+                                                    key={i}
+                                                    href={link.url || ''}
+                                                    preserveState
+                                                    preserveScroll
+                                                    className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all ${!link.url ? 'opacity-50 pointer-events-none' : ''}`}
+                                                >
+                                                    <ChevronLeft className="h-4 w-4" />
+                                                    Previous
+                                                </Link>
+                                            );
+                                        }
+
+                                        if (isNext) {
+                                            return (
+                                                <Link
+                                                    key={i}
+                                                    href={link.url || ''}
+                                                    preserveState
+                                                    preserveScroll
+                                                    className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all ${!link.url ? 'opacity-50 pointer-events-none' : ''}`}
+                                                >
+                                                    Next
+                                                    <ChevronRight className="h-4 w-4" />
+                                                </Link>
+                                            );
+                                        }
+
+                                        return (
+                                            <Link
+                                                key={i}
+                                                href={link.url || ''}
+                                                preserveState
+                                                preserveScroll
+                                                className={`flex items-center justify-center w-9 h-9 rounded-lg text-sm font-medium transition-all ${
+                                                    link.active
+                                                        ? 'bg-[#E65F2B] text-white shadow-md'
+                                                        : 'text-gray-600 hover:bg-gray-100 border border-gray-200 bg-white'
+                                                }`}
+                                                dangerouslySetInnerHTML={{ __html: link.label }}
+                                            />
+                                        );
+                                    })}
                                 </div>
                             </div>
                         </div>
