@@ -395,14 +395,14 @@ export default function AdminVerifyUsers({ users, filters, stats }: Props) {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="flex justify-end gap-3">
+                {/* <div className="flex justify-end gap-3">
                     <button className="px-4 py-2 rounded-lg border border-gray-200 bg-white text-sm text-gray-600 hover:border-[#E65F2B]/30 hover:text-[#E65F2B] transition-all">
                         Export List
                     </button>
                     <button className="px-4 py-2 rounded-lg bg-[#E65F2B] text-white text-sm hover:bg-[#C44A1F] transition-all shadow-sm">
                         Bulk Verify
                     </button>
-                </div>
+                </div> */}
             </div>
         </AppLayout>
     );
