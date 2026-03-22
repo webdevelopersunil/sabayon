@@ -157,7 +157,7 @@ export default function AdminVerifyUsers() {
             <div className="absolute top-0 right-0 w-96 h-96 bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#E65F2B]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
             
-            <div className="relative p-6 max-w-7xl mx-auto space-y-6">
+            <div className="relative p-6 w-full max-w-[70%] mx-auto space-y-6">
                 {/* Header Section */}
                 <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm p-6">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
