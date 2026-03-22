@@ -202,6 +202,8 @@ class SahayogRequestController extends Controller
             $this->step1FormProcessing($payload);
 
             $step1 = $payload['step1'];
+            // Assign the work_center 
+            $data->work_center = $step1['work_center'] ?? '';
             
             $data->step1Data()->updateOrCreate(
                             [], // ✅ DO NOT pass wizard_data_id
