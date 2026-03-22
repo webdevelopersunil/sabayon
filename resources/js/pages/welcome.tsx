@@ -1,7 +1,8 @@
-import { Head, Link, usePage } from '@inertiajs/react';
-import { dashboard, login, register } from '@/routes';
+import { Head, Link } from '@inertiajs/react';
+import { register } from '@/routes';
+import WelcomeHeader from '@/components/welcome-header';
 import { 
-    Menu, X, ChevronRight, Heart, GraduationCap, Stethoscope, Users, Phone, Mail, MapPin,
+    ChevronRight, Heart, GraduationCap, Stethoscope, Users, Phone, Mail, MapPin,
     ExternalLink, ArrowRight, Quote, Calendar, CheckCircle, FileText, Award, Shield, TrendingUp,
     Home, Briefcase, DollarSign, ChevronLeft, Star, Sparkles, Globe, Clock, Building2, 
     HandHeart, Building, PhoneCall, MailOpen, Facebook, Twitter, Linkedin,
@@ -212,20 +213,11 @@ const applicationSteps = [
 ];
 
 export default function Welcome({ canRegister = true }: { canRegister?: boolean }) {
-    const { auth } = usePage().props;
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [currentLeader, setCurrentLeader] = useState(0);
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
-    const [scrolled, setScrolled] = useState(false);
     const [animatedStats, setAnimatedStats] = useState(statsData.map(() => 0));
 
-    // Scroll effect
-    useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 50);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
 
     // Animate stats
     useEffect(() => {
@@ -289,7 +281,6 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
             
             {/* Light Background with subtle grid */}
             <div className="fixed inset-0 bg-gradient-to-br from-white via-orange-50/30 to-white overflow-hidden">
-                {/* <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3Cpattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"%3E%3Cpath d="M 60 0 L 0 0 0 60" fill="none" stroke="rgba(230,95,43,0.08)" stroke-width="1"/%3E%3C/pattern%3E%3C/defs%3E%3Crect width="100%25" height="100%25" fill="url(%23grid)"/%3E%3C/svg%3E')] opacity-30" /> */}
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-orange-500/5 to-transparent" />
                 <ParticleBackground />
                 
@@ -300,112 +291,7 @@ export default function Welcome({ canRegister = true }: { canRegister?: boolean 
 
             <div className="relative min-h-screen text-gray-800 font-['Inter']">
                 {/* Navigation */}
-                <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-                    scrolled ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-200' : 'bg-white/80 backdrop-blur-sm'
-                }`}>
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center h-20">
-                            {/* Logo */}
-                            <Link href="/" className="flex items-center gap-3 group">
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-[#E65F2B]/20 rounded-xl blur-lg group-hover:blur-2xl transition-all" />
-                                    <div className="relative w-12 h-12 rounded-xl bg-gradient-to-br from-[#E65F2B] to-[#FF6B35] flex items-center justify-center shadow-md group-hover:shadow-lg transition-all">
-                                        <Atom className="h-6 w-6 text-white animate-spin-slow" />
-                                    </div>
-                                </div>
-                                <div>
-                                    <h1 className="text-xl font-bold bg-gradient-to-r from-[#E65F2B] to-[#FF6B35] bg-clip-text text-transparent font-['Space_Mono']">
-                                        ONGC Sahayog<span className="text-xs align-top">™</span>
-                                    </h1>
-                                    <p className="text-xs text-gray-500 font-mono">Employee Welfare Trust • Since 1995</p>
-                                </div>
-                            </Link>
-
-                            {/* Desktop Navigation */}
-                            <div className="hidden md:flex items-center gap-8">
-                                {['Home', 'Assistance', 'How to Apply', 'Contact'].map((item) => (
-                                    <a 
-                                        key={item} 
-                                        href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
-                                        className="text-sm font-medium text-gray-600 hover:text-[#E65F2B] transition-colors relative group font-mono"
-                                    >
-                                        <span className="relative z-10">{item}</span>
-                                        <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-[#E65F2B] to-transparent group-hover:w-full transition-all duration-500" />
-                                    </a>
-                                ))}
-                            </div>
-
-                            {/* Auth Buttons */}
-                            <div className="hidden md:flex items-center gap-4">
-                                {auth.user ? (
-                                    <Link
-                                        href={dashboard()}
-                                        className="relative group overflow-hidden px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#E65F2B] to-[#FF6B35] text-white text-sm font-medium hover:shadow-md transition-all"
-                                    >
-                                        <span className="relative z-10">Dashboard</span>
-                                        <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
-                                    </Link>
-                                ) : (
-                                    <>
-                                        <Link
-                                            href={login()}
-                                            className="text-sm font-medium text-gray-600 hover:text-[#E65F2B] transition-colors px-4 py-2"
-                                        >
-                                            Log in
-                                        </Link>
-                                        {canRegister && (
-                                            <Link
-                                                href={register()}
-                                                className="relative group overflow-hidden px-6 py-2.5 rounded-xl border border-[#E65F2B] text-[#E65F2B] text-sm font-medium hover:bg-[#E65F2B] hover:text-white transition-all"
-                                            >
-                                                <span className="relative z-10">Register</span>
-                                            </Link>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-
-                            {/* Mobile menu button */}
-                            <button
-                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                            >
-                                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Mobile menu */}
-                    {mobileMenuOpen && (
-                        <div className="md:hidden border-t border-gray-200 bg-white shadow-lg">
-                            <div className="px-4 py-4 space-y-3">
-                                {['Home', 'Assistance', 'How to Apply', 'Contact'].map((item) => (
-                                    <a key={item} href={`#${item.toLowerCase().replace(/\s+/g, '-')}`} className="block text-sm text-gray-600 hover:text-[#E65F2B] py-2 font-mono">
-                                        {item}
-                                    </a>
-                                ))}
-                                <div className="pt-4 border-t border-gray-100 flex flex-col gap-3">
-                                    {auth.user ? (
-                                        <Link href={dashboard()} className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#E65F2B] text-white text-sm font-medium">
-                                            Dashboard
-                                        </Link>
-                                    ) : (
-                                        <>
-                                            <Link href={login()} className="text-center text-sm font-medium text-gray-600 hover:text-[#E65F2B] px-4 py-2">
-                                                Log in
-                                            </Link>
-                                            {canRegister && (
-                                                <Link href={register()} className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-[#E65F2B] text-[#E65F2B] text-sm font-medium">
-                                                    Register
-                                                </Link>
-                                            )}
-                                        </>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </nav>
+                <WelcomeHeader canRegister={canRegister} />
 
                 {/* Hero Section */}
                 <section id="home" className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
