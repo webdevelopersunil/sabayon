@@ -58,9 +58,17 @@ class AdminController extends Controller
             ->paginate(10)
             ->withQueryString();
 
+        $stats = [
+            'total' => User::count(),
+            'approved' => User::where('admin_verified', true)->count(),
+            'pending' => User::where('admin_verified', false)->count(),
+            'retired' => User::where('employee_type', 'like', '%retired%')->count(),
+        ];
+
         return Inertia::render('admin/users/index', [
             'users' => $users,
             'filters' => $request->only(['search', 'status']),
+            'stats' => $stats,
         ]);
     }
 

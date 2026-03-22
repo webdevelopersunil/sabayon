@@ -70,9 +70,15 @@ type Props = {
         search?: string;
         status?: string;
     };
+    stats: {
+        total: number;
+        approved: number;
+        pending: number;
+        retired: number;
+    };
 };
 
-export default function AdminVerifyUsers({ users, filters }: Props) {
+export default function AdminVerifyUsers({ users, filters, stats }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     const [statusFilter, setStatusFilter] = useState(filters?.status || 'all');
     const isFirstRender = useRef(true);
@@ -140,7 +146,19 @@ export default function AdminVerifyUsers({ users, filters }: Props) {
                     <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
                         <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
                             <p className="text-xs text-gray-500">Total Users</p>
-                            <p className="text-xl font-semibold text-gray-800">{users.total || 0}</p>
+                            <p className="text-xl font-semibold text-gray-800">{stats?.total || 0}</p>
+                        </div>
+                        <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                            <p className="text-xs text-green-600">Approved</p>
+                            <p className="text-xl font-semibold text-green-700">{stats?.approved || 0}</p>
+                        </div>
+                        <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-100">
+                            <p className="text-xs text-yellow-600">Pending</p>
+                            <p className="text-xl font-semibold text-yellow-700">{stats?.pending || 0}</p>
+                        </div>
+                        <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                            <p className="text-xs text-blue-600">Retired</p>
+                            <p className="text-xl font-semibold text-blue-700">{stats?.retired || 0}</p>
                         </div>
                     </div>
                 </div>
@@ -208,6 +226,11 @@ export default function AdminVerifyUsers({ users, filters }: Props) {
                             <table className="w-full text-left">
                                 <thead>
                                     <tr className="bg-gray-50 border-b border-gray-200">
+                                        <th className="w-[100px] px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            <div className="flex items-center gap-2">
+                                                Index
+                                            </div>
+                                        </th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">User Info</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">User Details</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Admin Verified</th>
@@ -216,8 +239,20 @@ export default function AdminVerifyUsers({ users, filters }: Props) {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {users.data.map((user) => (
+                                    {users.data.map((user, index) => {
+                                        const itemIndex = (users.from || 1) + index;
+                                        
+                                        return (
                                         <tr key={user.id} className="group/row hover:bg-gray-50/50 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg bg-[#E65F2B]/10 flex items-center justify-center shrink-0">
+                                                        <span className="text-xs font-semibold text-[#E65F2B]">
+                                                            #{itemIndex}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <div className="relative">
                                                     <div className="h-14 w-14 rounded-lg bg-gray-100 border-2 border-gray-200 flex items-center justify-center text-gray-400 group-hover/row:border-[#E65F2B]/30 transition-all shadow-sm">
@@ -265,10 +300,11 @@ export default function AdminVerifyUsers({ users, filters }: Props) {
                                                 </div>
                                             </td>
                                         </tr>
-                                    ))}
+                                        );
+                                    })}
                                     {users.data.length === 0 && (
                                         <tr>
-                                            <td colSpan={5} className="px-6 py-12 text-center">
+                                            <td colSpan={6} className="px-6 py-12 text-center">
                                                 <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                                                 <p className="text-gray-500 font-medium">No users found</p>
                                                 <p className="text-xs text-gray-400 mt-1">Try adjusting your search or filter criteria</p>
