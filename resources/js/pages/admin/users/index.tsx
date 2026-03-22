@@ -16,7 +16,9 @@ import {
     Download,
     Home,
     Users,
-    Shield
+    Shield,
+    Check,
+    X
 } from 'lucide-react';
 
 // Breadcrumb configuration
@@ -232,7 +234,8 @@ export default function AdminVerifyUsers({ users, filters, stats }: Props) {
                                             </div>
                                         </th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">User Info</th>
-                                        <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">User Details</th>
+                                        <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-auto">User Details</th>
+                                        <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email Address</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Admin Verified</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Registered</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center w-64">Actions</th>
@@ -258,19 +261,28 @@ export default function AdminVerifyUsers({ users, filters, stats }: Props) {
                                                     <div className="h-14 w-14 rounded-lg bg-gray-100 border-2 border-gray-200 flex items-center justify-center text-gray-400 group-hover/row:border-[#E65F2B]/30 transition-all shadow-sm">
                                                         <Users className="h-6 w-6" />
                                                     </div>
-                                                    {user.admin_verified && <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>}
+                                                    {user.admin_verified ? (
+                                                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white flex items-center justify-center shadow-sm">
+                                                            <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                                                        </div>
+                                                    ) : (
+                                                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full border-2 border-white flex items-center justify-center shadow-sm">
+                                                            <X className="w-3 h-3 text-white" strokeWidth={3} />
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="font-medium text-gray-800">{user.name}</div>
                                                 <div className="text-xs text-gray-400 mt-0.5 flex items-center gap-2">
                                                     <span className="font-mono">{user.cpf_no}</span>
-                                                    <span>•</span>
-                                                    <span>{user.email}</span>
                                                 </div>
                                                 <div className="text-xs text-gray-400 mt-1">
                                                     {user.designation || 'N/A'} • {user.mobileno || 'N/A'}
                                                 </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className="text-sm text-gray-600">{user.email}</span>
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border ${getStatusClass(user.admin_verified ? 'Approved' : 'Pending')}`}>
@@ -304,7 +316,7 @@ export default function AdminVerifyUsers({ users, filters, stats }: Props) {
                                     })}
                                     {users.data.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="px-6 py-12 text-center">
+                                            <td colSpan={7} className="px-6 py-12 text-center">
                                                 <Users className="h-12 w-12 text-gray-300 mx-auto mb-3" />
                                                 <p className="text-gray-500 font-medium">No users found</p>
                                                 <p className="text-xs text-gray-400 mt-1">Try adjusting your search or filter criteria</p>
