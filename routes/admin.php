@@ -15,6 +15,7 @@ Route::get('admin/logout', [AuthController::class, 'logout']); // Allows normal 
 
 
 Route::middleware(['auth:admin'])->group(function () {
+    
     Route::get('admin', [AdminController::class, 'dashboard'])
         ->name('admin.dashboard');
 

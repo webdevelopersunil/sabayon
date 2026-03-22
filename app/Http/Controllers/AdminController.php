@@ -35,12 +35,61 @@ class AdminController extends Controller
     public function verifyUsers(Request $request)
     {
         $this->ensureAdminPermissions($request, 'admin.users.view');
-        return Inertia::render('admin/users/index');
+        
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        $users = User::query()
+            ->when($search, function ($query, $search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('cpf_no', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($status, function ($query, $status) {
+                if ($status === 'verified') {
+                    $query->where('admin_verified', true);
+                } elseif ($status === 'unverified') {
+                    $query->where('admin_verified', false);
+                }
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('admin/users/index', [
+            'users' => $users,
+            'filters' => $request->only(['search', 'status']),
+        ]);
     }
 
     public function sahayogRequest(Request $request)
     {
+
         $this->ensureAdminPermissions($request, 'admin.sahayog_requests.view');
-        return Inertia::render('admin/sahayog-requests/index');
+        // return Inertia::render('admin/sahayog-requests/index');
+
+                
+
+        $search = $request->input('search');
+        $status = $request->input('status');
+
+        $requests = WizardData::select('id', 'request_no', 'step', 'status', 'hr_status', 'created_at')
+            ->where('work_center', auth()->user()->username)
+            ->when($search, function ($query, $search) {
+                $query->where('request_no', 'like', "%{$search}%");
+            })
+            ->when($status, function ($query, $status) {
+                $query->where(fn($q) => $q->where('status', $status)->orWhere('hr_status', $status));
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+                
+        return Inertia::render('admin/sahayog-requests/index', [
+            'requests' => $requests,
+            'filters' => $request->only(['search', 'status']),
+        ]);
     }
 }
