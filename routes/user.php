@@ -30,6 +30,10 @@ Route::middleware(['auth', 'verified', EnsureHasRole::class.':user'])->group(fun
         ->name('sahayog-requests.history')
         ->middleware(EnsureHasPermission::class.':user.sahayog_requests.history');
 
+    Route::post('sahayog-requests/search/find', [SahayogRequestController::class, 'find'])
+        ->name('sahayog-requests.find')
+        ->middleware(EnsureHasPermission::class.':user.sahayog_requests.view');
+
     Route::get('sahayog-requests/{request_number}', [SahayogRequestController::class, 'show'])
         ->name('sahayog-requests.show')
         ->middleware(EnsureHasPermission::class.':user.sahayog_requests.view');

@@ -50,6 +50,23 @@ class SahayogRequestController extends Controller
         ]);
     }
 
+        public function find(Request $request)
+    {
+        $this->ensureUserPermissions($request, 'user.sahayog_requests.view');
+
+        $request->validate([
+            'search' => ['required', 'string']
+        ]);
+
+        $request_no = $request->input('search');
+
+        if (WizardData::where('request_no', $request_no)->where('user_id', auth()->id())->exists()) {
+            return redirect()->route('sahayog-requests.show', ['request_number' => $request_no]);
+        }
+
+        return back()->withErrors(['search' => 'No record found.']);
+    }
+
     public function edit(Request $request, $request_number)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');

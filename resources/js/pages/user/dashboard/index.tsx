@@ -1,4 +1,5 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { useEffect } from 'react';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
@@ -6,7 +7,6 @@ import type { BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, FileText, History, ArrowRight, Sparkles } from 'lucide-react';
-import { Link } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -16,6 +16,25 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Dashboard() {
+    const { data, setData, post, processing, errors, clearErrors } = useForm({
+        search: '',
+    });
+
+    useEffect(() => {
+        if (errors.search) {
+            const timer = setTimeout(() => clearErrors('search'), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [errors.search, clearErrors]);
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!data.search.trim()) return;
+        post('/sahayog-requests/search/find', {
+            preserveScroll: true,
+        });
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -41,19 +60,30 @@ export default function Dashboard() {
                             </h2>
                         </div>
                         
-                        <div className="flex flex-col sm:flex-row gap-3 max-w-2xl">
+                        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 max-w-2xl">
                             <div className="relative flex-1">
                                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                                 <Input 
+                                    value={data.search}
+                                    onChange={(e) => setData('search', e.target.value)}
                                     placeholder="Enter Request Number" 
                                     className="pl-10 h-12 bg-white border-2 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20 rounded-xl text-gray-800 placeholder-gray-400"
                                 /> 
                             </div>
-                            <Button className="h-12 px-8 rounded-xl bg-[#E65F2B] hover:bg-[#C44A1F] text-white shadow-sm hover:shadow transition-all duration-300 gap-2">
+                            <Button 
+                                type="submit"
+                                disabled={processing}
+                                className="h-12 px-8 rounded-xl bg-[#E65F2B] hover:bg-[#C44A1F] text-white shadow-sm hover:shadow transition-all duration-300 gap-2 disabled:opacity-50"
+                            >
                                 Search
                                 <ArrowRight className="h-4 w-4" />
                             </Button>
-                        </div>
+                        </form>
+                        {errors.search && (
+                            <p className="text-xs text-red-500 font-medium mt-1 animate-in fade-in">
+                                {errors.search}
+                            </p>
+                        )}
                         
                         <p className="mt-3 text-sm text-gray-500">
                             Enter the request number to quickly access any Sahayog request
