@@ -305,7 +305,7 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                                                     </Link>
                                                 ) : (
                                                     <Link
-                                                        href={`/sahayog-requests/${request.request_no}`}
+                                                        href={`/admin/sahayog-requests/${request.request_no}`}
                                                         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#E65F2B]/10 text-[#E65F2B] hover:bg-[#E65F2B] hover:text-white transition-all duration-300 group/btn whitespace-nowrap"
                                                     >
                                                         <Eye className="h-4 w-4 group-hover/btn:scale-110 transition-transform shrink-0" />

@@ -15,7 +15,7 @@ Route::get('admin/logout', [AuthController::class, 'logout']); // Allows normal 
 
 
 Route::middleware(['auth:admin'])->group(function () {
-    
+
     Route::get('admin', [AdminController::class, 'dashboard'])
         ->name('admin.dashboard');
 
@@ -27,6 +27,9 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::get('admin/sahayog-requests', [AdminController::class, 'sahayogRequest'])
         ->name('admin.sahayogRequest');
+
+    Route::get('admin/sahayog-requests/{request_number}', [AdminController::class, 'show'])
+        ->name('admin.show');
 });
 
 Route::middleware(['auth', 'verified', EnsureHasRole::class.':super-admin'])->group(function () {

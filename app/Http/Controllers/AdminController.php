@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\WizardData;
 use App\Models\User;
+use App\Models\WizardData;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 
 class AdminController extends Controller
@@ -74,12 +76,11 @@ class AdminController extends Controller
 
     public function sahayogRequest(Request $request)
     {
-
+        
         $this->ensureAdminPermissions($request, 'admin.sahayog_requests.view');
         // return Inertia::render('admin/sahayog-requests/index');
 
                 
-
         $search = $request->input('search');
         $status = $request->input('status');
 
@@ -95,9 +96,75 @@ class AdminController extends Controller
             ->paginate(10)
             ->withQueryString();
                 
-        return Inertia::render('admin/sahayog-requests/index', [
+        return Inertia::render('admin/sahayog-requests/list/index', [
             'requests' => $requests,
             'filters' => $request->only(['search', 'status']),
         ]);
     }
+
+    public function show(Request $request, $request_number)
+    {
+
+        $this->ensureAdminPermissions($request, 'admin.sahayog_requests.view');
+
+        $wizardData = WizardData::where('request_no', $request_number)->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])->first();
+        $user = User::where('id', $wizardData->user_id)->first();
+        // dd($user);
+
+        $step1 = $wizardData->step1Data;
+        $step2 = $wizardData->step2Data;
+        $step3 = $wizardData->step3Data;
+        $step4 = $wizardData->step4Data;
+
+        $beneficiary = $step2 ? ($step2->firstWhere('name', $wizardData->selected_beneficiary) ?? $step2->firstWhere('id', $wizardData->selected_beneficiary)) : null;
+        $beneficiaryName = $wizardData->selected_beneficiary ?? ($beneficiary->name ?? 'N/A');
+        $relationship = $beneficiary->relationship ?? 'N/A';
+
+        $applicationDetails = [
+            ['label' => 'Applicant Name', 'value' => $user?->name ?? 'N/A'],
+            ['label' => 'User Type', 'value' => $user?->employee_type ?? 'N/A'],
+            ['label' => 'CPF Number', 'value' => $user?->cpf_no ?? 'N/A'],
+            ['label' => 'Date of Joining ONGC', 'value' => $step1?->doj_ongc ?? ($user?->date_of_joining_ongc ? $user->date_of_joining_ongc->format('Y-m-d') : 'N/A')],
+            ['label' => 'Designation', 'value' => $step1?->designation ?? $user?->designation ?? 'N/A'],
+            ['label' => 'Work Center', 'value' => $step1?->work_center ?? 'N/A'],
+            ['label' => 'Place of Posting', 'value' => $step1?->place_of_posting ?? 'N/A'],
+        ];
+
+        $basicInformation = [
+            ['label' => 'Seperation Reason', 'value' => $step1?->seperation_reason ?? 'N/A'],
+            ['label' => 'Date of Seperation', 'value' => !empty($step1?->date_of_seperation) ? date('d-M-Y', strtotime($step1->date_of_seperation)) : 'N/A'],
+            ['label' => 'Dependants No', 'value' => $step1?->dependants_no ?? 'N/A'],
+            ['label' => 'Request Type', 'value' => $step3?->financialoptions ?? 'N/A'],
+            ['label' => 'Seperation Benefits', 'value' => $step1?->seperation_benefits ?? 'N/A'],
+        ];
+
+        $financialDetails = [
+            ['label' => 'Eligible Amount', 'value' => '₹' . number_format($step3?->eligible_amount ?? 0)],
+            ['label' => 'Gross Annual Income', 'value' => '₹' . number_format($step1?->gross_annual_income ?? 0)],
+            ['label' => 'Bank & Branch', 'value' => $step1?->bank_and_branch ?? 'N/A'],
+            ['label' => 'Bank Account', 'value' => $step1?->savingaccount_No ?? 'N/A'],
+            ['label' => 'IFSC Code', 'value' => $step1?->ifsc_code ?? 'N/A'],
+            ['label' => 'No. of Dependents (with relationship)', 'value' => $step1?->dependants_no ?? 'N/A'],
+        ];
+
+        // dd($step4);
+        $attachments = $step4 ? $step4->map(function ($doc) {
+            $fileName = basename($doc->attachment ?? '');
+            $extension = pathinfo($fileName, PATHINFO_EXTENSION);
+            return [
+                'name' => $fileName ?: 'Document',
+                'type' => strtoupper($extension) ?: 'FILE',
+                'url'  => $doc->attachment ? Storage::url($doc->attachment) : '#',
+            ];
+        })->toArray() : [];
+
+        return Inertia::render('user/sahayog-requests/view/index', [
+            'id' => $request_number,
+            'applicationDetails' => $applicationDetails,
+            'basicInformation' => $basicInformation,
+            'financialDetails' => $financialDetails,
+            'attachments' => $attachments,   
+        ]);
+    }
+
 }
