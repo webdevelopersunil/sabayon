@@ -100,6 +100,7 @@ class AdminController extends Controller
             'requests' => $requests,
             'filters' => $request->only(['search', 'status']),
         ]);
+        
     }
 
     public function find(Request $request)
@@ -175,7 +176,7 @@ class AdminController extends Controller
             ];
         })->toArray() : [];
 
-        return Inertia::render('user/sahayog-requests/view/index', [
+        return Inertia::render('admin/sahayog-requests/view/index', [
             'id' => $request_number,
             'applicationDetails' => $applicationDetails,
             'basicInformation' => $basicInformation,

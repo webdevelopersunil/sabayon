@@ -122,23 +122,10 @@ export default function SahayogRequestView({
                                 </div>
                             </div>
                         </div>
-                        
                         <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
                             <Link 
-                                href="#"
-                                className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#E65F2B] text-white hover:bg-[#C44A1F] transition-all text-sm font-medium shadow-sm"
-                            >
-                                Update Status
-                            </Link>
-                            <Link 
-                                href="#"
-                                className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all text-sm font-medium shadow-sm"
-                            >
-                                View Admin Updates
-                            </Link>
-                            <Link 
                                 href="/sahayog-requests/history" 
-                                className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300 text-gray-700 text-sm font-medium"
+                                className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300 text-gray-700"
                             >
                                 <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
                                 <span>Back to History</span>
