@@ -23,6 +23,7 @@ import { useState } from 'react';
 
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
+import UpdateRequestModal from './update-request-modal';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -80,6 +81,7 @@ export default function SahayogRequestView({
     attachments: Array<{ name: string; type: string; url?: string; size?: string; uploadedAt?: string }>; 
 }) {
     const [expandedAttachments, setExpandedAttachments] = useState<string[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const toggleAttachment = (name: string) => {
         setExpandedAttachments(prev =>
@@ -125,12 +127,12 @@ export default function SahayogRequestView({
 
 
                         <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
-                            <Link 
-                                href="#"
+                            <button 
+                                onClick={() => setIsModalOpen(true)}
                                 className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#E65F2B] text-white hover:bg-[#C44A1F] transition-all text-sm font-medium shadow-sm"
                             >
                                 Update Status
-                            </Link>
+                            </button>
                             <Link 
                                 href="#"
                                 className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all text-sm font-medium shadow-sm"
@@ -462,6 +464,12 @@ export default function SahayogRequestView({
                     </button>
                 </div> */}
             </div>
+
+            {/* Update Status Modal */}
+            <UpdateRequestModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+            />
         </AppLayout>
     );
 }
