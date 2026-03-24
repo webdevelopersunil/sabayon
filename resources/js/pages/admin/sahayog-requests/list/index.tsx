@@ -115,7 +115,7 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
             <div className="absolute top-0 right-0 w-96 h-96 bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#E65F2B]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
             
-            <div className="relative p-6 w-full max-w-[70%] mx-auto space-y-6">
+            <div className="relative p-6 w-full max-w-[85%] mx-auto space-y-6">
                 {/* Header Section */}
                 <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm p-6 mb-6">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -141,7 +141,7 @@ export default function SahayogRequestListPage( { requests, filters }: HistoryPr
                         </div>
                         
                         <Link 
-                            href="/dashboard" 
+                            href="/admin/dashboard" 
                             className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300 text-gray-700"
                         >
                             <ChevronLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
