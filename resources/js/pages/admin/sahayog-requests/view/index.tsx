@@ -24,6 +24,7 @@ import { useState } from 'react';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 import UpdateRequestModal from './update-request-modal';
+import AdminUpdateModal from './admin-update-modal';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -82,6 +83,7 @@ export default function SahayogRequestView({
 }) {
     const [expandedAttachments, setExpandedAttachments] = useState<string[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
 
     const toggleAttachment = (name: string) => {
         setExpandedAttachments(prev =>
@@ -133,12 +135,13 @@ export default function SahayogRequestView({
                             >
                                 Update Status
                             </button>
-                            <Link 
-                                href="#"
+
+                            <button 
+                                onClick={() => setIsAdminModalOpen(true)}
                                 className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 transition-all text-sm font-medium shadow-sm"
                             >
                                 View Admin Updates
-                            </Link>
+                            </button>
                             <Link 
                                 href="/sahayog-requests/history" 
                                 className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300 text-gray-700 text-sm font-medium"
@@ -469,6 +472,11 @@ export default function SahayogRequestView({
             <UpdateRequestModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
+            />
+            {/* Admin Update Modal */}
+            <AdminUpdateModal 
+                isOpen={isAdminModalOpen} 
+                onClose={() => setIsAdminModalOpen(false)} 
             />
         </AppLayout>
     );
