@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { 
     CheckCircle, 
@@ -40,17 +40,17 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const statusStyles: Record<string, string> = {
-    Accepted: 'bg-green-50 text-green-700 border-green-200',
-    Rejected: 'bg-red-50 text-red-700 border-red-200',
-    'Under-review': 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    'Approved': 'bg-green-50 text-green-700 border-green-200',
+    'Rejected': 'bg-red-50 text-red-700 border-red-200',
+    'Under-Process': 'bg-yellow-50 text-yellow-700 border-yellow-200',
+    'Returned': 'bg-orange-50 text-orange-700 border-orange-200',
 };
 
 function StatusPill({ status }: { status: string }) {
-    const normalized = status === 'Under Review' ? 'Under-review' : status;
-    const Icon = normalized === 'Accepted' ? CheckCircle : normalized === 'Rejected' ? XCircle : AlertCircle;
+    const Icon = status === 'Approved' ? CheckCircle : status === 'Rejected' ? XCircle : AlertCircle;
     
     return (
-        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border ${statusStyles[normalized] || statusStyles['Under-review']}`}>
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-full border ${statusStyles[status] || statusStyles['Under-Process']}`}>
             <Icon className="h-3.5 w-3.5" />
             {status}
         </span>
@@ -71,15 +71,25 @@ export default function SahayogRequestView({
     applicationDetails = [],
     basicInformation = [],
     financialDetails = [],
-    attachments = []
+    attachments = [],
+    hrUpdate = { status: 'Under-Process', review_date: 'N/A', comments: 'Awaiting review.', updated_by: 'N/A' }
 }: { 
     id: string; 
     applicationDetails: Array<{ label: string; value: string }>; 
     basicInformation: Array<{ label: string; value: string }>; 
     financialDetails: Array<{ label: string; value: string }>; 
-    attachments: Array<{ name: string; type: string; url?: string; size?: string; uploadedAt?: string }>; 
+    attachments: Array<{ name: string; type: string; url?: string; size?: string; uploadedAt?: string }>;
+    hrUpdate?: {
+        status: string;
+        review_date: string;
+        comments: string;
+        updated_by: string;
+        attachment_url?: string;
+        attachment_name?: string;
+    }
 }) {
     const [expandedAttachments, setExpandedAttachments] = useState<string[]>([]);
+    const { flash } = usePage<any>().props;
 
     const toggleAttachment = (name: string) => {
         setExpandedAttachments(prev =>
@@ -96,6 +106,21 @@ export default function SahayogRequestView({
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#E65F2B]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
             <div className="relative p-6 max-w-7xl mx-auto space-y-6">
+                {/* Flash Messages */}
+                {flash?.success && (
+                    <div className="rounded-xl border border-green-200 bg-green-50 p-4 flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <p className="text-sm font-medium text-green-800">{flash.success}</p>
+                    </div>
+                )}
+                
+                {flash?.error && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-center gap-3">
+                        <XCircle className="h-5 w-5 text-red-600" />
+                        <p className="text-sm font-medium text-red-800">{flash.error}</p>
+                    </div>
+                )}
+
                 {/* Header Section */}
                 <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm p-6">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -122,15 +147,19 @@ export default function SahayogRequestView({
                                 </div>
                             </div>
                         </div>
+
+
                         <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
                             <Link 
                                 href="/sahayog-requests/history" 
-                                className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300 text-gray-700"
+                                className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300 text-gray-700 text-sm font-medium"
                             >
                                 <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
                                 <span>Back to History</span>
                             </Link>
                         </div>
+                        
+                        
                     </div>
                 </div>
 
@@ -151,7 +180,7 @@ export default function SahayogRequestView({
                                         </h2>
                                         <p className="text-xs text-gray-400 mt-0.5">Personal & employment information</p>
                                     </div>
-                                    <StatusPill status="Under-review" />
+                                    <StatusPill status={hrUpdate.status} />
                                 </div>
                                 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -186,7 +215,7 @@ export default function SahayogRequestView({
                                         </h2>
                                         <p className="text-xs text-gray-400 mt-0.5">Seperation and dependent details</p>
                                     </div>
-                                    <StatusPill status="Under-review" />
+                                    <StatusPill status={hrUpdate.status} />
                                 </div>
                                 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -221,7 +250,7 @@ export default function SahayogRequestView({
                                         </h2>
                                         <p className="text-xs text-gray-400 mt-0.5">Amount & payment information</p>
                                     </div>
-                                    <StatusPill status="Accepted" />
+                                    <StatusPill status={hrUpdate.status} />
                                 </div>
                                 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -351,7 +380,7 @@ export default function SahayogRequestView({
                                     </h2>
                                     <p className="text-xs text-gray-400 mt-0.5">Human Resources & Employee Relations</p>
                                 </div>
-                                <StatusPill status="Under-review" />
+                                <StatusPill status={hrUpdate.status} />
                             </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -360,26 +389,38 @@ export default function SahayogRequestView({
                                         <Calendar className="h-3 w-3" />
                                         HR Review Date
                                     </div>
-                                    <div className="text-sm font-medium text-gray-800">20 January 2025</div>
+                                    <div className="text-sm font-medium text-gray-800">{hrUpdate.review_date}</div>
                                 </div>
                                 <div className="rounded-lg border border-gray-100 p-4 hover:border-[#E65F2B]/20 transition-all">
                                     <div className="text-xs text-gray-400 mb-1 flex items-center gap-1">
                                         <MessageCircle className="h-3 w-3" />
                                         ER Comments
                                     </div>
-                                    <div className="text-sm font-medium text-gray-800">Awaiting final endorsement from department head</div>
-                                </div>
-                                <div className="rounded-lg border border-gray-100 p-4 hover:border-[#E65F2B]/20 transition-all">
-                                    <div className="text-xs text-gray-400 mb-1">Action Required</div>
-                                    <div className="text-sm font-medium text-gray-800">Submit additional identity proof documents</div>
+                                    <div className="text-sm font-medium text-gray-800">{hrUpdate.comments}</div>
                                 </div>
                                 <div className="rounded-lg border border-gray-100 p-4 hover:border-[#E65F2B]/20 transition-all">
                                     <div className="text-xs text-gray-400 mb-1 flex items-center gap-1">
                                         <User className="h-3 w-3" />
                                         Updated By
                                     </div>
-                                    <div className="text-sm font-medium text-gray-800">A. Sharma (HR Manager)</div>
+                                    <div className="text-sm font-medium text-gray-800">{hrUpdate.updated_by}</div>
                                 </div>
+                                {hrUpdate.attachment_url && (
+                                    <div className="rounded-lg border border-gray-100 p-4 hover:border-[#E65F2B]/20 transition-all">
+                                        <div className="text-xs text-gray-400 mb-1 flex items-center gap-1">
+                                            <Download className="h-3 w-3" />
+                                            HR Attachment
+                                        </div>
+                                        <a 
+                                            href={hrUpdate.attachment_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-sm font-medium text-[#E65F2B] hover:underline break-all"
+                                        >
+                                            {hrUpdate.attachment_name || 'View Attachment'}
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -400,7 +441,7 @@ export default function SahayogRequestView({
                                     </h2>
                                     <p className="text-xs text-gray-400 mt-0.5">Trust payment status and comments</p>
                                 </div>
-                                <StatusPill status="Accepted" />
+                                <StatusPill status={hrUpdate.status} />
                             </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -446,6 +487,8 @@ export default function SahayogRequestView({
                     </button>
                 </div> */}
             </div>
+
+
         </AppLayout>
     );
 }

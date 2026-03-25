@@ -147,7 +147,8 @@ class SahayogRequestController extends Controller
             ['label' => 'User Type', 'value' => $user?->employee_type ?? 'N/A'],
             ['label' => 'CPF Number', 'value' => $user?->cpf_no ?? 'N/A'],
             ['label' => 'Date of Joining ONGC', 'value' => $step1?->doj_ongc ?? ($user?->date_of_joining_ongc ? $user->date_of_joining_ongc->format('Y-m-d') : 'N/A')],
-            ['label' => 'Designation', 'value' => $step1?->designation ?? $user?->designation ?? 'N/A'],
+            ['label' => 'Designation', 'value' => $user?->designation ?? $user?->designation ?? 'N/A'],
+            ['label' => 'Employee Level', 'value' => $step1?->level ?? $user?->level ?? 'N/A'],
             ['label' => 'Work Center', 'value' => $step1?->work_center ?? 'N/A'],
             ['label' => 'Place of Posting', 'value' => $step1?->place_of_posting ?? 'N/A'],
         ];
@@ -180,12 +181,28 @@ class SahayogRequestController extends Controller
             ];
         })->toArray() : [];
 
+        $hrUpdate = [
+            'status' => $wizardData->hr_status ?? 'Under-Process',
+            'review_date' => $wizardData->returned_at ? $wizardData->returned_at->format('d F Y') : 'N/A',
+            'comments' => $wizardData->hr_updates ?? 'Awaiting review.',
+            'updated_by' => 'A. Sharma (HR Manager)', // This is likely a placeholder.
+            'attachment_url' => $wizardData->hr_attchament ? Storage::url($wizardData->hr_attchament) : null,
+            'attachment_name' => $wizardData->hr_attchament ? basename($wizardData->hr_attchament) : null,
+        ];
+
+        $recent = [
+            'claimed_at' => $wizardData->claimed_at ? $wizardData->claimed_at->format('d F Y') : 'N/A',
+            'claimed_by' => $wizardData->claimed_by ?? 'N/A',
+        ];
+
         return Inertia::render('user/sahayog-requests/view/index', [
             'id' => $request_number,
             'applicationDetails' => $applicationDetails,
             'basicInformation' => $basicInformation,
             'financialDetails' => $financialDetails,
-            'attachments' => $attachments,   
+            'attachments' => $attachments,  
+            'hrUpdate' => $hrUpdate,
+            'recent' => $recent 
         ]);
     }
 
