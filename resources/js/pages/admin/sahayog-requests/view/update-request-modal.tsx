@@ -1,4 +1,6 @@
 import { X } from 'lucide-react';
+import { useForm } from '@inertiajs/react';
+import { FormEventHandler } from 'react';
 
 interface UpdateRequestModalProps {
     isOpen: boolean;
@@ -7,6 +9,24 @@ interface UpdateRequestModalProps {
 }
 
 export default function UpdateRequestModal({ isOpen, onClose, request_id }: UpdateRequestModalProps) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        status: '',
+        amount_approved: '',
+        sahayog_number: '',
+        details: '',
+        attachment: null as File | null,
+    });
+
+    const submit: FormEventHandler = (e) => {
+        e.preventDefault();
+        post(`/admin/sahayog-requests/${request_id}/update-status`, {
+            onSuccess: () => {
+                reset();
+                onClose();
+            },
+        });
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -24,7 +44,7 @@ export default function UpdateRequestModal({ isOpen, onClose, request_id }: Upda
                         <X className="h-5 w-5" />
                     </button>
                 </div>
-                <form className="p-6 space-y-6" onSubmit={(e) => e.preventDefault()}>
+                <form className="p-6 space-y-6" onSubmit={submit}>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {/* Status Update - Left Column */}
                         <div>
@@ -33,13 +53,16 @@ export default function UpdateRequestModal({ isOpen, onClose, request_id }: Upda
                             </label>
                             <select 
                                 className="w-full rounded-lg border-gray-200 bg-gray-50/50 focus:bg-white shadow-sm focus:border-[#E65F2B] focus:ring focus:ring-[#E65F2B]/20 transition-all text-sm px-4 py-2.5 border" 
-                                required
+                                // required
+                                value={data.status}
+                                onChange={(e) => setData('status', e.target.value)}
                             >
-                                <option selected disabled value="">Select Status</option>
+                                <option disabled value="">Select Status</option>
                                 <option value="Approved">Approved</option>
                                 <option value="Rejected">Rejected</option>
                                 <option value="Returned">Returned</option>
                             </select>
+                            {errors.status && <p className="text-red-500 text-xs mt-1">{errors.status}</p>}
                         </div>
 
                         {/* Amount Approved - Right Column */}
@@ -53,8 +76,11 @@ export default function UpdateRequestModal({ isOpen, onClose, request_id }: Upda
                                     type="number" 
                                     className="w-full rounded-lg border-gray-200 bg-gray-50/50 focus:bg-white shadow-sm focus:border-[#E65F2B] focus:ring focus:ring-[#E65F2B]/20 transition-all text-sm pl-8 pr-4 py-2.5 border" 
                                     placeholder="0.00" 
+                                    value={data.amount_approved}
+                                    onChange={(e) => setData('amount_approved', e.target.value)}
                                 />
                             </div>
+                            {errors.amount_approved && <p className="text-red-500 text-xs mt-1">{errors.amount_approved}</p>}
                         </div>
 
                         {/* Update Sahayog Number - Full Width on mobile, half on desktop */}
@@ -66,8 +92,11 @@ export default function UpdateRequestModal({ isOpen, onClose, request_id }: Upda
                                 type="tel" 
                                 className="w-full rounded-lg border-gray-200 bg-gray-50/50 focus:bg-white shadow-sm focus:border-[#E65F2B] focus:ring focus:ring-[#E65F2B]/20 transition-all text-sm px-4 py-2.5 border" 
                                 placeholder="Enter phone number" 
+                                value={data.sahayog_number}
+                                onChange={(e) => setData('sahayog_number', e.target.value)}
                             />
                             <p className="text-xs text-gray-400 mt-1">Contact number for further communication</p>
+                            {errors.sahayog_number && <p className="text-red-500 text-xs mt-1">{errors.sahayog_number}</p>}
                         </div>
                     </div>
 
@@ -79,10 +108,13 @@ export default function UpdateRequestModal({ isOpen, onClose, request_id }: Upda
                         <textarea 
                             rows={4} 
                             className="w-full rounded-lg border-gray-200 bg-gray-50/50 focus:bg-white shadow-sm focus:border-[#E65F2B] focus:ring focus:ring-[#E65F2B]/20 transition-all text-sm px-4 py-2.5 border resize-none" 
-                            required 
+                            // required 
                             placeholder="Enter detailed information about this update..." 
+                            value={data.details}
+                            onChange={(e) => setData('details', e.target.value)}
                         />
                         <p className="text-xs text-gray-400 mt-1">Provide comprehensive details about the status change or update</p>
+                        {errors.details && <p className="text-red-500 text-xs mt-1">{errors.details}</p>}
                     </div>
 
                     {/* Upload Attachment - Full Width */}
@@ -94,8 +126,10 @@ export default function UpdateRequestModal({ isOpen, onClose, request_id }: Upda
                             <input 
                                 type="file" 
                                 className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-[#E65F2B]/10 file:text-[#E65F2B] hover:file:bg-[#E65F2B]/20 transition-all cursor-pointer" 
+                                onChange={(e) => setData('attachment', e.target.files ? e.target.files[0] : null)}
                             />
                             <p className="text-xs text-gray-400 mt-2">Upload supporting documents (PDF, JPG, PNG - Max 5MB)</p>
+                            {errors.attachment && <p className="text-red-500 text-xs mt-1">{errors.attachment}</p>}
                         </div>
                     </div>
                     
@@ -110,9 +144,10 @@ export default function UpdateRequestModal({ isOpen, onClose, request_id }: Upda
                         </button>
                         <button 
                             type="submit" 
+                            disabled={processing}
                             className="px-5 py-2.5 text-sm font-medium text-white bg-[#E65F2B] rounded-lg hover:bg-[#C44A1F] shadow-sm transition-all relative overflow-hidden group"
                         >
-                            <span className="relative z-10">Save Changes</span>
+                            <span className="relative z-10">{processing ? 'Saving...' : 'Save Changes'}</span>
                         </button>
                     </div>
                 </form>

@@ -185,9 +185,35 @@ class AdminController extends Controller
         ]);
     }
 
-    public function updateRequestStatus(Request $request, $request_number, $status)
+    public function updateRequestStatus(Request $request, $request_number)
     {
-        // code here 
+        $this->ensureAdminPermissions($request, 'admin.sahayog_requests.view');
+
+        $validated = $request->validate([
+            'status' => ['required', 'string', 'in:Approved,Rejected,Returned'],
+            'amount_approved' => ['nullable', 'numeric'],
+            'sahayog_number' => ['nullable', 'string', 'max:255'],
+            'details' => ['required', 'string'],
+            'attachment' => ['nullable', 'file', 'mimes:pdf,jpg,png', 'max:5120'], // Max 5MB
+        ]);
+
+        $wizardData = WizardData::where('request_no', $request_number)->firstOrFail();
+
+        $wizardData->hr_status = $validated['status'];
+        // Note: Uncomment & map the other validated fields to columns depending on your DB schema.
+        $wizardData->amount_approved = $validated['amount_approved'];
+        $wizardData->sahayog_number = $validated['sahayog_number'];
+        $wizardData->hr_updates = $validated['details'];
+        $wizardData->returned_at = now();
+
+        if ($request->hasFile('attachment')) {
+            $wizardData->hr_attchament = $request->file('attachment')->store('sahayog-documents', 'public');
+            // $wizardData->status_attachment = $path; // or whichever db column persists it
+        }
+
+        $wizardData->save();
+
+        return back()->with('success', 'Request status updated successfully.');
     }
 
 }
