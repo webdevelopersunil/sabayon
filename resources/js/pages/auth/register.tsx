@@ -265,14 +265,15 @@ export default function Register({ locations = [] }: { locations?: any[] }) {
                                                             type="text"
                                                             tabIndex={4}
                                                             name="epf_no"
-                                                        placeholder="XXX/XXX/XXXXXX/XX"
-                                                        pattern="^[a-zA-Z0-9]{3}/[a-zA-Z0-9]{3}/[a-zA-Z0-9]{6}/[a-zA-Z0-9]{2}$"
-                                                        title="Format must match: XXX/XXX/XXXXXX/XX"
-                                                        maxLength={17}
+                                                            value="MHY/BAN/012345/01"
+                                                            placeholder="XXX/XXX/XXXXXX/XX"
+                                                            pattern="^[a-zA-Z0-9]{3}/[a-zA-Z0-9]{3}/[a-zA-Z0-9]{6}/[a-zA-Z0-9]{2}$"
+                                                            title="Format must match: XXX/XXX/XXXXXX/XX"
+                                                            maxLength={17}
                                                             className="pl-9 h-12 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20 rounded-lg"
                                                         />
                                                     </div>
-                                                <div className="text-xs text-gray-400 mt-1">Format: XXX/XXX/XXXXXX/XX</div>
+                                                    <div className="text-xs text-gray-400 mt-1">Format: XXX/XXX/XXXXXX/XX</div>
                                                     <InputError message={errors.epf_no} />
                                                 </div>
 
