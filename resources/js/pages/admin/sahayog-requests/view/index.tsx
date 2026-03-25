@@ -106,10 +106,12 @@ export default function SahayogRequestView({
             <Head title={`Sahayog Request ${id}`} />
             
             {/* Background decorative elements */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#E65F2B]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+            <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#E65F2B]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+            </div>
 
-            <div className="relative p-6 max-w-7xl mx-auto space-y-6">
+            <div className="relative z-10 p-6 max-w-7xl mx-auto space-y-6">
                 {/* Flash Messages */}
                 {flash?.success && (
                     <div className="rounded-xl border border-green-200 bg-green-50 p-4 flex items-center gap-3">
