@@ -33,6 +33,12 @@ Route::middleware(['auth:admin'])->group(function () {
 
     Route::get('admin/sahayog-requests/{request_number}', [AdminController::class, 'show'])
         ->name('admin.show');
+
+    // Route for Request Update Status
+    Route::post('admin/sahayog-requests/{request_number}/update-status', [AdminController::class, 'updateRequestStatus'])
+        ->name('admin.update.status');
+
+
 });
 
 Route::middleware(['auth', 'verified', EnsureHasRole::class.':super-admin'])->group(function () {

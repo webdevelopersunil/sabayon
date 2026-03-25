@@ -472,6 +472,7 @@ export default function SahayogRequestView({
             <UpdateRequestModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
+                request_id={id}
             />
             {/* Admin Update Modal */}
             <AdminUpdateModal 

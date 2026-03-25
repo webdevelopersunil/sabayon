@@ -185,4 +185,9 @@ class AdminController extends Controller
         ]);
     }
 
+    public function updateRequestStatus(Request $request, $request_number, $status)
+    {
+        // code here 
+    }
+
 }

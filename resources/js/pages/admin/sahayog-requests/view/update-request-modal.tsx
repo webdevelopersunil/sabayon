@@ -3,9 +3,10 @@ import { X } from 'lucide-react';
 interface UpdateRequestModalProps {
     isOpen: boolean;
     onClose: () => void;
+    request_id: string;
 }
 
-export default function UpdateRequestModal({ isOpen, onClose }: UpdateRequestModalProps) {
+export default function UpdateRequestModal({ isOpen, onClose, request_id }: UpdateRequestModalProps) {
     if (!isOpen) return null;
 
     return (
@@ -34,10 +35,10 @@ export default function UpdateRequestModal({ isOpen, onClose }: UpdateRequestMod
                                 className="w-full rounded-lg border-gray-200 bg-gray-50/50 focus:bg-white shadow-sm focus:border-[#E65F2B] focus:ring focus:ring-[#E65F2B]/20 transition-all text-sm px-4 py-2.5 border" 
                                 required
                             >
-                                <option value="">Select Status</option>
-                                <option value="Under-review">Under Review</option>
-                                <option value="Accepted">Accepted</option>
+                                <option selected disabled value="">Select Status</option>
+                                <option value="Approved">Approved</option>
                                 <option value="Rejected">Rejected</option>
+                                <option value="Returned">Returned</option>
                             </select>
                         </div>
 
