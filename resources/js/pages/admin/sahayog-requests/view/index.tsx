@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { 
     CheckCircle, 
@@ -84,6 +84,7 @@ export default function SahayogRequestView({
     const [expandedAttachments, setExpandedAttachments] = useState<string[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+    const { flash } = usePage<any>().props;
 
     const toggleAttachment = (name: string) => {
         setExpandedAttachments(prev =>
@@ -100,6 +101,21 @@ export default function SahayogRequestView({
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#E65F2B]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
             <div className="relative p-6 max-w-7xl mx-auto space-y-6">
+                {/* Flash Messages */}
+                {flash?.success && (
+                    <div className="rounded-xl border border-green-200 bg-green-50 p-4 flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <p className="text-sm font-medium text-green-800">{flash.success}</p>
+                    </div>
+                )}
+                
+                {flash?.error && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-center gap-3">
+                        <XCircle className="h-5 w-5 text-red-600" />
+                        <p className="text-sm font-medium text-red-800">{flash.error}</p>
+                    </div>
+                )}
+
                 {/* Header Section */}
                 <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm p-6">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
