@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Admin;
 use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use Illuminate\Cache\RateLimiting\Limit;
@@ -197,7 +198,13 @@ class FortifyServiceProvider extends ServiceProvider
             if (Auth::guard('admin')->check()) {
                 return redirect()->route('admin.dashboard');
             }
-            return Inertia::render('auth/register');
+
+            $locations = Admin::where('designation', 'HR-ER')
+                ->pluck('location');
+
+            return Inertia::render('auth/register', [
+                'locations' => $locations
+            ]);
         });
 
         Fortify::twoFactorChallengeView(fn () => Inertia::render('auth/two-factor-challenge'));
