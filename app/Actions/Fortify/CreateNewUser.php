@@ -2,10 +2,11 @@
 
 namespace App\Actions\Fortify;
 
-use App\Concerns\PasswordValidationRules;
-use App\Concerns\ProfileValidationRules;
+use App\Models\Role;
 use App\Models\User;
+use App\Concerns\ProfileValidationRules;
 use Illuminate\Support\Facades\Validator;
+use App\Concerns\PasswordValidationRules;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
 class CreateNewUser implements CreatesNewUsers
@@ -40,7 +41,7 @@ class CreateNewUser implements CreatesNewUsers
             ? $input['principle_emp_undertaking']->store('uploads/undertakings', 'public') 
             : null;
 
-        return User::create([
+        $user = User::create([
             'name' => $input['name'],
             'email' => $input['email'],
             'mobileno' => $input['mobileno'],
@@ -49,8 +50,15 @@ class CreateNewUser implements CreatesNewUsers
             'location' => $input['location'],
             'aadhar_pic' => $aadharPicPath,
             'principle_emp_undertaking' => $undertakingPath,
-            'password' => $input['password'],
+            'password' => bcrypt($input['password']), // ⚠️ important
             'employee_type' => $input['employee_type'],
         ]);
+
+        $user->roles()->syncWithoutDetaching([
+            Role::where('name', 'user')->value('id')
+        ]);
+
+        return $user;
+
     }
 }
