@@ -29,16 +29,18 @@ return new class extends Migration
             $table->json('familydata')->nullable();
             $table->string('location')->nullable(); // need to remove this column later, can be derived from familydata or can be part of familydata
             $table->string('mobileno')->unique()->nullable(); // need to remove this column later, can be derived from familydata or can be part of familydata
-            $table->timestamp('email_mobile_verified_at')->nullable();
-            $table->boolean('admin_verified')->default('0');
+
+            $table->timestamp('mobile_verified_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->boolean('admin_verified')->default(false);
+            $table->string('admin_rejected_remarks')->nullable();
             $table->timestamp('rejected_at')->nullable();
-            $table->string('adminrejected_remarks')->nullable();
+
             $table->decimal('previous_taken_amount', 10, 2)->nullable();
             $table->string('category')->nullable();
             $table->timestamp('profile_updated_last')->nullable();
 
 
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();

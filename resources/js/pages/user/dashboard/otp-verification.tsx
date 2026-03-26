@@ -1,5 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
-import { useEffect, useRef } from 'react';
+import { Head, useForm, router, usePage } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
@@ -23,6 +23,7 @@ export default function OTPVerification() {
         otp: ['', '', '', '', '', ''],
     });
 
+    const [resendCooldown, setResendCooldown] = useState(0);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
     const handleOtpChange = (index: number, value: string) => {
@@ -92,11 +93,48 @@ export default function OTPVerification() {
         inputRefs.current[0]?.focus();
     }, []);
 
+    const handleResendOtp = () => {
+        if (resendCooldown > 0) return;
+
+        router.post('/resend-otp', {}, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setResendCooldown(60); // Start 60-second cooldown
+            },
+        });
+    };
+
+    useEffect(() => {
+        if (resendCooldown > 0) {
+            const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [resendCooldown]);
+    
+const { flash } = usePage<any>().props;
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="OTP Verification" />
             
             <div className="flex min-h-[calc(100vh-200px)] items-center justify-center">
+
+
+                {/* Flash Messages */}
+                {flash?.success && (
+                    <div className="rounded-xl border border-green-200 bg-green-50 p-4 flex items-center gap-3">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <p className="text-sm font-medium text-green-800">{flash.success}</p>
+                    </div>
+                )}
+                
+                {flash?.error && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-center gap-3">
+                        <XCircle className="h-5 w-5 text-red-600" />
+                        <p className="text-sm font-medium text-red-800">{flash.error}</p>
+                    </div>
+                )}
+
                 <div className="w-full max-w-md">
                     {/* OTP Card */}
                     <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -166,9 +204,13 @@ export default function OTPVerification() {
                                 <div className="text-center mt-6">
                                     <button
                                         type="button"
-                                        className="text-sm text-[#E65F2B] hover:text-[#C44A1F] transition-colors"
+                                        onClick={handleResendOtp}
+                                        disabled={processing || resendCooldown > 0}
+                                        className="text-sm text-[#E65F2B] hover:text-[#C44A1F] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        Resend OTP
+                                        {resendCooldown > 0
+                                            ? `Resend in ${resendCooldown}s`
+                                            : 'Resend OTP'}
                                     </button>
                                 </div>
                             </form>
