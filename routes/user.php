@@ -6,7 +6,6 @@ use App\Http\Middleware\EnsureHasPermission;
 use App\Http\Middleware\EnsureHasRole;
 use App\Http\Middleware\CheckAdminVerified;
 use App\Http\Controllers\user\DashboardController;
-use App\Http\Controllers\OtpVerificationController;
 
 Route::middleware(['auth', 'verified', EnsureHasRole::class.':user', CheckAdminVerified::class])->group(function () {
 
@@ -39,7 +38,5 @@ Route::middleware(['auth', 'verified', EnsureHasRole::class.':user', CheckAdminV
     Route::get('sahayog-requests/{request_number}', [SahayogRequestController::class, 'show'])
         ->name('sahayog-requests.show')
         ->middleware(EnsureHasPermission::class.':user.sahayog_requests.view');
-
-    Route::get('otp-verification', [OtpVerificationController::class, 'CodeForRetiredUser'])->name('otp.verification');
 
 });

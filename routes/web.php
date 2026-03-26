@@ -1,9 +1,10 @@
 <?php
 
+use App\Http\Controllers\OtpVerificationController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Features;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -18,9 +19,10 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-
-
 Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::get('otp-verification', [OtpVerificationController::class, 'showOtpPage'])->name('otp.verification');
+    
     Route::get('dashboard', function (Request $request) {
         $user = $request->user();
 

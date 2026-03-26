@@ -5,97 +5,98 @@ namespace App\Services;
 use App\Models\User;
 use App\Notifications\SendOtpNotification;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use App\Models\VerificationOtp;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+
 
 class OtpService
 {
-    /**
-     * Generate and send an OTP to the user.
-     *
-     * @param User $user
-     * @return bool
-     */
-    public function sendOtp(User $user): bool
-    {
-        try {
-            $otpCode = $this->generateOtp();
-
-            $user->otp_code = $otpCode;
-            $user->otp_expires_at = now()->addMinutes(10);
-            $user->save();
-
-            $user->notify(new SendOtpNotification($otpCode));
-
-            return true;
-        } catch (\Exception $e) {
-            Log::error('Failed to send OTP for user ' . $user->id . ': ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Alias for sendOtp, for login context.
-     *
-     * @param User $user
-     * @return bool
-     */
-    public function sendLoginOtp(User $user): bool
-    {
-        return $this->sendOtp($user);
-    }
-
-    /**
-     * Resend OTP to the user.
-     *
-     * @param User $user
-     * @return bool
-     */
-    public function resendOtp(User $user): bool
-    {
-        // You could add rate-limiting logic here to prevent spam.
-        return $this->sendOtp($user);
-    }
-
-    /**
-     * Send a confirmation OTP.
-     *
-     * @param User $user
-     * @return bool
-     */
-    public function sendConfirmationOtp(User $user): bool
-    {
-        return $this->sendOtp($user);
-    }
-
-    /**
-     * Verify the provided OTP for a user.
-     *
-     * @param User $user
-     * @param string $otp
-     * @return bool
-     */
-    public function verifyOtp(User $user, string $otp): bool
-    {
-        if ($user->otp_code === $otp && $user->otp_expires_at && now()->isBefore($user->otp_expires_at)) {
-            // OTP is correct and not expired.
-            $user->otp_code = null;
-            $user->otp_expires_at = null;
-            $user->admin_verified = true; // Mark as verified
-            $user->save();
-
-            return true;
-        }
-
-        return false;
-    }
 
     /**
      * Generate a random 6-digit OTP.
      *
      * @return string
      */
-    protected function generateOtp(): string
+    public function generateOtp($user, string $type = 'login', int $ttl = 300): VerificationOtp
     {
-        // For production, consider a more secure random number generator if needed.
-        return (string) random_int(100000, 999999);
+        // Step 1: Check existing valid OTP first
+        $existing = VerificationOtp::where('user_id', $user->id)
+            ->where('type', $type)
+            ->where('is_used', false)
+            ->where('expired_at', '>', now())
+            ->latest()
+            ->first();
+
+        // Prevent regeneration within 60 seconds
+        if ($existing && $existing->created_at->diffInSeconds(now()) < 300) {
+            return $existing;
+        }
+
+        //  Step 2: Invalidate previous OTPs (only after check)
+        VerificationOtp::where('user_id', $user->id)
+            ->where('type', $type)
+            ->where('is_used', false)
+            ->update([
+                'is_used' => true,
+                'used_at' => now()
+            ]);
+
+        //  Step 3: Generate new OTP
+        $otp = random_int(100000, 999999);
+
+        // $plainOtp = random_int(100000, 999999);
+        // $hashedOtp = Hash::make($plainOtp);
+
+        return VerificationOtp::create([
+            'user_id'     => $user->id,
+            'otp'         => (string) $otp,
+            'expired_at'  => Carbon::now()->addSeconds($ttl),
+            'time_limit'  => $ttl,
+            'type'        => $type,
+            'ip_address'  => request()->ip(),
+            'user_agent'  => request()->userAgent(),
+        ]);
+    }
+
+    public function resend(Request $request)
+    {
+        $user = $request->user();
+
+        $this->generateOtp( $user, type: 'login', ttl: 300 );
+
+        return back()->with('success', 'OTP resent successfully.');
+    }
+
+    public function verifyOtp($user, string $otp): bool
+    {
+        $record = VerificationOtp::where('user_id', $user->id)
+            ->where('otp', $otp)
+            ->where('is_used', false)
+            ->latest()
+            ->first();
+
+        if (!$record) {
+            return false;
+        }
+
+        //  Expired
+        if ($record->expired_at->isPast()) {
+            return false;
+        }
+
+        //  Secure compare
+        // if (!Hash::check($otp, $record->otp)) {
+        //     return false;
+        // }
+
+        //  Mark used
+        $record->update([
+            'is_used' => true,
+            'used_at' => now(),
+        ]);
+
+        return true;
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,20 +16,19 @@ class OtpVerificationController extends Controller
         $this->otpService = $otpService;
     }
 
-    /**
-     * Resend the OTP.
-     */
-    public function resend(Request $request)
-    {
-        $this->otpService->resendOtp($request->user());
+    public function showOtpPage(Request $request){
 
-        return back()->with('status', 'A new OTP has been sent.');
-    }
+        $user = $request->user();
 
-    public function CodeForRetiredUser(){
+        // Generate OTP
+        $this->otpService->generateOtp($user);
+
+        // TODO: send OTP via SMS / Email here
+        // example: dispatch(new SendOtpJob($user, $otp->otp));
 
         return Inertia::render('user/dashboard/otp-verification', [
                     'success' => 'OTP sent successfully.',
                 ]);
     }
+
 }
