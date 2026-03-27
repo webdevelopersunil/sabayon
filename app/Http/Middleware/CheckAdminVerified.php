@@ -16,7 +16,7 @@ class CheckAdminVerified
     public function handle(Request $request, Closure $next): Response
     {
         // Check if user is authenticated and not admin verified
-        if ($request->user() && $request->user()->admin_verified == false) {
+        if ($request->user() && $request->user()->mobile_verified_at == false) {
             
             // Allow access to the OTP verification page, the verification submission route, and logout
             if (!in_array($request->route()->getName(), ['otp.verification', 'otp.verify', 'otp.resend', 'logout'])) {
