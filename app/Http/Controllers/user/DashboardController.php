@@ -12,6 +12,7 @@ class DashboardController extends Controller
     {
         return inertia('user/dashboard/index', [
             'userName' => $request->user()?->name ?? 'User',
+            'user_type' => $request->user()?->employee_type ?? 'N/A'
         ]);
     }
 

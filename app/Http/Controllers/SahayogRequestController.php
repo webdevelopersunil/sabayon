@@ -26,12 +26,14 @@ class SahayogRequestController extends Controller
     public function create(Request $request)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
-        if(auth()->user()->aadhar_no == null){
+        $user = $request->user();
+        
+        if($user->aadhar_no == null){
             return redirect()->route('profile.edit')
                 ->with('error', 'Please update your Aadhar number in your profile to proceed with the Sahayog request.');
         }
         $workCenters = Admin::where('designation', 'HR-ER')->pluck('name');
-        $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => auth()->user()->id])->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])->first();
+        $wizardData  = WizardData::where(['status'=> 'Draft', 'user_id' => $user->id])->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])->first();
         
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
@@ -44,8 +46,8 @@ class SahayogRequestController extends Controller
             'steps' => [
                 'Enter details of your employement.',
                 'Add Dependent details.(You have mentioned 4 in previous step):',
-                'Review',
-                'Submit',
+                'Financial Assitance Required Purpose',
+                'Documents and Declarations',
             ],
         ]);
     }

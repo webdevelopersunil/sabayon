@@ -29,6 +29,15 @@ return new class extends Migration
             $table->date('date_of_seperation');
             $table->bigInteger('gross_annual_income');
             $table->text('seperation_benefits')->nullable();
+
+            // For Registered users
+            $table->string('pan')->nullable();
+            $table->string('contractor_name')->nullable();
+            $table->integer('work_years_contact')->nullable();
+            $table->integer('total_years_in_ongc_different_contact')->nullable();
+            $table->string('funding_source')->nullable();
+
+
             $table->timestamps();
         });
     }

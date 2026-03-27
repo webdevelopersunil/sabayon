@@ -25,6 +25,12 @@ class Step1Data extends Model
         'date_of_seperation',
         'gross_annual_income',
         'seperation_benefits',
+
+        'pan',
+        'contractor_name',
+        'work_years_contact',
+        'total_years_in_ongc_different_contact',
+        'funding_source',
     ];
 
     public function wizardData()

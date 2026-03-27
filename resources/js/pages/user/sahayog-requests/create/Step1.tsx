@@ -19,6 +19,13 @@ export default function Step1({ onNext, workCenters, initialData }: StepProps) {
         dependants_no: initialData?.dependants_no || '',
         ifsc_code: initialData?.ifsc_code || '',
         gross_annual_income: initialData?.gross_annual_income || '',
+
+        pan: initialData?.pan || '',
+        contractor_name:  initialData?.contractor_name || '',
+        work_years_contact: initialData?.work_years_contact || '',
+        total_years_in_ongc_different_contact: initialData?.total_years_in_ongc_different_contact || '',
+        funding_source: initialData?.funding_source || '',
+
     });
  
     const handleSubmit = (e: FormEvent) => {
@@ -75,6 +82,87 @@ export default function Step1({ onNext, workCenters, initialData }: StepProps) {
                     />
                 </label> */}
 
+
+
+
+
+
+
+
+
+                {/* Need to show on Active-User|Bandhan Users */}
+                <label className="space-y-1 text-sm">
+                    PAN Number:
+                    <input
+                        type="text"
+                        value={data.pan}
+                        onChange={(e) => setData('pan', e.target.value)}
+                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                    />
+                    {errors.pan && <p className="text-red-600 text-xs mt-1">{errors.pan}</p>}
+                </label>
+
+                <label className="space-y-1 text-sm">
+                    Name of the Firm/Contract:
+                    <input
+                        type="text"
+                        value={data.contractor_name}
+                        onChange={(e) => setData('pan', e.target.value)}
+                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                    />
+                    {errors.contractor_name && <p className="text-red-600 text-xs mt-1">{errors.contractor_name}</p>}
+                </label>
+
+
+
+                <label className="space-y-1 text-sm">
+                    No of years worked under current contact:
+                    <input
+                        type="text"
+                        value={data.work_years_contact}
+                        onChange={(e) => setData('pan', e.target.value)}
+                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                    />
+                    {errors.work_years_contact && <p className="text-red-600 text-xs mt-1">{errors.work_years_contact}</p>}
+                </label>
+                <label className="space-y-1 text-sm">
+                    Total years worked for ONGC under different contact*:
+                    <input
+                        type="text"
+                        value={data.total_years_in_ongc_different_contact}
+                        onChange={(e) => setData('pan', e.target.value)}
+                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                    />
+                    {errors.total_years_in_ongc_different_contact && <p className="text-red-600 text-xs mt-1">{errors.total_years_in_ongc_different_contact}</p>}
+                </label>
+
+
+                <label className="space-y-1 text-sm">
+                    Source of Funding*:
+                    <input
+                        type="text"
+                        value={data.funding_source}
+                        onChange={(e) => setData('pan', e.target.value)}
+                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                    />
+                    {errors.funding_source && <p className="text-red-600 text-xs mt-1">{errors.funding_source}</p>}
+                </label>
+
+                
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
                 <label className="space-y-1 text-sm">
                     Date of Separation:
                     <input
@@ -104,9 +192,9 @@ export default function Step1({ onNext, workCenters, initialData }: StepProps) {
 
 
 
-
-
-                <label className="space-y-1 text-sm">
+                
+                {/* Conditional hide for contractor_employee */}
+                {/* <label className="space-y-1 text-sm">
                     Place of Posting * :
                     <input
                         type="text"
@@ -126,7 +214,16 @@ export default function Step1({ onNext, workCenters, initialData }: StepProps) {
                     />
                     {errors.seperation_reason && <p className="text-red-600 text-xs mt-1">{errors.seperation_reason}</p>}
                 </label>
-
+                <label className="space-y-1 text-sm">
+                    Total benefits recieved on seperation:
+                    <input
+                        type="text"
+                        value={data.seperation_benefits}
+                        onChange={(e) => setData('seperation_benefits', e.target.value)}
+                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
+                    />
+                    {errors.seperation_benefits && <p className="text-red-600 text-xs mt-1">{errors.seperation_benefits}</p>}
+                </label> */}
 
 
 
@@ -140,16 +237,6 @@ export default function Step1({ onNext, workCenters, initialData }: StepProps) {
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
                     />
                     {errors.bank_and_branch && <p className="text-red-600 text-xs mt-1">{errors.bank_and_branch}</p>}
-                </label>
-                <label className="space-y-1 text-sm">
-                    Total benefits recieved on seperation:
-                    <input
-                        type="text"
-                        value={data.seperation_benefits}
-                        onChange={(e) => setData('seperation_benefits', e.target.value)}
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40"
-                    />
-                    {errors.seperation_benefits && <p className="text-red-600 text-xs mt-1">{errors.seperation_benefits}</p>}
                 </label>
 
 
