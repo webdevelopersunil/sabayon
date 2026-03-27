@@ -22,7 +22,8 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('otp-verification', [OtpVerificationController::class, 'showOtpPage'])->name('otp.verification');
-    
+    Route::post('verify-otp', [OtpVerificationController::class, 'verifyOtp'])->name('verify.otp');
+
     Route::get('dashboard', function (Request $request) {
         $user = $request->user();
 

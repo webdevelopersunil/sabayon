@@ -5,7 +5,7 @@ import { dashboard } from '@/routes';
 import type { BreadcrumbItem } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Shield, CheckCircle } from 'lucide-react';
+import { Shield, CheckCircle, XCircle } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -20,77 +20,49 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function OTPVerification() {
     const { data, setData, post, processing, errors, clearErrors } = useForm({
-        otp: ['', '', '', '', '', ''],
+        otp: '',
     });
 
     const [resendCooldown, setResendCooldown] = useState(0);
-    const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+    const inputRef = useRef<HTMLInputElement>(null);
 
-    const handleOtpChange = (index: number, value: string) => {
-        if (value.length > 1) return;
+    const handleOtpChange = (value: string) => {
+        // Only allow digits and limit to 6 characters
+        const cleaned = value.replace(/[^\d]/g, '').slice(0, 6);
+        setData('otp', cleaned);
         
-        const newOtp = [...data.otp];
-        newOtp[index] = value;
-        setData('otp', newOtp);
-
-        // Auto-focus next input
-        if (value && index < 5) {
-            inputRefs.current[index + 1]?.focus();
-        }
-    };
-
-    const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Backspace' && !data.otp[index] && index > 0) {
-            inputRefs.current[index - 1]?.focus();
+        // Clear error when user starts typing
+        if (errors.otp) {
+            clearErrors('otp');
         }
     };
 
     const handlePaste = (e: React.ClipboardEvent) => {
         e.preventDefault();
-        const pastedData = e.clipboardData.getData('text').slice(0, 6);
-        const otpArray = pastedData.split('');
-        const newOtp = [...data.otp];
-        
-        otpArray.forEach((char, idx) => {
-            if (idx < 6 && /^\d$/.test(char)) {
-                newOtp[idx] = char;
-            }
-        });
-        
-        setData('otp', newOtp);
-        
-        // Focus last filled or next empty
-        const lastFilledIndex = newOtp.findLastIndex(val => val !== '');
-        if (lastFilledIndex < 5) {
-            inputRefs.current[lastFilledIndex + 1]?.focus();
-        } else {
-            inputRefs.current[5]?.focus();
-        }
+        const pastedData = e.clipboardData.getData('text').replace(/[^\d]/g, '').slice(0, 6);
+        setData('otp', pastedData);
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        const otpString = data.otp.join('');
-        if (otpString.length !== 6) {
-            setData('otp', [...data.otp]);
+        if (data.otp.length !== 6) {
             return;
         }
         post('/verify-otp', {
             preserveScroll: true,
-            
         });
     };
 
     useEffect(() => {
         if (errors.otp) {
-            const timer = setTimeout(() => clearErrors('otp'), 3000);
+            const timer = setTimeout(() => clearErrors('otp'), 2000);
             return () => clearTimeout(timer);
         }
     }, [errors.otp, clearErrors]);
 
-    // Focus first input on mount
+    // Focus input on mount
     useEffect(() => {
-        inputRefs.current[0]?.focus();
+        inputRef.current?.focus();
     }, []);
 
     const handleResendOtp = () => {
@@ -99,7 +71,7 @@ export default function OTPVerification() {
         router.post('/resend-otp', {}, {
             preserveScroll: true,
             onSuccess: () => {
-                setResendCooldown(60); // Start 60-second cooldown
+                setResendCooldown(60);
             },
         });
     };
@@ -111,30 +83,34 @@ export default function OTPVerification() {
         }
     }, [resendCooldown]);
     
-const { flash } = usePage<any>().props;
+    const { flash, success, error: pageError } = usePage<any>().props;
+
+    const [visibleSuccess, setVisibleSuccess] = useState<string | null>(null);
+    const [visibleError, setVisibleError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const msg = flash?.success || success;
+        if (msg) {
+            setVisibleSuccess(msg);
+            const timer = setTimeout(() => setVisibleSuccess(null), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash?.success, success]);
+
+    useEffect(() => {
+        const msg = flash?.error || pageError;
+        if (msg) {
+            setVisibleError(msg);
+            const timer = setTimeout(() => setVisibleError(null), 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [flash?.error, pageError]);
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="OTP Verification" />
             
             <div className="flex min-h-[calc(100vh-200px)] items-center justify-center">
-
-
-                {/* Flash Messages */}
-                {flash?.success && (
-                    <div className="rounded-xl border border-green-200 bg-green-50 p-4 flex items-center gap-3">
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                        <p className="text-sm font-medium text-green-800">{flash.success}</p>
-                    </div>
-                )}
-                
-                {flash?.error && (
-                    <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-center gap-3">
-                        <XCircle className="h-5 w-5 text-red-600" />
-                        <p className="text-sm font-medium text-red-800">{flash.error}</p>
-                    </div>
-                )}
-
                 <div className="w-full max-w-md">
                     {/* OTP Card */}
                     <div className="relative overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
@@ -143,6 +119,21 @@ const { flash } = usePage<any>().props;
                         <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#E65F2B]/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
                         
                         <div className="relative p-8">
+                            {/* Flash Messages */}
+                            {visibleSuccess && (
+                                <div className="mb-4 rounded-xl border border-green-200 bg-green-50 p-4 flex items-center gap-3">
+                                    <CheckCircle className="h-5 w-5 text-green-600" />
+                                    <p className="text-sm font-medium text-green-800">{visibleSuccess}</p>
+                                </div>
+                            )}
+                            
+                            {visibleError && (
+                                <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 flex items-center gap-3">
+                                    <XCircle className="h-5 w-5 text-red-600" />
+                                    <p className="text-sm font-medium text-red-800">{visibleError}</p>
+                                </div>
+                            )}
+                            
                             {/* Icon */}
                             <div className="flex justify-center mb-6">
                                 <div className="rounded-full bg-[#E65F2B]/10 p-4">
@@ -159,23 +150,20 @@ const { flash } = usePage<any>().props;
                                 Please enter the 6-digit verification code sent to your registered mobile number
                             </p>
                             
-                            {/* OTP Input Fields */}
+                            {/* OTP Input Field */}
                             <form onSubmit={handleSubmit}>
-                                <div className="flex justify-center gap-3 mb-6">
-                                    {data.otp.map((digit, index) => (
-                                        <Input
-                                            key={index}
-                                            
-                                            type="text"
-                                            inputMode="numeric"
-                                            maxLength={1}
-                                            value={digit}
-                                            onChange={(e) => handleOtpChange(index, e.target.value)}
-                                            onKeyDown={(e) => handleKeyDown(index, e)}
-                                            onPaste={index === 0 ? handlePaste : undefined}
-                                            className="w-14 h-14 text-center text-xl font-semibold border-2 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20 rounded-xl bg-white text-gray-800"
-                                        />
-                                    ))}
+                                <div className="flex justify-center mb-6">
+                                    <Input
+                                        ref={inputRef}
+                                        type="text"
+                                        inputMode="numeric"
+                                        value={data.otp}
+                                        onChange={(e) => handleOtpChange(e.target.value)}
+                                        onPaste={handlePaste}
+                                        placeholder="Enter 6-digit OTP"
+                                        className="w-full h-14 text-center text-xl font-semibold border-2 border-gray-200 focus:border-[#E65F2B] focus:ring-[#E65F2B]/20 rounded-xl bg-white text-gray-800"
+                                        autoComplete="off"
+                                    />
                                 </div>
                                 
                                 {errors.otp && (
@@ -187,7 +175,7 @@ const { flash } = usePage<any>().props;
                                 {/* Submit Button */}
                                 <Button
                                     type="submit"
-                                    disabled={processing || data.otp.some(d => !d)}
+                                    disabled={processing || data.otp.length !== 6}
                                     className="w-full h-12 rounded-xl bg-[#E65F2B] hover:bg-[#C44A1F] text-white shadow-sm hover:shadow transition-all duration-300 gap-2 disabled:opacity-50"
                                 >
                                     {processing ? (

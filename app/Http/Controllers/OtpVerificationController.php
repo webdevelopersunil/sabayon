@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\OtpService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class OtpVerificationController extends Controller
 {
@@ -29,6 +30,29 @@ class OtpVerificationController extends Controller
         return Inertia::render('user/dashboard/otp-verification', [
                     'success' => 'OTP sent successfully.',
                 ]);
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'otp' => 'required|digits:6',
+        ]);
+        
+        $user = $request->user();
+
+        $response = $this->otpService->verifyOtp($user, $request->otp);
+
+        if($response['status'] == false){
+            return back()->with('error', $response['message']);
+        }
+
+        //  Success → mark verified
+        $user->update([
+            'mobile_verified_at' => Carbon::now(),
+        ]);
+
+        //  Redirect after success
+        return redirect()->route('dashboard')->with('success', 'OTP verified successfully');
     }
 
 }

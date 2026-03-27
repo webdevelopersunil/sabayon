@@ -16,6 +16,7 @@ class VerificationOtp extends Model
         'attempts',
         'time_limit',
         'type',
+        'is_used',
         'ip_address',
         'user_agent',
     ];

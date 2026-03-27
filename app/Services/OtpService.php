@@ -69,7 +69,7 @@ class OtpService
         return back()->with('success', 'OTP resent successfully.');
     }
 
-    public function verifyOtp($user, string $otp): bool
+    public function verifyOtp($user, string $otp): array
     {
         $record = VerificationOtp::where('user_id', $user->id)
             ->where('otp', $otp)
@@ -77,19 +77,21 @@ class OtpService
             ->latest()
             ->first();
 
+        // No record
         if (!$record) {
-            return false;
+            return [
+                'status' => false,
+                'message' => 'Invalid OTP',
+            ];
         }
 
         //  Expired
         if ($record->expired_at->isPast()) {
-            return false;
+            return [
+                'status' => false,
+                'message' => 'OTP expired',
+            ];
         }
-
-        //  Secure compare
-        // if (!Hash::check($otp, $record->otp)) {
-        //     return false;
-        // }
 
         //  Mark used
         $record->update([
@@ -97,6 +99,10 @@ class OtpService
             'used_at' => now(),
         ]);
 
-        return true;
+        //  Success
+        return [
+            'status' => true,
+            'message' => 'OTP verified successfully',
+        ];
     }
 }
