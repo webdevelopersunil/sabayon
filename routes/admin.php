@@ -38,6 +38,11 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::post('admin/sahayog-requests/{request_number}/update-status', [AdminController::class, 'updateRequestStatus'])
         ->name('admin.update.status');
 
+    
+
+    Route::post('/admin/users/{id}/reject', [AdminController::class, 'rejectUser']);
+    Route::post('/admin/users/{id}/approve', [AdminController::class, 'approveUser']);
+
 
 });
 

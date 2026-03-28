@@ -234,4 +234,32 @@ class AdminController extends Controller
         return back()->with('success', 'Request status updated successfully.');
     }
 
+    public function rejectUser(Request $request, $id)
+    {
+        $this->ensureAdminPermissions($request, 'admin.users.view');
+
+        $validated = $request->validate([
+            'reason' => ['required', 'string'],
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->admin_verified = false;
+        $user->admin_rejected_remarks = $validated['reason'];
+        $user->save();
+
+        return back()->with('success', 'User verification rejected.');
+    }
+
+    public function approveUser(Request $request, $id)
+    {
+        $this->ensureAdminPermissions($request, 'admin.users.view');
+
+        $user = User::findOrFail($id);
+        $user->admin_verified = true;
+        $user->admin_rejected_remarks = Null;
+        $user->save();
+
+        return back()->with('success', 'User verification approved.');
+    }
+
 }
