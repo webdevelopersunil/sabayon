@@ -342,6 +342,8 @@ class SahayogRequestController extends Controller
             } else {
                 Step2Data::where('wizard_data_id', $data->id)->delete();
             }
+
+            Step1Data::where('wizard_data_id', $data->id)->update(['dependants_no' => count($step2['beneficiaries'])]);
             
             foreach ($step2['beneficiaries'] as $beneficiary) {
                 if (!empty($beneficiary['id'])) {
