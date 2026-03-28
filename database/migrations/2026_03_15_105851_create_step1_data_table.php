@@ -23,9 +23,9 @@ return new class extends Migration
             $table->string('work_center');
             $table->integer('dependants_no');
             $table->string('bank_and_branch');
-            $table->string('place_of_posting');
+            $table->string('place_of_posting')->nullable();
             $table->string('savingaccount_No');
-            $table->string('seperation_reason');
+            $table->string('seperation_reason')->nullable();
             $table->date('date_of_seperation');
             $table->bigInteger('gross_annual_income');
             $table->text('seperation_benefits')->nullable();

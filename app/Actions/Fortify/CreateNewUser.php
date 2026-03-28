@@ -51,7 +51,7 @@ class CreateNewUser implements CreatesNewUsers
             'aadhar_pic' => $aadharPicPath,
             'principle_emp_undertaking' => $undertakingPath,
             'password' => bcrypt($input['password']), // ⚠️ important
-            'employee_type' => "contractor_employee",
+            'employee_type' => "contractor",
         ]);
 
         $user->roles()->syncWithoutDetaching([

@@ -19,7 +19,7 @@ return new class extends Migration
 
 
             $table->string('aadhar_no')->unique()->nullable();
-            $table->string('employee_type')->nullable(); //--need to remove this column later, can be derived from other data points or can be part of familydata
+            $table->enum('employee_type', ['active', 'contractor','retired'])->default('active');
             $table->string('date_of_joining_ongc')->nullable();
             $table->text('aadhar_pic')->nullable();
             $table->string('designation')->nullable();

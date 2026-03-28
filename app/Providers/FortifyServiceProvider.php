@@ -48,9 +48,9 @@ class FortifyServiceProvider extends ServiceProvider
             $password = $request->input('password');
 
             
-            if(request()->employee_type!=='contractor_employee')
+            if(request()->employee_type!=='contractor')
             {
-                if($request->employee_type=='active_employee')
+                if($request->employee_type=='active')
                 {
                     $isFound    =   $this->ldapRecord($username);
                     

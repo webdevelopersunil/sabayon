@@ -8,12 +8,15 @@ use App\Models\Step3Data;
 use App\Models\Step4Data;
 use App\Models\WizardData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use App\Models\User;
 use App\Models\Admin;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Http\Requests\SahayogStep1Request;
+use App\Http\Requests\SahayogStep1ContractorRequest;
+
 
 class SahayogRequestController extends Controller
 {
@@ -210,16 +213,17 @@ class SahayogRequestController extends Controller
 
     public function saveStep(Request $request, WizardData $wizard)
     {
-        
+        $user = $request->user();
+
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
-        $userId = auth()->id();
+        // $userId = auth()->id();
         // dd($request->all());
         // Check if wizard data exists for the user and step is in progress, else create new
-        $data = WizardData::where('user_id', $userId)->whereIn('step', [1, 2, 3, 4])->where('hr_status', 'Draft')->latest()->first();
+        $data = WizardData::where('user_id', $user->id)->whereIn('step', [1, 2, 3, 4])->where('hr_status', 'Draft')->latest()->first();
         // If not found create One wizard entry
         if (!$data) {
-            $data = WizardData::create( [ 'user_id' => $userId, 'hr_status' => 'Draft', ] );
+            $data = WizardData::create( [ 'user_id' => $user->id, 'hr_status' => 'Draft', ] );
         }
         
         $payload = $request->validate([
@@ -235,36 +239,69 @@ class SahayogRequestController extends Controller
 
         if ($step === 1 && isset($payload['step1'])) {
             // Step 1 specific business validation
-            $this->step1FormProcessing($payload);
+            $this->step1FormProcessing($payload, $user->employee_type);
 
             $step1 = $payload['step1'];
             // Assign the work_center 
             $data->work_center = $step1['work_center'] ?? '';
+
+            $fields = [
+                'name' => $step1['name'] ?? '',
+                'type' => $step1['type'] ?? '',
+                'cpfno' => $step1['cpfno'] ?? '',
+                'doj_ongc' => $step1['doj_ongc'] ?? null,
+                'designation' => $step1['designation'] ?? '',
+
+
+                // Contractor Reqhired Fields Start
+                // 'pan' => $step1['pan'] ?? '',
+                // 'contractor_name' => $step1['contractor_name'] ?? '',
+                // 'work_years_contact' => $step1['work_years_contact'] ?? 0,
+                // 'total_years_in_ongc_different_contact' => $step1['total_years_in_ongc_different_contact'] ?? 0,
+                // 'funding_source' => $step1['funding_source'] ?? '',
+                // Contractor Reqhired Fields End
+
+                // For Active Users Start
+                // 'place_of_posting' => $step1['place_of_posting'] ?? '',
+                // 'seperation_reason' => $step1['seperation_reason'] ?? '',
+                // 'seperation_benefits' => $step1['seperation_benefits'] ?? null,
+                // For Active Users End
+
+                'doj_ongc' => date('Y-m-d'),
+                'user_id'   => $user->id,
+
+                'date_of_seperation' => $step1['date_of_seperation'] ?? null,
+                'work_center' => $step1['work_center'] ?? '',
+                'bank_and_branch' => $step1['bank_and_branch'] ?? '',
+                'savingaccount_No' => $step1['savingaccount_No'] ?? '',
+                'dependants_no' => $step1['dependants_no'] ?? 0,
+                'ifsc_code' => $step1['ifsc_code'] ?? '',
+                'gross_annual_income' => $step1['gross_annual_income'] ?? 0,
+            ];
+
+            if ($user->employee_type === 'contractor') {
+                $fields = array_merge($fields, [
+                    // Contractor Reqhired Fields Start
+                    'pan' => $step1['pan'] ?? '',
+                    'contractor_name' => $step1['contractor_name'] ?? '',
+                    'work_years_contact' => $step1['work_years_contact'] ?? 0,
+                    'total_years_in_ongc_different_contact' => $step1['total_years_in_ongc_different_contact'] ?? 0,
+                    'funding_source' => $step1['funding_source'] ?? '',
+                    // Contractor Reqhired Fields End
+                ]);
+            }
+
+            if ($user->employee_type === 'active') {
+                $fields = array_merge($fields, [
+                    // For Active Users Start
+                    'place_of_posting' => $step1['place_of_posting'] ?? '',
+                    'seperation_reason' => $step1['seperation_reason'] ?? '',
+                    'seperation_benefits' => $step1['seperation_benefits'] ?? null,
+                    // For Active Users End
+                ]);
+            }
             
-            $data->step1Data()->updateOrCreate(
-                            [], // ✅ DO NOT pass wizard_data_id
-                            [
-                                'name' => $step1['name'] ?? '',
-                                'type' => $step1['type'] ?? '',
-                                'cpfno' => $step1['cpfno'] ?? '',
-                                'doj_ongc' => $step1['doj_ongc'] ?? null,
-                                'designation' => $step1['designation'] ?? '',
-
-                                'doj_ongc' => date('Y-m-d'),
-                                'user_id'   => $userId,
-
-                                'date_of_seperation' => $step1['date_of_seperation'] ?? null,
-                                'work_center' => $step1['work_center'] ?? '',
-                                'place_of_posting' => $step1['place_of_posting'] ?? '',
-                                'seperation_reason' => $step1['seperation_reason'] ?? '',
-                                'bank_and_branch' => $step1['bank_and_branch'] ?? '',
-                                'seperation_benefits' => $step1['seperation_benefits'] ?? null,
-                                'savingaccount_No' => $step1['savingaccount_No'] ?? '',
-                                'dependants_no' => $step1['dependants_no'] ?? 0,
-                                'ifsc_code' => $step1['ifsc_code'] ?? '',
-                                'gross_annual_income' => $step1['gross_annual_income'] ?? 0,
-                            ]
-                        );
+            $data->step1Data()->updateOrCreate( [], $fields );
         }
 
         if ($step === 2 && isset($payload['step2'])) {
@@ -399,18 +436,19 @@ class SahayogRequestController extends Controller
         return back()->with('message', 'Step saved successfully.');
     }
 
-    public function step1FormProcessing($payload)
-{
-        $requestClass = new SahayogStep1Request();
+    public function step1FormProcessing($payload, $employee_type)
+    {       
+            // $requestClass = new SahayogStep1Request();
+            $requestClass = $employee_type == 'contractor' ? new SahayogStep1ContractorRequest() : new SahayogStep1Request();
 
-        $step1Validator = \Validator::make(
-            $payload['step1'],
-            $requestClass->rules(),
-            $requestClass->messages(),
-            $requestClass->attributes()
-        );
+            $step1Validator = Validator::make(
+                $payload['step1'],
+                $requestClass->rules(),
+                $requestClass->messages(),
+                $requestClass->attributes()
+            );
 
-    $step1Validator->validate();
-}
+        $step1Validator->validate();
+    }
     
 }
