@@ -154,7 +154,7 @@ export default function AdminDashboard({
                                 </div>
                             </div>
                             
-                            <div className="flex items-center gap-4">
+                            {/* <div className="flex items-center gap-4">
                                 <button className="p-2 rounded-lg hover:bg-gray-100 transition-colors relative">
                                     <Bell className="h-5 w-5 text-gray-600" />
                                     <span className="absolute top-1 right-1 w-2 h-2 bg-[#E65F2B] rounded-full"></span>
@@ -174,7 +174,7 @@ export default function AdminDashboard({
                                         </span>
                                     </div>
                                 </button>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
@@ -457,7 +457,7 @@ export default function AdminDashboard({
                 </div>
 
                 {/* Quick Stats Footer */}
-                <div className="grid grid-cols-3 gap-4">
+                {/* <div className="grid grid-cols-3 gap-4">
                     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
                         <p className="text-xs text-gray-400">Today's Requests</p>
                         <p className="text-xl font-bold text-gray-800 mt-1">12</p>
@@ -473,7 +473,7 @@ export default function AdminDashboard({
                         <p className="text-xl font-bold text-gray-800 mt-1">{Math.round((approved / totalRequests) * 100)}%</p>
                         <p className="text-xs text-green-600 mt-1">On track</p>
                     </div>
-                </div>
+                </div> */}
             </div>
         </AppLayout>
     );
