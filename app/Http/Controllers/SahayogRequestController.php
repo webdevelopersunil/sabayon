@@ -65,7 +65,7 @@ class SahayogRequestController extends Controller
 
         $request_no = $request->input('search');
 
-        if (WizardData::where('request_no', $request_no)->where('user_id', $user->id())->exists()) {
+        if (WizardData::where('request_no', $request_no)->where('user_id', $user->id)->exists()) {
             return redirect()->route('sahayog-requests.show', ['request_number' => $request_no]);
         }
 
@@ -79,7 +79,7 @@ class SahayogRequestController extends Controller
         $user = $request->user();
         
         $wizardData  = WizardData::where('request_no', $request_number)
-            ->where('user_id', $user->id())
+            ->where('user_id', $user->id)
             ->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])
             ->firstOrFail();
         
