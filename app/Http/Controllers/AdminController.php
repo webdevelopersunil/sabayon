@@ -26,11 +26,11 @@ class AdminController extends Controller
 
         return Inertia::render('admin/dashboard/index', [
             'userName' => $admin?->name ?? 'Admin User',
-            'verifiedUsers' => User::where('admin_verified', true)->count(),
-            'notVerifiedUsers' => User::where('admin_verified', false)->count(),
-            'underProcess' => $wizard_data->where('hr_status', 'Under-Process')->count(),
-            'approved' => $wizard_data->where('hr_status', 'Approved')->count(),
-            'rejected' => $wizard_data->whereIn('hr_status', ['Rejected', 'Returned'])->count(),
+            'verifiedUsers' => User::where(['location' => $admin->location,'admin_verified' => true ])->count(),
+            'notVerifiedUsers' => User::where(['location' => $admin->location,'admin_verified' => false ])->count(),
+            'underProcess' => $wizard_data->where(['hr_status'=>'Under-Process', 'work_center' => $admin->location])->count(),
+            'approved' => $wizard_data->where(['hr_status'=>'Approved', 'work_center' => $admin->location])->count(),
+            'rejected' => $wizard_data->whereIn('hr_status', ['Rejected', 'Returned'])->where('work_center' , $admin->location)->count(),
         ]);
     }
 
@@ -80,12 +80,13 @@ class AdminController extends Controller
         $this->ensureAdminPermissions($request, 'admin.sahayog_requests.view');
         // return Inertia::render('admin/sahayog-requests/index');
 
+        $user = $request->user();
                 
         $search = $request->input('search');
         $status = $request->input('status');
 
         $requests = WizardData::select('id', 'request_no', 'step', 'status', 'hr_status', 'created_at')
-            ->where('work_center', auth()->user()->username)
+            ->where('work_center', $user->username)
             ->when($search, function ($query, $search) {
                 $query->where('request_no', 'like', "%{$search}%");
             })

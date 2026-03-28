@@ -20,6 +20,8 @@ import {
     Check,
     X
 } from 'lucide-react';
+import ModalAccept from './modal-accept';
+import ModalReject from './modal-reject';
 
 // Breadcrumb configuration
 const breadcrumbs = [
@@ -48,7 +50,7 @@ const getStatusIcon = (status: string) => {
     }
 };
 
-type User = {
+export type User = {
     id: number;
     name: string;
     cpf_no: string;
@@ -84,6 +86,30 @@ export default function AdminVerifyUsers({ users, filters, stats }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     const [statusFilter, setStatusFilter] = useState(filters?.status || 'all');
     const isFirstRender = useRef(true);
+
+    const [isAcceptModalOpen, setAcceptModalOpen] = useState(false);
+    const [isRejectModalOpen, setRejectModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+    const handleOpenRejectModal = (user: User) => {
+        setSelectedUser(user);
+        setRejectModalOpen(true);
+    };
+
+    const handleCloseRejectModal = () => {
+        setRejectModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    const handleOpenAcceptModal = (user: User) => {
+        setSelectedUser(user);
+        setAcceptModalOpen(true);
+    };
+
+    const handleCloseAcceptModal = () => {
+        setAcceptModalOpen(false);
+        setSelectedUser(null);
+    };
 
     useEffect(() => {
         if (isFirstRender.current) {
@@ -237,7 +263,7 @@ export default function AdminVerifyUsers({ users, filters, stats }: Props) {
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-auto">User Details</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email Address</th>
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Admin Verified</th>
-                                        <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Registered</th>
+                                        {/* <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Registered</th> */}
                                         <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-center w-64">Actions</th>
                                     </tr>
                                 </thead>
@@ -290,25 +316,31 @@ export default function AdminVerifyUsers({ users, filters, stats }: Props) {
                                                     {user.admin_verified ? 'Approved' : 'Pending'}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">
+                                            {/* <td className="px-6 py-4 text-sm text-gray-600">
                                                 <span className="text-gray-400">-</span>
-                                            </td>
+                                            </td> */}
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    <button className="group/btn inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 hover:border-green-300 transition-all text-xs font-medium">
+                                                    <button 
+                                                        onClick={() => handleOpenAcceptModal(user)}
+                                                        className="group/btn inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 hover:border-green-300 transition-all text-xs font-medium"
+                                                    >
                                                         <UserCheck className="h-3.5 w-3.5 group-hover/btn:scale-110 transition-transform" />
                                                         Verify
                                                     </button>
                                                     
-                                                    <button className="group/btn inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 hover:border-red-300 transition-all text-xs font-medium">
+                                                    <button 
+                                                        onClick={() => handleOpenRejectModal(user)}
+                                                        className="group/btn inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 hover:border-red-300 transition-all text-xs font-medium"
+                                                    >
                                                         <UserX className="h-3.5 w-3.5 group-hover/btn:scale-110 transition-transform" />
                                                         Reject
                                                     </button>
                                                     
-                                                    <button className="group/btn inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-all text-xs font-medium">
+                                                    {/* <button className="group/btn inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-all text-xs font-medium">
                                                         <Eye className="h-3.5 w-3.5 group-hover/btn:scale-110 transition-transform" />
                                                         View
-                                                    </button>
+                                                    </button> */}
                                                 </div>
                                             </td>
                                         </tr>
@@ -403,6 +435,17 @@ export default function AdminVerifyUsers({ users, filters, stats }: Props) {
                         Bulk Verify
                     </button>
                 </div> */}
+
+                <ModalAccept
+                    isOpen={isAcceptModalOpen}
+                    onClose={handleCloseAcceptModal}
+                    user={selectedUser}
+                />
+                <ModalReject
+                    isOpen={isRejectModalOpen}
+                    onClose={handleCloseRejectModal}
+                    user={selectedUser}
+                />
             </div>
         </AppLayout>
     );
