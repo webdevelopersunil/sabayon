@@ -55,17 +55,17 @@ class SahayogRequestController extends Controller
         ]);
     }
 
-        public function find(Request $request)
+    public function find(Request $request)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.view');
-
+        $user = $request->user();
         $request->validate([
             'search' => ['required', 'string']
         ]);
 
         $request_no = $request->input('search');
 
-        if (WizardData::where('request_no', $request_no)->where('user_id', auth()->id())->exists()) {
+        if (WizardData::where('request_no', $request_no)->where('user_id', $user->id())->exists()) {
             return redirect()->route('sahayog-requests.show', ['request_number' => $request_no]);
         }
 
@@ -75,9 +75,11 @@ class SahayogRequestController extends Controller
     public function edit(Request $request, $request_number)
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
+
+        $user = $request->user();
         
         $wizardData  = WizardData::where('request_no', $request_number)
-            ->where('user_id', auth()->id())
+            ->where('user_id', $user->id())
             ->with(['step1Data', 'step2Data', 'step3Data', 'step4Data'])
             ->firstOrFail();
         
@@ -109,11 +111,13 @@ class SahayogRequestController extends Controller
     {
         $this->ensureUserPermissions($request, 'user.sahayog_requests.history');
 
+        $user = $request->user();
+        
         $search = $request->input('search');
         $status = $request->input('status');
 
         $requests = WizardData::select('id', 'request_no', 'step', 'status', 'hr_status', 'created_at')
-            ->where('user_id', auth()->id())
+            ->where('user_id', $user->id())
             ->when($search, function ($query, $search) {
                 $query->where('request_no', 'like', "%{$search}%");
             })
