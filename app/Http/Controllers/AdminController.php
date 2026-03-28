@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FileUploadService;
+use App\Models\HrErModel;
 
 
 class AdminController extends Controller
@@ -149,6 +150,7 @@ class AdminController extends Controller
         $beneficiary = $step2 ? ($step2->firstWhere('name', $wizardData->selected_beneficiary) ?? $step2->firstWhere('id', $wizardData->selected_beneficiary)) : null;
         $beneficiaryName = $wizardData->selected_beneficiary ?? ($beneficiary->name ?? 'N/A');
         $relationship = $beneficiary->relationship ?? 'N/A';
+        $hr_er = HrErModel::where('wizard_data_id', $wizardData->id)->get();
 
         $applicationDetails = [
             ['label' => 'Applicant Name', 'value' => $user?->name ?? 'N/A'],
@@ -210,7 +212,8 @@ class AdminController extends Controller
             'financialDetails' => $financialDetails,
             'attachments' => $attachments,
             'hrUpdate' => $hrUpdate,
-            'recent' => $recent
+            'recent' => $recent,
+            'hr_er' => $hr_er
         ]);
     }
 
@@ -237,6 +240,12 @@ class AdminController extends Controller
 
         if ($request->hasFile('attachment')) {
             $wizardData->hr_attchament = $this->fileUploadService->uploadForAdmin($request_number,$request->file('attachment'));
+            // HrErModel::create(
+            //     [
+            //         'wizard_data_id' => $wizardData->id, 
+            //         'hr_updates' => $validated['details'],
+            //         'file_path' => $this->fileUploadService->uploadForAdmin($request_number,$request->file('attachment'))
+            //     ]);
             // $wizardData->status_attachment = $path; // or whichever db column persists it
         }
 
