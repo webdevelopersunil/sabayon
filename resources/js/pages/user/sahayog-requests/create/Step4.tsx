@@ -15,7 +15,7 @@ const docs = [
 ];
 
 export default function Step4({ onSubmit }: Step4Props) {
-    const { step4 } = usePage().props as any;
+    const { step4, wizardDataId } = usePage().props as any;
     const initialExistingFiles = Array.isArray(step4) ? step4 : [];
 
     const { data, setData, post, processing, errors: formErrors, transform } = useForm({
@@ -42,6 +42,7 @@ export default function Step4({ onSubmit }: Step4Props) {
         e.preventDefault();
         
         transform((data) => ({
+            wizard_data_id: wizardDataId,
             step: 4,
             step4: data,
         }));

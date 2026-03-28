@@ -1,5 +1,5 @@
 import { FormEvent } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 
 interface Beneficiary {
     id?: number;
@@ -31,6 +31,8 @@ export default function Step2({ onNext, initialData, selectedBeneficiary }: Step
         selected_beneficiary: selectedBeneficiary || '',
     });
 
+    const { wizardDataId } = usePage().props as any;
+
     const errors = formErrors as Record<string, string | undefined>;
 
     const updateBeneficiary = (index: number, field: keyof Beneficiary, value: string) => {
@@ -56,6 +58,7 @@ export default function Step2({ onNext, initialData, selectedBeneficiary }: Step
         e.preventDefault();
         
         transform((data) => ({
+            wizard_data_id: wizardDataId,
             step: 2,
             step2: data,
         }));

@@ -28,12 +28,13 @@ export default function Step1({ onNext, workCenters, initialData }: StepProps) {
 
     });
 
-    const { auth } = usePage().props as any;
+    const { auth, wizardDataId } = usePage().props as any;
  
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
         transform((data) => ({
+            wizard_data_id: wizardDataId,
             step: 1,
             step1: data,
         }));

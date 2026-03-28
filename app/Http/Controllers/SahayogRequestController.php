@@ -40,6 +40,7 @@ class SahayogRequestController extends Controller
         
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Create',
+            'wizardDataId' => $wizardData ? $wizardData->id : null,
             'workCenters' => $workCenters,
             'step1' => $wizardData ? $wizardData->step1Data : null,
             'step2' => $wizardData ? $wizardData->step2Data : null,
@@ -92,6 +93,7 @@ class SahayogRequestController extends Controller
         
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Edit',
+            'wizardDataId' => $wizardData->id,
             'workCenters' => $workCenters,
             'step1' => $wizardData->step1Data,
             'step2' => $wizardData->step2Data,
@@ -221,15 +223,6 @@ class SahayogRequestController extends Controller
 
         $this->ensureUserPermissions($request, 'user.sahayog_requests.create');
 
-        // $userId = auth()->id();
-        // dd($request->all());
-        // Check if wizard data exists for the user and step is in progress, else create new
-        $data = WizardData::where('user_id', $user->id)->whereIn('step', [1, 2, 3, 4])->where('hr_status', 'Draft')->latest()->first();
-        // If not found create One wizard entry
-        if (!$data) {
-            $data = WizardData::create( [ 'user_id' => $user->id, 'hr_status' => 'Draft', ] );
-        }
-        
         $payload = $request->validate([
             'step' => 'required|integer|min:1|max:4',
             'wizard_data_id' => 'nullable|integer|exists:wizard_data,id',
@@ -238,6 +231,24 @@ class SahayogRequestController extends Controller
             'step3' => 'nullable|array',
             'step4' => 'nullable|array',
         ]);
+
+        $data = null;
+        // If an ID is passed, we are editing.
+        if (!empty($payload['wizard_data_id'])) {
+            $data = WizardData::where('user_id', $user->id)
+                ->where('id', $payload['wizard_data_id'])
+                ->first();
+        }
+
+        // If not editing, try to find an existing draft to continue.
+        if (!$data) {
+            $data = WizardData::where('user_id', $user->id)->where('status', 'Draft')->latest()->first();
+        }
+        
+        // If still no record found, create a new one.
+        if (!$data) {
+            $data = WizardData::create(['user_id' => $user->id, 'status' => 'Draft', 'hr_status' => 'Draft']);
+        }
 
         $step = (int) $payload['step'];
 

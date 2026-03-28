@@ -1,5 +1,5 @@
 import { ChangeEvent, FormEvent } from 'react';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 
 interface StepProps {
     onNext: () => void;
@@ -41,12 +41,15 @@ export default function Step3({ onNext, initialData }: StepProps) {
         amount: initialData?.requested_amount || '',
     });
 
+    const { wizardDataId } = usePage().props as any;
+
     const errors = formErrors as Record<string, string | undefined>;
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
         
         transform((data) => ({
+            wizard_data_id: wizardDataId,
             step: 3,
             step3: data,
         }));

@@ -89,7 +89,7 @@ class AdminController extends Controller
         $status = $request->input('status');
 
         $requests = WizardData::select('id', 'request_no', 'step', 'status', 'hr_status', 'created_at')
-            ->where('work_center', $user->location)
+            ->where('work_center', $user->location)->where('status', 'Complete')
             ->when($search, function ($query, $search) {
                 $query->where('request_no', 'like', "%{$search}%");
             })
