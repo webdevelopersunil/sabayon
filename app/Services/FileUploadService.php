@@ -10,7 +10,7 @@ class FileUploadService
     /**
      * Upload a file and return its stored path.
      */
-    public function upload(UploadedFile $file, string $directory = 'uploads', string $disk = 'public'): string
+    public function upload($request_number,UploadedFile $file, string $directory = 'uploads', string $disk = 'public'): string
     {
         $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = $file->getClientOriginalExtension();
@@ -24,7 +24,23 @@ class FileUploadService
         $month = date('F');
 
         // Construct the new directory structure: parent_folder/employee_type/month/
-        $finalDirectory = trim($directory, '/') . '/' . $employeeType . '/' . $month;
+        $finalDirectory = trim($request_number, '/').'/'.trim($directory, '/') . '/' . $employeeType . '/' . $month;
+
+        return $file->storeAs($finalDirectory, $fileName, $disk);
+    }
+
+    /**
+     * Upload a file specifically for admin and return its stored path.
+     */
+    public function uploadForAdmin($request_number,UploadedFile $file, string $directory = 'sahayog-documents', string $disk = 'public'): string
+    {
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $extension = $file->getClientOriginalExtension();
+        $fileName = Str::slug($originalName) . '_' . date('Ymd_His') . '.' . $extension;
+
+        // Get the current real-time month name (e.g., January)
+        $month = date('F');
+        $finalDirectory = trim($request_number, '/').'/'.trim($directory, '/') . '/admin/' . $month;
 
         return $file->storeAs($finalDirectory, $fileName, $disk);
     }

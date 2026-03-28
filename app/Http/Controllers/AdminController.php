@@ -8,10 +8,17 @@ use App\Models\WizardData;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\FileUploadService;
 
 
 class AdminController extends Controller
 {
+    protected FileUploadService $fileUploadService;
+
+    public function __construct(FileUploadService $fileUploadService)
+    {
+        $this->fileUploadService = $fileUploadService;
+    }
 
     private function ensureAdminPermissions(Request $request, string $permission)
     {
@@ -229,7 +236,7 @@ class AdminController extends Controller
         $wizardData->returned_at = now();
 
         if ($request->hasFile('attachment')) {
-            $wizardData->hr_attchament = $request->file('attachment')->store('sahayog-documents', 'public');
+            $wizardData->hr_attchament = $this->fileUploadService->uploadForAdmin($request_number,$request->file('attachment'));
             // $wizardData->status_attachment = $path; // or whichever db column persists it
         }
 

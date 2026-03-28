@@ -421,7 +421,7 @@ class SahayogRequestController extends Controller
 
             $request->validate([
                 'step4.files' => 'nullable|array',
-                'step4.files.*' => 'file|max:10240', // 10MB max limit
+                'step4.files.*' => 'file|max:50240',
                 'step4.cliamearlier' => 'required|accepted',
                 'step4.timelimit' => 'required|accepted',
             ], [
@@ -439,10 +439,10 @@ class SahayogRequestController extends Controller
                 Storage::disk('public')->delete($removedFile->attachment); // Remove physical file
                 $removedFile->delete(); // Remove DB entry
             }
-
+            
             if ($request->hasFile('step4.files')) {
                 foreach ($request->file('step4.files') as $file) {
-                    $filePath = $this->fileUploadService->upload($file, 'sahayog-documents', 'public');
+                    $filePath = $this->fileUploadService->upload($data->request_no, $file, 'sahayog-documents', 'public');
                     $data->step4Data()->create([
                         'attachment' => $filePath,
                     ]);
