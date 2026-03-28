@@ -16,10 +16,18 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Http\Requests\SahayogStep1Request;
 use App\Http\Requests\SahayogStep1ContractorRequest;
+use App\Services\FileUploadService;
 
 
 class SahayogRequestController extends Controller
 {
+    protected FileUploadService $fileUploadService;
+
+    public function __construct(FileUploadService $fileUploadService)
+    {
+        $this->fileUploadService = $fileUploadService;
+    }
+
     private function ensureUserPermissions(Request $request, string $permission)
     {
         abort_unless($request->user()?->hasRole('user'), 403, 'User role required.');
@@ -434,11 +442,7 @@ class SahayogRequestController extends Controller
 
             if ($request->hasFile('step4.files')) {
                 foreach ($request->file('step4.files') as $file) {
-                    $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                    $extension = $file->getClientOriginalExtension();
-                    $fileName = Str::slug($originalName) . '_' . date('Ymd_His') . '.' . $extension;
-
-                    $filePath = $file->storeAs('sahayog-documents', $fileName, 'public');
+                    $filePath = $this->fileUploadService->upload($file, 'sahayog-documents', 'public');
                     $data->step4Data()->create([
                         'attachment' => $filePath,
                     ]);
