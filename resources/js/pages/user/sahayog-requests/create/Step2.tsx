@@ -11,6 +11,7 @@ interface StepProps {
     onNext: () => void;
     initialData?: Beneficiary[];
     selectedBeneficiary?: string;
+    self?: string;
 }
 
 const relationships = [
@@ -31,7 +32,7 @@ export default function Step2({ onNext, initialData, selectedBeneficiary }: Step
         selected_beneficiary: selectedBeneficiary || '',
     });
 
-    const { wizardDataId } = usePage().props as any;
+    const { wizardDataId, self } = usePage().props as any;
 
     const errors = formErrors as Record<string, string | undefined>;
 
@@ -145,6 +146,7 @@ export default function Step2({ onNext, initialData, selectedBeneficiary }: Step
                             className={`w-full rounded-lg border px-3 py-2 focus:border-[#E65F2B] focus:ring-[#E65F2B]/40 ${errors['step2.selected_beneficiary'] ? 'border-red-500 bg-red-50' : 'border-gray-200'}`}
                         >
                             <option value="">Select an option</option>
+                            <option value='{self}'>{self}</option>
                             {data.beneficiaries.map((beneficiary, index) => {
                                 const optionValue = beneficiary.name && beneficiary.relationship ? `${beneficiary.name}-${beneficiary.relationship}` : beneficiary.name;
                                 return optionValue ? (

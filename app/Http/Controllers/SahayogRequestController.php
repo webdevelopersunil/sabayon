@@ -42,6 +42,7 @@ class SahayogRequestController extends Controller
             'title' => 'Sahayog Request - Create',
             'wizardDataId' => $wizardData ? $wizardData->id : null,
             'workCenters' => $workCenters,
+            'self'  => $user->name,
             'step1' => $wizardData ? $wizardData->step1Data : null,
             'step2' => $wizardData ? $wizardData->step2Data : null,
             'step3' => $wizardData ? $wizardData->step3Data : null,
@@ -94,6 +95,7 @@ class SahayogRequestController extends Controller
         return Inertia::render('user/sahayog-requests/create/index', [
             'title' => 'Sahayog Request - Edit',
             'wizardDataId' => $wizardData->id,
+            'self'  => $user->name,
             'workCenters' => $workCenters,
             'step1' => $wizardData->step1Data,
             'step2' => $wizardData->step2Data,

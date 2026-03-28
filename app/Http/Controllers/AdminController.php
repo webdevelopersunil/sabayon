@@ -65,9 +65,9 @@ class AdminController extends Controller
             ->withQueryString();
 
         $stats = [
-            'total' => User::count(),
-            'approved' => User::where('admin_verified', true)->count(),
-            'pending' => User::where('admin_verified', false)->count(),
+            'total' => User::where('location', $user->location)->count(),
+            'approved' => User::where(['location'=>$user->location, 'admin_verified'=>true])->count(),
+            'pending' => User::where(['location'=>$user->location, 'admin_verified'=>false])->count(),
             'retired' => User::where('employee_type', 'like', '%retired%')->count(),
         ];
 
