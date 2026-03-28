@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 
 class AdminController extends Controller
 {
+
     private function ensureAdminPermissions(Request $request, string $permission)
     {
         abort_unless($request->user('admin'), 403, 'Admin access required.');
@@ -25,9 +26,11 @@ class AdminController extends Controller
         $wizard_data = WizardData::where('work_center', $admin->username)->get();
 
         return Inertia::render('admin/dashboard/index', [
+
             'userName' => $admin?->name ?? 'Admin User',
             'verifiedUsers' => User::where(['location' => $admin->location,'admin_verified' => true ])->count(),
             'notVerifiedUsers' => User::where(['location' => $admin->location,'admin_verified' => false ])->count(),
+
             'underProcess' => $wizard_data->where(['hr_status'=>'Under-Process', 'work_center' => $admin->location])->count(),
             'approved' => $wizard_data->where(['hr_status'=>'Approved', 'work_center' => $admin->location])->count(),
             'rejected' => $wizard_data->whereIn('hr_status', ['Rejected', 'Returned'])->where('work_center' , $admin->location)->count(),
@@ -37,6 +40,7 @@ class AdminController extends Controller
     public function verifyUsers(Request $request)
     {
         $this->ensureAdminPermissions($request, 'admin.users.view');
+        $user = $request->user();
         
         $search = $request->input('search');
         $status = $request->input('status');
@@ -56,6 +60,7 @@ class AdminController extends Controller
                     $query->where('admin_verified', false);
                 }
             })
+            ->where('location', $user->location)
             ->latest()
             ->paginate(10)
             ->withQueryString();
