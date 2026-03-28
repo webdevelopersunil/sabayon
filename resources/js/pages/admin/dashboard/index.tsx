@@ -320,13 +320,19 @@ export default function AdminDashboard({
                                     <div className="bg-green-50 rounded-lg p-3 border border-green-100">
                                         <p className="text-xs text-green-600">Verified %</p>
                                         <p className="text-lg font-semibold text-green-700">
-                                            {Math.round((verifiedUsers / totalUsers) * 100)}%
+                                            {totalUsers === 0 && verifiedUsers === 0
+                                                ? 0
+                                                : Math.round((verifiedUsers / totalUsers) * 100)
+                                            }%
                                         </p>
                                     </div>
                                     <div className="bg-red-50 rounded-lg p-3 border border-red-100">
                                         <p className="text-xs text-red-600">Non-verified %</p>
                                         <p className="text-lg font-semibold text-red-700">
-                                            {Math.round((notVerifiedUsers / totalUsers) * 100)}%
+                                            {totalUsers === 0
+                                                ? 0
+                                                : Math.round((notVerifiedUsers / totalUsers) * 100)
+                                            }%
                                         </p>
                                     </div>
                                 </div>

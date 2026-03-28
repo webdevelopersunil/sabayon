@@ -1,5 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import { router } from '@inertiajs/react';
 import { 
     CheckCircle, 
     XCircle, 
@@ -115,7 +116,7 @@ export default function SahayogRequestView({
                         <p className="text-sm font-medium text-green-800">{flash.success}</p>
                     </div>
                 )}
-                
+                 
                 {flash?.error && (
                     <div className="rounded-xl border border-red-200 bg-red-50 p-4 flex items-center gap-3">
                         <XCircle className="h-5 w-5 text-red-600" />
@@ -152,6 +153,17 @@ export default function SahayogRequestView({
 
 
                         <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
+                            {hrUpdate.status === 'Returned' && (
+
+                                <button 
+                                    onClick={() => router.visit(`/sahayog-request/edit/${id}`)}
+                                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-[#E65F2B] text-white hover:bg-[#C44A1F] transition-all text-sm font-medium shadow-sm"
+                                >
+                                    Update Document's
+                                </button>
+
+                            )}
+                            
                             <Link 
                                 href="/sahayog-requests/history" 
                                 className="group inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 border border-gray-200 transition-all duration-300 text-gray-700 text-sm font-medium"
