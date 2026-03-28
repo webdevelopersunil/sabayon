@@ -16,6 +16,16 @@ class FileUploadService
         $extension = $file->getClientOriginalExtension();
         $fileName = Str::slug($originalName) . '_' . date('Ymd_His') . '.' . $extension;
 
-        return $file->storeAs($directory, $fileName, $disk);
+        // Determine the employee type (active, retired, contractor), defaulting to 'other' if unauthenticated
+        $user = auth()->user();
+        $employeeType = $user && $user->employee_type ? Str::slug($user->employee_type) : 'other';
+        
+        // Get the current real-time month name (e.g., January)
+        $month = date('F');
+
+        // Construct the new directory structure: parent_folder/employee_type/month/
+        $finalDirectory = trim($directory, '/') . '/' . $employeeType . '/' . $month;
+
+        return $file->storeAs($finalDirectory, $fileName, $disk);
     }
 }
