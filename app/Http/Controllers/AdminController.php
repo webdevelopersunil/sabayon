@@ -276,7 +276,7 @@ class AdminController extends Controller
         $user->admin_verified = false;
         $user->admin_rejected_remarks = $validated['reason'];
         $user->save();
-
+        $this->manageNotificationService->sendUserStatusUpdateNotification($user, 'rejected', $validated['reason']);
         return back()->with('success', 'User verification rejected.');
     }
 
@@ -288,7 +288,7 @@ class AdminController extends Controller
         $user->admin_verified = true;
         $user->admin_rejected_remarks = Null;
         $user->save();
-
+        $this->manageNotificationService->sendUserStatusUpdateNotification($user, 'approved', null);
         return back()->with('success', 'User verification approved.');
     }
 

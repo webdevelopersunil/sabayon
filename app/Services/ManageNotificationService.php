@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Mail\SahayogUpdateMail;
 use App\Mail\SahayogStatusUpdationMail;
+use App\Mail\UserStatusUpdateMail;
 use App\Models\Admin;
 
 
@@ -116,11 +117,30 @@ class ManageNotificationService
                 ));
 
                 return true;
-
         }
-
-
         return false;
-    
+    }
+
+    public function sendUserStatusUpdateNotification($user, $status, $reason) : bool
+    {
+        $subjectLine = 'User Status Update';
+        $tagline = "Your account status has been updated to {$status}. Please contact support for more details.";
+        
+        // Dispatch the email with the OTP
+        Mail::to($user->email)->send(new UserStatusUpdateMail( 
+            fromUser: $user->email, 
+            toUser: '', 
+            subjectLine: $subjectLine, 
+            tagline: $tagline, 
+            data: [
+                'name' => $user->name,
+                'email' => $user->email,
+                'mobileno' => $user->mobileno,
+                'status' => $status,
+                'reason' => $reason,
+            ]
+        ));
+
+        return true;
     }
 }
