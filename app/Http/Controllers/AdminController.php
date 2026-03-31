@@ -234,6 +234,11 @@ class AdminController extends Controller
 
         $wizardData = WizardData::where(['work_center' => $request->user()->location, 'request_no' => $request_number])->firstOrFail();
 
+        if($wizardData->hr_status != "Under-Process"){
+            $msg = $wizardData->hr_status == "Approved" ? 'Status marked as Approved cannot be updated.' : 'Status marked as Rejected/Returned cannot be updated.';
+            return back()->with('error', $msg);
+        }
+
         $wizardData->hr_status = $validated['status'];
         // Note: Uncomment & map the other validated fields to columns depending on your DB schema.
         $wizardData->amount_approved = $validated['amount_approved'];
@@ -252,7 +257,7 @@ class AdminController extends Controller
             // $wizardData->status_attachment = $path; // or whichever db column persists it
         }
 
-        // $wizardData->save();
+        $wizardData->save();
         $this->manageNotificationService->sendNotificationOnStatusUpdation($wizardData);
 
 
