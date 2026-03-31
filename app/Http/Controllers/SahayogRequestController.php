@@ -17,15 +17,18 @@ use Illuminate\Support\Str;
 use App\Http\Requests\SahayogStep1Request;
 use App\Http\Requests\SahayogStep1ContractorRequest;
 use App\Services\FileUploadService;
+use App\Services\ManageNotificationService;
 
 
 class SahayogRequestController extends Controller
 {
     protected FileUploadService $fileUploadService;
+    protected ManageNotificationService $manageNotificationService;
 
-    public function __construct(FileUploadService $fileUploadService)
+    public function __construct(FileUploadService $fileUploadService, ManageNotificationService $manageNotificationService)
     {
         $this->fileUploadService = $fileUploadService;
+        $this->manageNotificationService = $manageNotificationService;
     }
 
     private function ensureUserPermissions(Request $request, string $permission)
@@ -327,6 +330,8 @@ class SahayogRequestController extends Controller
             }
             
             $data->step1Data()->updateOrCreate( [], $fields );
+            $data->work_center = $step1['work_center'] ?? '';
+            $data->save();
         }
 
         if ($step === 2 && isset($payload['step2'])) {
@@ -455,6 +460,12 @@ class SahayogRequestController extends Controller
 
         $data->step = max($data->step ?? 1, $step);
         $data->save();
+
+        if($data->status == 'Complete'){
+            // dd($data->hr_status, $data->status);
+            $this->manageNotificationService->sendSahayogRequestNotification($user, $data);
+        }
+
 
         return back()->with('message', 'Step saved successfully.');
     }

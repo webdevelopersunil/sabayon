@@ -10,15 +10,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Services\FileUploadService;
 use App\Models\HrErModel;
+use App\Services\ManageNotificationService;
 
 
 class AdminController extends Controller
 {
     protected FileUploadService $fileUploadService;
+    protected ManageNotificationService $manageNotificationService;
 
-    public function __construct(FileUploadService $fileUploadService)
+    public function __construct(FileUploadService $fileUploadService, ManageNotificationService $manageNotificationService)
     {
         $this->fileUploadService = $fileUploadService;
+        $this->manageNotificationService = $manageNotificationService;
     }
 
     private function ensureAdminPermissions(Request $request, string $permission)
@@ -249,7 +252,9 @@ class AdminController extends Controller
             // $wizardData->status_attachment = $path; // or whichever db column persists it
         }
 
-        $wizardData->save();
+        // $wizardData->save();
+        $this->manageNotificationService->sendNotificationOnStatusUpdation($wizardData);
+
 
         return back()->with('success', 'Request status updated successfully.');
     }
