@@ -17,7 +17,7 @@ class CheckAdminVerified
     {
         
         // Check if user is authenticated and not admin verified
-        if ($request->user() && $request->user()->admin_verified == false) {
+        if ($request->user() && $request->user()->admin_verified == false && $request->user()->employee_type == 'contractor') {
             
             // Allow access to the OTP verification page, the verification submission route, and logout
             if (!in_array($request->route()->getName(), ['otp.verification', 'otp.verify', 'otp.resend', 'logout'])) {
