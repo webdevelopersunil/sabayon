@@ -2,10 +2,11 @@
 
 namespace App\Services;
 
+use App\Mail\SendOtpMail;
 use App\Models\User;
-use App\Notifications\SendOtpNotification;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use App\Models\VerificationOtp;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -29,35 +30,40 @@ class OtpService
             ->latest()
             ->first();
 
-        // Prevent regeneration within 60 seconds
+        // If a valid OTP exists and was created recently, reuse it. Otherwise, create a new one.
         if ($existing && $existing->created_at->diffInSeconds(now()) < 300) {
-            return $existing;
+            $otpRecord = $existing;
+        } else {
+            // Invalidate previous OTPs for this user and type
+            VerificationOtp::where('user_id', $user->id)
+                ->where('type', $type)
+                ->where('is_used', false)
+                ->update([
+                    'is_used' => true,
+                    'used_at' => now()
+                ]);
+
+            // $plainOtp = random_int(100000, 999999);
+            // $hashedOtp = Hash::make($plainOtp);
+
+            // Generate a new 6-digit OTP
+            $otp = random_int(100000, 999999);
+
+            $otpRecord = VerificationOtp::create([
+                'user_id'     => $user->id,
+                'otp'         => (string) $otp,
+                'expired_at'  => Carbon::now()->addSeconds($ttl),
+                'time_limit'  => $ttl,
+                'type'        => $type,
+                'ip_address'  => request()->ip(),
+                'user_agent'  => request()->userAgent(),
+            ]);
         }
 
-        //  Step 2: Invalidate previous OTPs (only after check)
-        VerificationOtp::where('user_id', $user->id)
-            ->where('type', $type)
-            ->where('is_used', false)
-            ->update([
-                'is_used' => true,
-                'used_at' => now()
-            ]);
+        // Dispatch the email with the OTP
+        Mail::to($user->email)->send(new SendOtpMail($otpRecord->otp, $user->name));
 
-        //  Step 3: Generate new OTP
-        $otp = random_int(100000, 999999);
-
-        // $plainOtp = random_int(100000, 999999);
-        // $hashedOtp = Hash::make($plainOtp);
-
-        return VerificationOtp::create([
-            'user_id'     => $user->id,
-            'otp'         => (string) $otp,
-            'expired_at'  => Carbon::now()->addSeconds($ttl),
-            'time_limit'  => $ttl,
-            'type'        => $type,
-            'ip_address'  => request()->ip(),
-            'user_agent'  => request()->userAgent(),
-        ]);
+        return $otpRecord;
     }
 
     public function resend(Request $request)
