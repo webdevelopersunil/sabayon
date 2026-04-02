@@ -40,7 +40,7 @@ export default function Login({
 }: Props) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [loginType, setLoginType] = useState<'ongcian' | 'other'>('ongcian');
-    const [selected, setSelected] = useState("active_employee"); // default selected
+    const [selected, setSelected] = useState("active"); // default selected
 
 
     return (
@@ -194,29 +194,29 @@ export default function Login({
                                                         <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-[#E65F2B]/50 cursor-pointer transition-all">
                                                             <input
                                                                 type="radio"
-                                                                id="active_employee"
+                                                                id="active"
                                                                 name="employee_type"
-                                                                value="active_employee"
-                                                                checked={selected === "active_employee"}
+                                                                value="active"
+                                                                checked={selected === "active"}
                                                                 onChange={(e) => setSelected(e.target.value)}
                                                                 className="w-4 h-4 text-[#E65F2B] border-gray-300 focus:ring-[#E65F2B]"
                                                                 required
                                                             />
-                                                            <label htmlFor="active_employee" className="cursor-pointer text-sm font-medium text-gray-700">
+                                                            <label htmlFor="active" className="cursor-pointer text-sm font-medium text-gray-700">
                                                                 Active Employee (LDAP)
                                                             </label>
                                                         </div>
                                                         <div className="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:border-[#E65F2B]/50 cursor-pointer transition-all">
                                                             <input
                                                                 type="radio"
-                                                                id="retired_employee"
+                                                                id="retired"
                                                                 name="employee_type"
-                                                                checked={selected === "retired_employee"}
+                                                                checked={selected === "retired"}
                                                                 onChange={(e) => setSelected(e.target.value)}
-                                                                value="retired_employee"
+                                                                value="retired"
                                                                 className="w-4 h-4 text-[#E65F2B] border-gray-300 focus:ring-[#E65F2B]"
                                                             />
-                                                            <label htmlFor="retired_employee" className="cursor-pointer text-sm font-medium text-gray-700">
+                                                            <label htmlFor="retired" className="cursor-pointer text-sm font-medium text-gray-700">
                                                                 Retired Employee
                                                             </label>
                                                         </div>
