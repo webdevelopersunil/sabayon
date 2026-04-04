@@ -88,8 +88,22 @@ class FortifyServiceProvider extends ServiceProvider
                                     $user->roles()->syncWithoutDetaching([$role->id]);
                                 }
                                 
-                                return $user;
+                                // Generate OTP
+                                app(\App\Services\OtpService::class)->generateOtp($user, 'login', 300);
+
+                                // Set temporary session for unauthenticated user trying to log in
+                                $token = \Illuminate\Support\Str::random(64);
+                                session([
+                                    'login_auth_user_id' => $user->id,
+                                    'login_auth_token' => $token
+                                ]);
+
+                                throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                                    redirect()->route('login.otp', ['token' => $token])->with('success', 'OTP sent to your registered contact.')
+                                );
                             }
+                        } catch (\Illuminate\Http\Exceptions\HttpResponseException $e) {
+                            throw $e;
                         } catch (Exception $e) {
                             // Allow it to fall through to Fortify's default failed login response, or log the error
                             return $e->getMessage(); // For debugging, remove in production
@@ -114,10 +128,38 @@ class FortifyServiceProvider extends ServiceProvider
                             ]);
                             if ($response->getStatusCode() === 200)
                             {
-                                // $this->data = json_decode($response->getBody(), true);
-                                return true;
+                                $user = User::firstOrCreate([
+                                    'cpf_no' => $username
+                                ], [
+                                    'name' => $username,
+                                    'password' => bcrypt($password),
+                                    'employee_type' => 'contractor',
+                                    'admin_verified' => true
+                                ]);
+
+                                if ($role = Role::where('name', 'user')->first()) {
+                                    $user->roles()->syncWithoutDetaching([$role->id]);
+                                }
+                                
+                                // Generate OTP
+                                app(\App\Services\OtpService::class)->generateOtp($user, 'login', 300);
+
+                                // Set temporary session for unauthenticated user trying to log in
+                                $token = \Illuminate\Support\Str::random(64);
+                                session([
+                                    'login_auth_user_id' => $user->id,
+                                    'login_auth_token' => $token
+                                ]);
+
+                                throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                                    redirect()->route('login.otp', ['token' => $token])->with('success', 'OTP sent to your registered contact.')
+                                );
                             }
 
+                        }
+                        catch (\Illuminate\Http\Exceptions\HttpResponseException $e)
+                        {
+                            throw $e;
                         }
                         catch (Exception $e)
                         {
@@ -136,6 +178,26 @@ class FortifyServiceProvider extends ServiceProvider
 
 
                     }
+                }
+            });
+        } else {
+            Fortify::authenticateUsing(function ($request) {
+                $user = User::where(Fortify::username(), $request->input(Fortify::username()))->first();
+
+                if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                    // Generate OTP
+                    app(\App\Services\OtpService::class)->generateOtp($user, 'login', 300);
+
+                    // Set temporary session for unauthenticated user trying to log in
+                    $token = \Illuminate\Support\Str::random(64);
+                    session([
+                        'login_auth_user_id' => $user->id,
+                        'login_auth_token' => $token
+                    ]);
+
+                    throw new \Illuminate\Http\Exceptions\HttpResponseException(
+                        redirect()->route('login.otp', ['token' => $token])->with('success', 'OTP sent to your registered contact.')
+                    );
                 }
             });
         }

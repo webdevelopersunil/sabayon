@@ -1,4 +1,4 @@
-import { Form, Head, Link } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState, useRef, useEffect } from 'react';
 import { LoaderCircle, ArrowLeft, ChevronRight, Shield, Key, Menu, X, User, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import InputError from '@/components/input-error';
@@ -12,22 +12,32 @@ interface OTPVerificationProps {
     email?: string;
     status?: string;
     error?: string;
+    token?: string;
 }
 
-export default function OTPVerification({ username = "rajesh.sharma@ongc.co.in", email, status, error }: OTPVerificationProps) {
+export default function OTPVerification({ username, email, status, error, token }: OTPVerificationProps) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
-    const [processing, setProcessing] = useState(false);
     const [otpError, setOtpError] = useState<string | null>(null);
     const [resendDisabled, setResendDisabled] = useState(false);
     const [countdown, setCountdown] = useState(30);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-    // Handle OTP input change
+    const { data, setData, post, processing, errors, clearErrors } = useForm({
+        otp: '',
+        token: token || '',
+    });
+
+    // Update form data when otp array changes
+    useEffect(() => {
+        setData('otp', otp.join(''));
+    }, [otp]);
+
+    // Handle OTP input change 
     const handleOtpChange = (index: number, value: string) => {
         // Only allow numbers
         if (value && !/^\d+$/.test(value)) return;
-        
+
         const newOtp = [...otp];
         newOtp[index] = value.slice(0, 1);
         setOtp(newOtp);
@@ -84,13 +94,7 @@ export default function OTPVerification({ username = "rajesh.sharma@ongc.co.in",
             return;
         }
         
-        setProcessing(true);
-        // Simulate API call
-        setTimeout(() => {
-            setProcessing(false);
-            // Handle verification logic here
-            console.log('Verifying OTP:', otpValue);
-        }, 1500);
+        post('/login-otp-verify');
     };
 
     const handleResendOtp = () => {
@@ -100,18 +104,22 @@ export default function OTPVerification({ username = "rajesh.sharma@ongc.co.in",
         setOtpError(null);
         // Focus first input
         inputRefs.current[0]?.focus();
-        // Call resend OTP API here
-        console.log('Resending OTP...');
+        
+        router.post('/login-otp-resend', {
+            token: token
+        }, {
+            preserveScroll: true
+        });
     };
 
     return (
         <>
             <Head title="OTP Verification - ONGC Sahayog" />
-            
+
             {/* Background decorative elements */}
             <div className="fixed top-0 right-0 w-[800px] h-[800px] bg-[#E65F2B]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             <div className="fixed bottom-0 left-0 w-[600px] h-[600px] bg-[#E65F2B]/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
-            
+
             <div className="min-h-screen bg-white font-['Inter'] flex flex-col">
                 {/* Navigation */}
                 <nav className="relative z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0">
@@ -285,9 +293,8 @@ export default function OTPVerification({ username = "rajesh.sharma@ongc.co.in",
                                                 onChange={(e) => handleOtpChange(index, e.target.value)}
                                                 onKeyDown={(e) => handleKeyDown(index, e)}
                                                 onPaste={index === 0 ? handlePaste : undefined}
-                                                className={`w-12 h-12 text-center text-xl font-semibold rounded-lg border ${
-                                                    otpError ? 'border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-[#E65F2B]'
-                                                } focus:outline-none focus:ring-2 focus:ring-[#E65F2B]/20 transition-all`}
+                                                className={`w-12 h-12 text-center text-xl font-semibold rounded-lg border ${otpError ? 'border-red-500 focus:ring-red-500' : 'border-gray-200 focus:border-[#E65F2B]'
+                                                    } focus:outline-none focus:ring-2 focus:ring-[#E65F2B]/20 transition-all`}
                                                 autoFocus={index === 0}
                                             />
                                         ))}

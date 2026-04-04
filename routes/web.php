@@ -19,6 +19,12 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
+// There will be route for show login otp page START
+    Route::get('login-otp/{token}', [OtpVerificationController::class, 'showLoginOtpPage'])->name('login.otp');
+    Route::post('login-otp-verify', [OtpVerificationController::class, 'verifyLoginOtp'])->name('login.otp.verify');
+    Route::post('login-otp-resend', [OtpVerificationController::class, 'resendLoginOtp'])->name('login.otp.resend');
+// There will be route for show login otp page END
+
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('otp-verification', [OtpVerificationController::class, 'showOtpPage'])->name('otp.verification');

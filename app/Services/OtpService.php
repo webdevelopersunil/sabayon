@@ -32,7 +32,6 @@ class OtpService
     public function generateOtp($user, string $type = 'login', int $ttl = 300): VerificationOtp
     {
         $ttl = $ttl > 0 ? $ttl : 300; // Default to 5 minutes if invalid TTL provided
-        $ttl = 10; 
         // Step 1: Check existing valid OTP first
         $existing = VerificationOtp::where('user_id', $user->id)
             ->where('type', $type)
