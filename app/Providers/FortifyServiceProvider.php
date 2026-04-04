@@ -92,6 +92,7 @@ class FortifyServiceProvider extends ServiceProvider
                             }
                         } catch (Exception $e) {
                             // Allow it to fall through to Fortify's default failed login response, or log the error
+                            return $e->getMessage(); // For debugging, remove in production
                         }
                     }else{
 

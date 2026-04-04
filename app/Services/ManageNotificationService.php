@@ -15,6 +15,7 @@ use App\Mail\SahayogUpdateMail;
 use App\Mail\SahayogStatusUpdationMail;
 use App\Mail\UserStatusUpdateMail;
 use App\Models\Admin;
+use Illuminate\Support\Facades\Http;
 
 
 class ManageNotificationService
@@ -29,6 +30,13 @@ class ManageNotificationService
 
         
 
+        return true;
+    }
+
+    public function SmsForRegistration(string $mobileNumber, string $otp)
+    {
+        $url = "http://10.205.48.190:13013/cgi-bin/sendsms?username=ongc&password=ongc12&from=ONGC&to=$mobileNumber&text=".urlencode($otp)."+\nRegards+Ongc&charset=UTF-8&meta-data=%3Fsmpp%3FEntityID%3D1001186049255234740%26ContentID%3D1407165363567411666";
+        // return Http::get($url);
         return true;
     }
 

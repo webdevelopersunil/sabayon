@@ -55,4 +55,13 @@ class OtpVerificationController extends Controller
         return redirect()->route('dashboard')->with('success', 'OTP verified successfully');
     }
 
+    public function resendOtp(Request $request)
+    {
+        $user = $request->user();
+
+        $this->otpService->generateOtp( $user, type: 'login', ttl: 300 );
+
+        return back()->with('success', 'OTP Re-Sent successfully.');
+    }
+
 }

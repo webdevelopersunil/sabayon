@@ -10,10 +10,19 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\VerificationOtp;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 
 
 class OtpService
 {
+
+
+    public function SmsForRegistration($mobileNumber, string $otp)
+    {
+        $url = "http://10.205.48.190:13013/cgi-bin/sendsms?username=ongc&password=ongc12&from=ONGC&to=$mobileNumber&text=".urlencode($otp)."+\nRegards+Ongc&charset=UTF-8&meta-data=%3Fsmpp%3FEntityID%3D1001186049255234740%26ContentID%3D1407165363567411666";
+        // return Http::get($url);
+        return true;
+    }
 
     /**
      * Generate a random 6-digit OTP.
@@ -22,6 +31,8 @@ class OtpService
      */
     public function generateOtp($user, string $type = 'login', int $ttl = 300): VerificationOtp
     {
+        $ttl = $ttl > 0 ? $ttl : 300; // Default to 5 minutes if invalid TTL provided
+        $ttl = 10; 
         // Step 1: Check existing valid OTP first
         $existing = VerificationOtp::where('user_id', $user->id)
             ->where('type', $type)
@@ -31,7 +42,7 @@ class OtpService
             ->first();
 
         // If a valid OTP exists and was created recently, reuse it. Otherwise, create a new one.
-        if ($existing && $existing->created_at->diffInSeconds(now()) < 300) {
+        if ($existing && $existing->created_at->diffInSeconds(now()) < $ttl) {
             $otpRecord = $existing;
         } else {
             // Invalidate previous OTPs for this user and type
@@ -59,7 +70,8 @@ class OtpService
                 'user_agent'  => request()->userAgent(),
             ]);
         }
-
+    
+        $this->SmsForRegistration($user->mobile_number, $otpRecord->otp);
         // Dispatch the email with the OTP
         Mail::to($user->email)->send(new SendOtpMail($otpRecord->otp, $user->name));
 
